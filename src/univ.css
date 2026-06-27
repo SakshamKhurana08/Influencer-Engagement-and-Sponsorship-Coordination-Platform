@@ -1,7 +1,7 @@
-/* ── Tailwind import kept for any Tailwind utilities still used ── */
+/* ── Tailwind import ── */
 @import "tailwindcss";
 
-/* ── Slider (landing page carousel) ── */
+/* ── Slider (infinite horizontal scroll) ── */
 .slider {
   width: 100%;
   height: var(--height);
@@ -22,8 +22,16 @@
 .slider .item:hover { filter: grayscale(0); }
 @keyframes autoRun { from { left: 100%; } to { left: calc(var(--width) * -1); } }
 
-/* ── Display font helper ── */
+/* ── Display font ── */
 .display-brand {
   font-family: "Barlow Condensed", sans-serif;
   font-weight: 700;
 }
+
+/* ── input-bg alias (used in signup steps) ── */
+:root       { --input-bg: rgba(255,255,255,0.90); }
+[data-theme="dark"] { --input-bg: rgba(35,8,22,0.85); }
+
+/* ── bg-surface-2 alias ── */
+:root       { --bg-surface-2: rgba(255,246,246,0.60); }
+[data-theme="dark"] { --bg-surface-2: rgba(48,10,28,0.65); }

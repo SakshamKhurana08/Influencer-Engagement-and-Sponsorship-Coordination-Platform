@@ -98,23 +98,25 @@ export default function AdminDashboard() {
 
   const logout = () => { localStorage.removeItem('token'); localStorage.removeItem('userRole'); navigate('/login'); };
 
-  /* ── Chart config ── */
+  /* ── Chart config — Sunset Neon palette ── */
   const barData = stats ? {
     labels: ['Users', 'Sponsors', 'Influencers', 'Campaigns', 'Ad Requests'],
     datasets: [{
       label: 'Count',
       data: [stats.users, stats.sponsors, stats.influencers, stats.campaigns, stats.adRequests],
-      backgroundColor: ['#6366f1', '#0d9488', '#e11d48', '#f59e0b', '#8b5cf6'],
-      borderRadius: 8, borderSkipped: false,
+      backgroundColor: ['#e60023', '#d63384', '#7c3aed', '#0d9488', '#f59e0b'],
+      borderRadius: 10,
+      borderSkipped: false,
     }],
   } : null;
 
   const donutData = stats ? {
     labels: ['Sponsors', 'Influencers', 'Admins'],
     datasets: [{
-      data: [stats.sponsors, stats.influencers, stats.users - stats.sponsors - stats.influencers],
-      backgroundColor: ['#0d9488', '#e11d48', '#6366f1'],
+      data: [stats.sponsors, stats.influencers, Math.max(0, stats.users - stats.sponsors - stats.influencers)],
+      backgroundColor: ['#e60023', '#d63384', '#7c3aed'],
       borderWidth: 0,
+      hoverOffset: 8,
     }],
   } : null;
 
@@ -174,7 +176,14 @@ export default function AdminDashboard() {
         {/* ══ Overview ══ */}
         {tab === 'overview' && (
           <>
-            <h2 className="is-section-title">Platform Overview</h2>
+            <div className="mb-5">
+              <p style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
+                Admin Console
+              </p>
+              <h1 className="display-brand" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: 'var(--text-primary)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 0 }}>
+                Platform <span className="is-gradient-text">Overview</span>
+              </h1>
+            </div>
             <div className="row g-4 mb-5">
               {[
                 { Icon: Users,      label: 'Total Users',      value: stats?.users,       color: '#6366f1', sub: `${stats?.flaggedUsers || 0} flagged` },
@@ -367,7 +376,7 @@ export default function AdminDashboard() {
             )}
           </>
         )}
-      </div>  {/* end padding div */}
-    </div>   {/* end is-page */}
+      </div>
+    </div>
   );
 }
