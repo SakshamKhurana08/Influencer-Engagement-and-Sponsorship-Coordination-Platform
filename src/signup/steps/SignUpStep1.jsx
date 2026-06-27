@@ -1,160 +1,116 @@
-// src/components/SignUpStep1.jsx (or similar path)
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSignup } from "../SignUpContext"; // Adjust path
-import "../check.css"; // Adjust path
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useSignup } from '../SignUpContext';
+import { User, Mail, Lock, ChevronRight } from 'lucide-react';
 
-// Removed PlaceholderIcon - it's now in SignUpLayout
+export default function SignUpStep1() {
+  const { formData, updateFormData } = useSignup();
+  const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [agreed, setAgreed] = useState(false);
 
-const SignUpStep1 = () => {
-    const { formData, updateFormData } = useSignup();
-    const navigate = useNavigate();
-    const [errors, setErrors] = useState({});
-    const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const validate = () => {
+    const e = {};
+    if (!formData.name?.trim())   e.name  = 'Name is required';
+    if (!formData.email?.trim() || !/\S+@\S+\.\S+/.test(formData.email)) e.email = 'Valid email required';
+    if (!formData.password)       e.password = 'Password is required';
+    if (!formData.role)           e.role = 'Please select a role';
+    if (!agreed)                  e.terms = 'You must agree to continue';
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
 
-    const validateForm = () => {
-        const newErrors = {};
-        if (!formData.name?.trim()) newErrors.name = "Name is required.";
-        if (!formData.email?.trim()) {
-            newErrors.email = "Email is required.";
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = "Valid email is required.";
-        }
-        if (!formData.password) newErrors.password = "Password is required.";
-        if (!formData.role) newErrors.role = "Role (Influencer or Sponsor) is required.";
-        if (!agreedToTerms) newErrors.terms = "You must agree to the Terms and Conditions.";
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    updateFormData({ [name]: value });
+    if (errors[name]) setErrors(p => ({ ...p, [name]: undefined }));
+  };
 
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
+  const handleNext = (e) => {
+    e.preventDefault();
+    if (validate()) navigate('/signup/step2');
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value, type, checked } = e.target;
-        if (type === 'checkbox') {
-            setAgreedToTerms(checked);
-            if (errors.terms) {
-                setErrors(prev => ({ ...prev, terms: undefined }));
-            }
-        } else {
-            updateFormData({ [name]: value });
-            if (errors[name]) {
-                setErrors(prev => ({ ...prev, [name]: undefined }));
-            }
-        }
-    };
+  return (
+    <div className="is-card p-4 p-md-5">
+      <h2 className="fw-800 mb-1" style={{ color: 'var(--text-primary)', fontSize: '1.7rem' }}>Create your account</h2>
+      <p className="mb-4" style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Step 1 of 3 — Basic information</p>
 
-    const handleNext = (e) => {
-        e.preventDefault();
-        if (validateForm()) {
-            // Navigate to the next step within the nested route structure
-            navigate("/signup/step2");
-        }
-    };
-
-    // Return ONLY the form part for the right column
-    return (
-        // This div will be placed inside the motion.div in SignUpLayout
-        // Added bg-white, rounded, shadow etc. here as it's the form 'card'
-        <div className="w-full h-[90%] p-8 md:p-10 rounded-xl shadow-lg bg-white bg-opacity-90">
-            <h2 className="text-3xl font-bold text-gray-800 mb-3">Create Your Account</h2>
-            <p className="text-gray-500 mb-8">Fill in the details below to get started.</p>
-
-            <form onSubmit={handleNext} className="space-y-3">
-                {/* Name Input */}
-                <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">Your Name</label>
-                    <input
-                        id="name"
-                        name="name"
-                        type="text"
-                        placeholder="Enter your full name"
-                        value={formData.name || ''}
-                        onChange={handleInputChange}
-                        className={`input ${errors.name ? 'input-error' : ''}`}
-                    />
-                    {errors.name && <p className="error-message">{errors.name}</p>}
-                </div>
-
-                {/* Email Input */}
-                <div>
-                    <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        value={formData.email || ''}
-                        onChange={handleInputChange}
-                        className={`input ${errors.email ? 'input-error' : ''}`}
-                    />
-                    {errors.email && <p className="error-message">{errors.email}</p>}
-                </div>
-
-                {/* Password Input */}
-                <div>
-                    <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="Enter a secure password"
-                        value={formData.password || ''}
-                        onChange={handleInputChange}
-                        className={`input ${errors.password ? 'input-error' : ''}`}
-                    />
-                    {errors.password && <p className="error-message">{errors.password}</p>}
-                </div>
-
-                {/* Role Selection */}
-                <div>
-                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">Select Your Role</label>
-                    <select
-                        id="role"
-                        name="role"
-                        value={formData.role || ''}
-                        onChange={handleInputChange}
-                        className={`input ${errors.role ? 'input-error' : ''} ${!formData.role ? 'text-gray-500' : ''}`}
-                    >
-                        <option value="" disabled>Choose Role</option>
-                        <option value="influencer">Influencer</option>
-                        <option value="sponsor">Sponsor</option>
-                    </select>
-                    {errors.role && <p className="error-message">{errors.role}</p>}
-                </div>
-
-                {/* Terms and Conditions Checkbox */}
-                <div className="flex items-center">
-                    <input
-                        id="terms"
-                        name="terms"
-                        type="checkbox"
-                        checked={agreedToTerms}
-                        onChange={handleInputChange}
-                        className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
-                    />
-                    <label htmlFor="terms" className="ml-2 block text-sm text-gray-700">
-                        I agree with all <a href="/terms" target="_blank" rel="noopener noreferrer" className="font-medium text-indigo-600 hover:text-indigo-500">Terms and Conditions</a> and <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-indigo-600 hover:text-indigo-500">Privacy Policies</a>.
-                    </label>
-                </div>
-                {errors.terms && <p className="error-message -mt-3">{errors.terms}</p>}
-
-                {/* Submit Button */}
-                <div className="pt-4">
-                    <button type="submit" className="btn-submit w-full">
-                        Next: Step 2
-                    </button>
-                </div>
-
-                {/* Optional: Link to Login */}
-                <p className="text-center text-sm text-gray-600 mt-2">
-                    Already have an account?{' '}
-                    <a href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
-                        Sign in
-                    </a>
-                </p>
-            </form>
+      <form onSubmit={handleNext}>
+        {/* Name */}
+        <div className="mb-3">
+          <label className="is-label">Full Name</label>
+          <div className="position-relative">
+            <User size={15} className="position-absolute" style={{ left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input name="name" type="text" className={`is-input ${errors.name ? 'is-input-error' : ''}`}
+              placeholder="Jane Smith" value={formData.name || ''} onChange={handleChange}
+              style={{ paddingLeft: 38 }} />
+          </div>
+          {errors.name && <p className="is-error-msg">{errors.name}</p>}
         </div>
-    );
-};
 
-export default SignUpStep1;
+        {/* Email */}
+        <div className="mb-3">
+          <label className="is-label">Email Address</label>
+          <div className="position-relative">
+            <Mail size={15} className="position-absolute" style={{ left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input name="email" type="email" className={`is-input ${errors.email ? 'is-input-error' : ''}`}
+              placeholder="you@example.com" value={formData.email || ''} onChange={handleChange}
+              style={{ paddingLeft: 38 }} />
+          </div>
+          {errors.email && <p className="is-error-msg">{errors.email}</p>}
+        </div>
+
+        {/* Password */}
+        <div className="mb-3">
+          <label className="is-label">Password</label>
+          <div className="position-relative">
+            <Lock size={15} className="position-absolute" style={{ left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
+            <input name="password" type="password" className={`is-input ${errors.password ? 'is-input-error' : ''}`}
+              placeholder="Choose a secure password" value={formData.password || ''} onChange={handleChange}
+              style={{ paddingLeft: 38 }} />
+          </div>
+          {errors.password && <p className="is-error-msg">{errors.password}</p>}
+        </div>
+
+        {/* Role */}
+        <div className="mb-3">
+          <label className="is-label">I am a…</label>
+          <div className="d-flex gap-3">
+            {['influencer', 'sponsor'].map(role => (
+              <button
+                key={role} type="button"
+                onClick={() => { updateFormData({ role }); if (errors.role) setErrors(p => ({ ...p, role: undefined })); }}
+                className="flex-fill py-3 rounded-3 fw-600 text-capitalize"
+                style={{
+                  border: `2px solid ${formData.role === role ? 'var(--brand-1)' : 'var(--border-glass)'}`,
+                  background: formData.role === role ? 'rgba(230,0,35,0.06)' : 'var(--input-bg)',
+                  color: formData.role === role ? 'var(--brand-1)' : 'var(--text-secondary)',
+                  transition: 'var(--transition)', cursor: 'pointer',
+                }}
+              >
+                {role}
+              </button>
+            ))}
+          </div>
+          {errors.role && <p className="is-error-msg">{errors.role}</p>}
+        </div>
+
+        {/* Terms */}
+        <div className="d-flex align-items-center gap-2 mb-4">
+          <input type="checkbox" id="terms" checked={agreed}
+            onChange={e => { setAgreed(e.target.checked); if (errors.terms) setErrors(p => ({ ...p, terms: undefined })); }}
+            style={{ accentColor: 'var(--brand-1)', width: 16, height: 16 }} />
+          <label htmlFor="terms" className="mb-0 small" style={{ color: 'var(--text-secondary)' }}>
+            I agree to the <a href="/terms" style={{ color: 'var(--brand-1)' }}>Terms</a> and <a href="/privacy" style={{ color: 'var(--brand-1)' }}>Privacy Policy</a>
+          </label>
+        </div>
+        {errors.terms && <p className="is-error-msg mt-n3 mb-3">{errors.terms}</p>}
+
+        <button type="submit" className="is-btn is-btn-brand w-100" style={{ padding: '12px' }}>
+          Continue <ChevronRight size={16} />
+        </button>
+      </form>
+    </div>
+  );
+}

@@ -1,115 +1,29 @@
-html,body{
-    height:100%,
-    overflow-y:auto;
-}
-/* * {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 400;
-    font-style: normal;
-}
+/* ── Tailwind import kept for any Tailwind utilities still used ── */
+@import "tailwindcss";
 
-/* .barlow-condensed-thin {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 100;
-    font-style: normal;
+/* ── Slider (landing page carousel) ── */
+.slider {
+  width: 100%;
+  height: var(--height);
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent, #000 10% 90%, transparent);
 }
-
-.barlow-condensed-extralight {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 200;
-    font-style: normal;
+.slider .list { position: relative; width: 100%; height: 100%; }
+.slider .item {
+  width: var(--width); height: var(--height);
+  position: absolute; top: 0;
+  left: calc(var(--width) * var(--position));
+  animation: autoRun 20s linear infinite;
+  transition: filter 0.5s;
+  animation-delay: calc((20s / var(--quantity)) * (var(--position) - 1) - 20s) !important;
 }
+.slider:hover .item { animation-play-state: paused !important; filter: grayscale(1); }
+.slider .item:hover { filter: grayscale(0); }
+@keyframes autoRun { from { left: 100%; } to { left: calc(var(--width) * -1); } }
 
-.barlow-condensed-light {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 300;
-    font-style: normal;
+/* ── Display font helper ── */
+.display-brand {
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 700;
 }
-
-.barlow-condensed-regular {
-    
-
-.barlow-condensed-medium {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 500;
-    font-style: normal;
-}
-
-.barlow-condensed-semibold {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 600;
-    font-style: normal;
-}
-
-.barlow-condensed-bold {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 700;
-    font-style: normal;
-}
-
-.barlow-condensed-extrabold {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 800;
-    font-style: normal;
-}
-
-.barlow-condensed-black {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 900;
-    font-style: normal;
-}
-
-.barlow-condensed-thin-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 100;
-    font-style: italic;
-}
-
-.barlow-condensed-extralight-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 200;
-    font-style: italic;
-}
-
-.barlow-condensed-light-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 300;
-    font-style: italic;
-}
-
-.barlow-condensed-regular-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 400;
-    font-style: italic;
-}
-
-.barlow-condensed-medium-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 500;
-    font-style: italic;
-}
-
-.barlow-condensed-semibold-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 600;
-    font-style: italic;
-}
-
-.barlow-condensed-bold-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 700;
-    font-style: italic;
-}
-
-.barlow-condensed-extrabold-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 800;
-    font-style: italic;
-}
-
-.barlow-condensed-black-italic {
-    font-family: "Barlow Condensed", sans-serif;
-    font-weight: 900;
-    font-style: italic;
-}
- */

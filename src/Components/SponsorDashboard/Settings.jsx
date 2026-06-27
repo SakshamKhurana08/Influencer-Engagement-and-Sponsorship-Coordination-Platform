@@ -1,181 +1,176 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { User, Building2, Tag, Wallet, Pencil, Check, X, Lock } from 'lucide-react';
 
-const Settings = () => {
-    const [profile, setProfile] = useState(null);
-    const [user, setUser] = useState(null);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(true);
-    const [message, setMessage] = useState('');
-    const [isEditing, setIsEditing] = useState(false);
-    const [formData, setFormData] = useState({});
-    const navigate = useNavigate();
+/* ── Single field row — view vs edit mode ── */
+const Field = ({ label, name, value, editing, onChange, type = 'text', Icon }) => (
+  <div className="mb-4">
+    <label className="is-label">{label}</label>
+    {editing ? (
+      <div className="position-relative">
+        {Icon && (
+          <Icon
+            size={15}
+            className="position-absolute"
+            style={{ left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }}
+          />
+        )}
+        <input
+          name={name}
+          type={type}
+          className="is-input"
+          value={value}
+          onChange={onChange}
+          style={Icon ? { paddingLeft: 38 } : {}}
+        />
+      </div>
+    ) : (
+      <div
+        className="d-flex align-items-center gap-2 py-2 px-3"
+        style={{
+          background: 'var(--bg-surface-2)',
+          border: '1px solid var(--border-glass)',
+          borderRadius: 12,
+        }}
+      >
+        {Icon && <Icon size={15} color="var(--text-muted)" />}
+        <span style={{ color: 'var(--text-primary)', fontSize: '0.9rem' }}>{value || '—'}</span>
+      </div>
+    )}
+  </div>
+);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setError('Authentication token not found. Please log in again.');
-                setLoading(false);
-                return;
-            }
+export default function Settings() {
+  const [user, setUser]         = useState(null);
+  const [profile, setProfile]   = useState(null);
+  const [editing, setEditing]   = useState(false);
+  const [formData, setFormData] = useState({});
+  const [loading, setLoading]   = useState(true);
+  const [message, setMessage]   = useState('');
+  const [isError, setIsError]   = useState(false);
+  const navigate = useNavigate();
 
-            try {
-                const res = await axios.get('http://localhost:2020/api/sponsors/profile', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) { navigate('/login'); return; }
+    axios
+      .get('/api/sponsors/profile', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => {
+        setUser(r.data.user);
+        setProfile(r.data.sponsor);
+        setFormData({
+          name: r.data.user.name,
+          companyName: r.data.sponsor.companyName,
+          industry: r.data.sponsor.industry,
+          budget: r.data.sponsor.budget,
+        });
+        setLoading(false);
+      })
+      .catch(err => {
+        if (err.response?.status === 401) navigate('/login');
+        setLoading(false);
+      });
+  }, [navigate]);
 
-                setProfile(res.data.sponsor);
-                setUser(res.data.user);
-                setFormData({
-                    name: res.data.user.name,
-                    companyName: res.data.sponsor.companyName,
-                    industry: res.data.sponsor.industry,
-                    budget: res.data.sponsor.budget,
-                });
-            } catch (err) {
-                setError('Failed to fetch profile. Please try again.');
-                if (err.response?.status === 401) {
-                    setMessage('Your session has expired. Please log in again.');
-                    navigate('/login');
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
+  const handleChange = (e) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }));
 
-        fetchProfile();
-    }, [navigate]);
+  const handleSave = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem('token');
+    try {
+      const r = await axios.put('/api/sponsors/profile', formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUser(r.data.user);
+      setProfile(r.data.sponsor);
+      setMessage('Profile updated successfully.');
+      setIsError(false);
+      setEditing(false);
+    } catch {
+      setMessage('Update failed. Please try again.');
+      setIsError(true);
+    }
+  };
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setFormData({ ...formData, [name]: value });
-    };
+  if (loading) return <div className="is-spinner" />;
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        const token = localStorage.getItem('token');
-        if (!token) {
-            setError('Authentication token not found. Please log in again.');
-            return;
-        }
+  return (
+    <div style={{ padding: 'var(--section-py) var(--section-px)', minHeight: '100vh' }}>
 
-        try {
-            const res = await axios.put('http://localhost:2020/api/sponsors/profile', formData, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+      {/* Page header */}
+      <div className="mb-5">
+        <p style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
+          Account
+        </p>
+        <h1
+          className="display-brand"
+          style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: 'var(--text-primary)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 0 }}
+        >
+          Settings
+        </h1>
+      </div>
 
-            setMessage('Profile updated successfully!');
-            setUser(res.data.user);
-            setProfile(res.data.sponsor);
-            setIsEditing(false);
-        } catch (err) {
-            setError('Failed to update profile. Please try again.');
-        }
-    };
+      <div className="row">
+        <div className="col-lg-6">
+          <div className="is-card p-4 p-md-5">
 
-    if (loading) return <div className="text-center mt-10 text-gray-500">Loading...</div>;
-    if (error) return <div className="text-center mt-10 text-red-500">{error}</div>;
-
-    return (
-        <div className="page-container min-h-screen flex flex-col p-6 overflow-y-auto text-gray-800">
-            <div className="w-full max-w-3xl mx-15 bg-white bg-opacity-90 rounded-2xl shadow-md p-6">
-                <h2 className="text-2xl font-semibold mb-4">Account Settings</h2>
-
-                {message && <div className="text-green-600 mb-4">{message}</div>}
-                {error && <div className="text-red-600 mb-4">{error}</div>}
-
-                {user && profile ? (
-                    isEditing ? (
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div>
-                                <label className="block font-medium mb-1" htmlFor="name">Name</label>
-                                <input
-                                    type="text"
-                                    id="name"
-                                    name="name"
-                                    value={formData.name || ''}
-                                    onChange={handleInputChange}
-                                    className="w-full border border-gray-300 rounded-lg p-2"
-                                />
-                            </div>
-                            <div>
-                                <label className="block font-medium mb-1" htmlFor="companyName">Company Name</label>
-                                <input
-                                    type="text"
-                                    id="companyName"
-                                    name="companyName"
-                                    value={formData.companyName || ''}
-                                    onChange={handleInputChange}
-                                    className="w-full border border-gray-300 rounded-lg p-2"
-                                />
-                            </div>
-                            <div>
-                                <label className="block font-medium mb-1" htmlFor="industry">Industry</label>
-                                <input
-                                    type="text"
-                                    id="industry"
-                                    name="industry"
-                                    value={formData.industry || ''}
-                                    onChange={handleInputChange}
-                                    className="w-full border border-gray-300 rounded-lg p-2"
-                                />
-                            </div>
-                            <div>
-                                <label className="block font-medium mb-1" htmlFor="budget">Budget</label>
-                                <input
-                                    type="text"
-                                    id="budget"
-                                    name="budget"
-                                    value={formData.budget || ''}
-                                    onChange={handleInputChange}
-                                    className="w-full border border-gray-300 rounded-lg p-2"
-                                />
-                            </div>
-
-                            <div className="flex justify-between mt-6">
-                                <button
-                                    type="submit"
-                                    className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
-                                >
-                                    Update Profile
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditing(false)}
-                                    className="text-gray-600 px-4 py-2 rounded-lg hover:bg-gray-100 transition"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    ) : (
-                        <div className="space-y-2">
-                            <p><strong>Name:</strong> {user.name}</p>
-                            <p><strong>Email:</strong> {user.email}</p>
-                            <p><strong>Company Name:</strong> {profile.companyName}</p>
-                            <p><strong>Industry:</strong> {profile.industry}</p>
-                            <p><strong>Budget:</strong> {profile.budget}</p>
-
-                            <button
-                                onClick={() => setIsEditing(true)}
-                                className="mt-4 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
-                            >
-                                Edit Profile
-                            </button>
-                        </div>
-                    )
-                ) : (
-                    <p>No profile data available.</p>
-                )}
+            {/* Card header */}
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <h5 className="fw-800 mb-0" style={{ color: 'var(--text-primary)' }}>Profile Details</h5>
+              {!editing ? (
+                <button onClick={() => setEditing(true)} className="is-btn is-btn-ghost" style={{ padding: '8px 18px', fontSize: '0.8rem' }}>
+                  <Pencil size={14} /> Edit
+                </button>
+              ) : (
+                <button onClick={() => setEditing(false)} className="is-btn is-btn-ghost" style={{ width: 36, height: 36, padding: 0, borderRadius: '50%' }}>
+                  <X size={14} />
+                </button>
+              )}
             </div>
-        </div>
-    );
-};
 
-export default Settings;
+            {/* Feedback */}
+            {message && (
+              <div className={`rounded-3 p-3 mb-4 fw-700`} style={{
+                fontSize: '0.84rem',
+                background: isError ? 'var(--pill-rejected)' : 'var(--pill-accepted)',
+                color: isError ? 'var(--pill-rejected-text)' : 'var(--pill-accepted-text)',
+              }}>
+                {message}
+              </div>
+            )}
+
+            {/* Read-only email */}
+            <div className="mb-4">
+              <label className="is-label">Email Address</label>
+              <div
+                className="d-flex align-items-center gap-2 py-2 px-3"
+                style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)', borderRadius: 12 }}
+              >
+                <Lock size={14} color="var(--text-muted)" />
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem', flexGrow: 1 }}>{user?.email}</span>
+                <span className="is-pill" style={{ background: 'rgba(0,0,0,0.06)', color: 'var(--text-muted)', fontSize: '0.62rem' }}>
+                  Read-only
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleSave}>
+              <Field label="Full Name"    name="name"        value={formData.name        ?? ''} editing={editing} onChange={handleChange} Icon={User} />
+              <Field label="Company Name" name="companyName" value={formData.companyName ?? ''} editing={editing} onChange={handleChange} Icon={Building2} />
+              <Field label="Industry"     name="industry"    value={formData.industry    ?? ''} editing={editing} onChange={handleChange} Icon={Tag} />
+              <Field label="Budget (₹)"  name="budget"      value={formData.budget      ?? ''} editing={editing} onChange={handleChange} Icon={Wallet} type="number" />
+
+              {editing && (
+                <button type="submit" className="is-btn is-btn-brand w-100 mt-2" style={{ padding: '13px' }}>
+                  <Check size={16} /> Save Changes
+                </button>
+              )}
+            </form>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

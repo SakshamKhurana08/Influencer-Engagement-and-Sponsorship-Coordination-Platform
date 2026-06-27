@@ -1,25 +1,93 @@
-import { NavLink } from "react-router-dom";
-import { FaHome, FaBullhorn, FaEnvelope, FaCog } from "react-icons/fa";
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Megaphone, Settings, LogOut, Sun, Moon, Zap } from 'lucide-react';
+import { useTheme } from '../../theme/ThemeContext';
 
-const Sidebar = () => {
-    const gradientBackground = "bg-gradient-to-br from-blue-600 via-teal-500 to-green-500";
+const LINKS = [
+  { to: '/sponsor-dashboard/home',     Icon: LayoutDashboard, label: 'Overview' },
+  { to: '/sponsor-dashboard/campaign', Icon: Megaphone,        label: 'Campaigns' },
+  { to: '/sponsor-dashboard/settings', Icon: Settings,         label: 'Settings' },
+];
 
-    return (
-        <div className={`w-64 h-screen bg-white bg-opacity-90 rounded-xl shadow-lg p-5 fixed z-10`}>
-            <h2 className="text-xl font-bold mb-6 text-center text-black">Sponsor Panel</h2>
-            <nav className="flex flex-col space-y-4">
-                <NavLink to="/sponsor-dashboard/home" className="flex items-center space-x-2 hover:text-indigo-600 transition">
-                    <FaHome /> <span>Home</span>
-                </NavLink>
-                <NavLink to="/sponsor-dashboard/campaign" className="flex items-center space-x-2 hover:text-indigo-600 transition">
-                    <FaBullhorn /> <span>Campaigns</span>
-                </NavLink>
-                <NavLink to="/sponsor-dashboard/settings" className="flex items-center space-x-2 hover:text-indigo-600 transition">
-                    <FaCog /> <span>Settings</span>
-                </NavLink>
-            </nav>
+export default function Sidebar() {
+  const { theme, toggleTheme } = useTheme();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userRole');
+    navigate('/login');
+  };
+
+  return (
+    <aside className="is-sidebar">
+
+      {/* Brand */}
+      <div className="mb-5 px-2">
+        <div className="d-flex align-items-center gap-2 mb-3">
+          <div style={{
+            width: 32, height: 32, borderRadius: '50%',
+            background: 'var(--brand-grad)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: 'var(--brand-glow-btn)',
+            flexShrink: 0,
+          }}>
+            <Zap size={15} color="#fff" fill="#fff" />
+          </div>
+          <span className="display-brand" style={{ fontSize: '1.3rem', color: 'var(--brand-1)' }}>InSync</span>
         </div>
-    );
-};
+        <span className="is-pill" style={{
+          background: 'rgba(230,0,35,0.10)',
+          color: 'var(--brand-1)',
+          fontSize: '0.65rem',
+          letterSpacing: '0.10em',
+        }}>
+          Sponsor Portal
+        </span>
+      </div>
 
-export default Sidebar;
+      {/* Nav links */}
+      <nav className="flex-grow-1">
+        <p style={{
+          fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.12em',
+          textTransform: 'uppercase', color: 'var(--text-muted)',
+          padding: '0 16px', marginBottom: 8,
+        }}>
+          Navigation
+        </p>
+        {LINKS.map(({ to, Icon, label }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) => `is-sidebar-link${isActive ? ' active' : ''}`}
+          >
+            <Icon size={16} />
+            {label}
+          </NavLink>
+        ))}
+      </nav>
+
+      {/* Bottom controls */}
+      <div
+        className="d-flex flex-column gap-1 pt-4"
+        style={{ borderTop: '1px solid var(--border-glass)' }}
+      >
+        <button
+          onClick={toggleTheme}
+          className="is-sidebar-link"
+          style={{ background: 'transparent', cursor: 'pointer', color: 'var(--text-secondary)' }}
+        >
+          {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+          <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+        </button>
+        <button
+          onClick={handleLogout}
+          className="is-sidebar-link"
+          style={{ background: 'transparent', cursor: 'pointer', color: '#ef4444' }}
+        >
+          <LogOut size={16} />
+          <span>Logout</span>
+        </button>
+      </div>
+    </aside>
+  );
+}

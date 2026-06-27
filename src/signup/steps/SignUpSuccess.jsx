@@ -1,50 +1,37 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import Lottie from "react-lottie";
-import successAnimationData from "../../success-animation.json"; // Adjust the path accordingly
+import { Link } from 'react-router-dom';
+import Lottie from 'lottie-react';
+import successAnimation from '../../success-animation.json';
+import { Zap, ArrowRight, Home } from 'lucide-react';
 
-const SignupSuccess = () => {
-    const defaultOptions = {
-        loop: true,
-        autoplay: true,
-        animationData: successAnimationData,
-        rendererSettings: {
-            preserveAspectRatio: "xMidYMid slice",
-        },
-    };
-
-    return (
-        <div className="flex items-center justify-center min-h-screen p-8">
-            <div className="w-full max-w-4xl flex items-center justify-between p-8 rounded-xl shadow-lg bg-white bg-opacity-90">
-                {/* Lottie Animation - Left Half */}
-                <div className="w-1/2 flex justify-center">
-                    <Lottie options={defaultOptions} height={400} width={400} />
-                </div>
-
-                {/* Success Message and Buttons - Right Half */}
-                <div className="w-1/2 text-center">
-                    <h1 className="text-4xl font-bold text-green-600 mb-6">Signup Successful🎉</h1>
-                    <p className="text-lg text-gray-600 mb-8">
-                        Welcome to the platform! You can now log in or go back to the homepage.
-                    </p>
-                    <div className="flex justify-center space-x-6">
-                        <Link
-                            to="/"
-                            className="px-8 py-3 text-sm font-medium rounded-lg  bg-indigo-600 text-white shadow-md  hover:bg-indigo-700 transition duration-200"
-                        >
-                            Go to Home
-                        </Link>
-                        <Link
-                            to="/login"
-                            className="px-8 py-3 text-sm font-medium rounded-lg bg-indigo-600 text-white shadow-md hover:bg-indigo-700 transition duration-200"
-                        >
-                            Go to Login
-                        </Link>
-                    </div>
-                </div>
-            </div>
+export default function SignUpSuccess() {
+  return (
+    <div className="is-page d-flex align-items-center justify-content-center" style={{ minHeight:'100vh', padding:24 }}>
+      <div className="is-page-orb-c" />
+      <div className="is-card p-5 text-center" style={{ maxWidth:520, width:'100%', zIndex:1, position:'relative' }}>
+        <div style={{ width:180, margin:'0 auto 24px' }}>
+          <Lottie animationData={successAnimation} loop={false} />
         </div>
-    );
-};
-
-export default SignupSuccess;
+        <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
+          <div style={{ width:32, height:32, borderRadius:'50%', background:'var(--brand-grad)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'var(--brand-glow-btn)' }}>
+            <Zap size={16} color="#fff" fill="#fff" />
+          </div>
+          <span className="display-brand is-gradient-text" style={{ fontSize:'1.4rem' }}>InSync</span>
+        </div>
+        <h2 className="fw-900 mb-2 display-brand" style={{ color:'var(--text-primary)', fontSize:'2.2rem', letterSpacing:'-0.02em' }}>
+          You're in!
+        </h2>
+        <p style={{ color:'var(--text-secondary)', fontSize:'1rem', marginBottom:36, lineHeight:1.65 }}>
+          Your account has been created. Sign in to start discovering campaigns and building your creator portfolio.
+        </p>
+        <div className="d-flex gap-3 justify-content-center">
+          <Link to="/login" className="is-btn is-btn-brand text-decoration-none" style={{ padding:'12px 32px' }}>
+            <ArrowRight size={16} /> Sign In
+          </Link>
+          <Link to="/" className="is-btn is-btn-ghost text-decoration-none" style={{ padding:'12px 28px' }}>
+            <Home size={15} /> Home
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
