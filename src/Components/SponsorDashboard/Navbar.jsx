@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
-import axios from "axios";
+import api from "../../api/axiosInstance";
 
 const Navbar = () => {
     const [sponsorName, setSponsorName] = useState("");
@@ -9,18 +9,8 @@ const Navbar = () => {
     useEffect(() => {
         const fetchSponsorDetails = async () => {
             try {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    return;
-                }
-
-                const response = await axios.get('http://localhost:2020/api/sponsors/details', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                setSponsorName(response.data.companyName); // assuming companyName is the sponsor's name
+                const response = await api.get('/api/sponsors/details');
+                setSponsorName(response.data.companyName);
             } catch (error) {
                 console.error('Error fetching sponsor details:', error);
             }

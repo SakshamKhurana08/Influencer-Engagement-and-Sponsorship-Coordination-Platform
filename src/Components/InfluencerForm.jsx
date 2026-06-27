@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api/axiosInstance";
 
 const InfluencerForm = () => {
     const [name, setName] = useState("");
@@ -33,11 +33,7 @@ const InfluencerForm = () => {
         };
 
         try {
-            const response = await axios.post(
-                "http://localhost:2020/api/auth/register",
-                data,
-                { headers: { "Content-Type": "application/json" } }
-            );
+            const response = await api.post("/api/auth/register", data);
 
             console.log("Registration successful:", response.data);
             setMessage("Registration successful! Welcome aboard as an Influencer.");

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSignup } from '../SignUpContext';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { ChevronLeft, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
 
 const Row = ({ label, value }) => {
@@ -57,7 +57,7 @@ export default function SignUpStep3() {
     }
 
     try {
-      await axios.post('/api/auth/register', fd);
+      await api.post('/api/auth/register', fd);
       navigate('/signup-success');
     } catch (err) {
       setStatus(err.response?.data?.message || 'Registration failed. Please try again.');
