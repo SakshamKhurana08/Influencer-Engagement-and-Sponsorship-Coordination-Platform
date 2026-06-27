@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import {
@@ -8,7 +8,7 @@ import {
   Megaphone, FileText, Zap, Wallet, RotateCcw,
 } from 'lucide-react';
 
-const API = (token) => ({ headers: { Authorization: `Bearer ${token}` } });
+const API = () => ({});  // interceptor handles auth — kept so unused-var lint doesn't fire
 
 const StatusPill = ({ status }) => {
   const map = {
@@ -23,7 +23,6 @@ const StatusPill = ({ status }) => {
 export default function InfluencerDashboard() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-  const token = localStorage.getItem('token');
 
   const [profile, setProfile]     = useState({});
   const [user, setUser]           = useState({});
@@ -38,16 +37,15 @@ export default function InfluencerDashboard() {
   const [activeTab, setActiveTab] = useState('campaigns');
 
   useEffect(() => {
-    if (!token) { navigate('/login'); return; }
+    if (!localStorage.getItem('token')) { navigate('/login'); return; }
     Promise.all([fetchProfile(), fetchAds(), fetchCampaigns()])
       .finally(() => setLoading(false));
   }, []);
 
   const fetchProfile = async () => {
     try {
-      const r = await axios.get('/api/influencer/profile', API(token));
-      setProfile(r.data.influencer);
-      setUser(r.data.user);
+      const r = await api.get('/api/influencer/profile');
+      setProfile(r.data.influencer); setUser(r.data.user);
       setEditData({ name: r.data.user.name, category: r.data.influencer.category, niche: r.data.influencer.niche, reach: r.data.influencer.reach });
     } catch (err) {
       if (err.response?.status === 401) navigate('/login');
@@ -57,7 +55,7 @@ export default function InfluencerDashboard() {
 
   const fetchAds = async () => {
     try {
-      const r = await axios.get('/api/influencer/ad-requests', API(token));
+      const r = await api.get('/api/influencer/ad-requests');
       setAds(Array.isArray(r.data) ? r.data : []);
     } catch {}
   };
@@ -67,9 +65,11 @@ export default function InfluencerDashboard() {
       const params = {};
       if (f.category)  params.category  = f.category;
       if (f.minBudget) params.minBudget = f.minBudget;
-      const r = await axios.get('/api/influencer/open-campaigns', { ...API(token), params });
-      setCampaigns(Array.isArray(r.data) ? r.data : []);
-    } catch {}
+      const r = await api.get('/api/influencer/open-campaigns', { params });
+      // API now returns paginated { items, total, page, pages }
+      const data = r.data;
+      setCampaigns(Array.isArray(data) ? data : (data.items || []));
+    } catch { /* silently ignore */ }
   };
 
   const handleSaveProfile = async () => {
@@ -78,7 +78,7 @@ export default function InfluencerDashboard() {
     }
     setError(''); setSuccess('');
     try {
-      await axios.put('/api/influencer/profile', editData, API(token));
+      await api.put('/api/influencer/profile', editData);
       setUser(p => ({ ...p, name: editData.name }));
       setProfile(p => ({ ...p, ...editData }));
       setSuccess('Profile updated!');
@@ -89,7 +89,7 @@ export default function InfluencerDashboard() {
   const handleAdAction = async (id, action) => {
     setError('');
     try {
-      await axios.post(`/api/influencer/ad-requests/${id}/${action}`, {}, API(token));
+      await api.post(`/api/influencer/ad-requests/${id}/${action}`, {});
       fetchAds();
     } catch (err) { setError(err.response?.data?.message || 'Action failed.'); }
   };
@@ -97,7 +97,7 @@ export default function InfluencerDashboard() {
   const handleAcceptCampaign = async (campId) => {
     setError('');
     try {
-      await axios.post(`/api/influencer/campaigns/${campId}/accept`, {}, API(token));
+      await api.post(`/api/influencer/campaigns/${campId}/accept`, {});
       fetchCampaigns();
     } catch (err) { setError(err.response?.data?.message || 'Failed to accept campaign.'); }
   };

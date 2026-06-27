@@ -18,6 +18,7 @@ from app.models.influencer import Influencer
 from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.utils.auth import influencer_required
+from app.utils.schemas import validate_schema, InfluencerProfileSchema
 
 influencer_bp = Blueprint('influencer', __name__)
 
@@ -47,13 +48,14 @@ def update_profile():
     user_id = int(get_jwt_identity())
     body = request.get_json(silent=True) or {}
 
-    name = body.get('name', '').strip()
-    category = body.get('category', '').strip()
-    niche = body.get('niche', '').strip()
-    reach = body.get('reach')
+    cleaned, errors = validate_schema(InfluencerProfileSchema(), body)
+    if errors:
+        return jsonify({'message': 'Validation failed', 'errors': errors}), 422
 
-    if not all([name, category, niche, reach]):
-        return jsonify({'message': 'name, category, niche, and reach are required'}), 400
+    name     = cleaned['name']
+    category = cleaned['category']
+    niche    = cleaned['niche']
+    reach    = cleaned['reach']
 
     user = User.query.get(user_id)
     influencer = _get_influencer(user_id)
@@ -64,7 +66,7 @@ def update_profile():
     user.name = name
     influencer.category = category
     influencer.niche = niche
-    influencer.reach = int(reach)
+    influencer.reach = reach
 
     db.session.commit()
     return jsonify({
@@ -97,7 +99,13 @@ def get_open_campaigns():
     if min_budget is not None:
         query = query.filter(Campaign.budget >= min_budget)
 
-    campaigns = query.all()
+    page     = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 20, type=int), 100)
+
+    pagination = query.order_by(Campaign.created_at.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    campaigns = pagination.items
 
     # IDs the current influencer has already accepted
     accepted_ids = {c.id for c in influencer.accepted_campaigns.all()}
@@ -105,7 +113,6 @@ def get_open_campaigns():
     result = []
     for c in campaigns:
         data = c.to_dict()
-        # Include sponsor info for the frontend card
         if c.sponsor and c.sponsor.user:
             data['Sponsor'] = {
                 'id': c.sponsor.id,
@@ -117,7 +124,13 @@ def get_open_campaigns():
         data['isAcceptedByUser'] = c.id in accepted_ids
         result.append(data)
 
-    return jsonify(result), 200
+    return jsonify({
+        'items':    result,
+        'total':    pagination.total,
+        'page':     page,
+        'per_page': per_page,
+        'pages':    pagination.pages,
+    }), 200
 
 
 @influencer_bp.route('/campaigns/<int:campaign_id>/accept', methods=['POST'])

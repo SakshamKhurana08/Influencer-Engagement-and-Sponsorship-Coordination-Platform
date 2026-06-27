@@ -9,12 +9,14 @@ from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_executor import Executor
+from flask_caching import Cache
 
 # ── Extension singletons ─────────────────────────────────────────────────────
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
 executor = Executor()
+cache = Cache()
 
 
 def create_app(config_object=None):
@@ -36,6 +38,7 @@ def create_app(config_object=None):
     migrate.init_app(app, db)
     jwt.init_app(app)
     executor.init_app(app)
+    cache.init_app(app)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
     # ── Register blueprints ───────────────────────────────────────────────────

@@ -11,7 +11,7 @@ GET    /api/admin/stats               — platform-wide counts
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required
 
-from app import db
+from app import db, cache
 from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.models.influencer import Influencer
@@ -90,6 +90,7 @@ def flag_entity():
         return jsonify({'error': 'type must be user or campaign'}), 400
 
     db.session.commit()
+    cache.delete('admin_stats')
     return jsonify({'message': f'{entity_type} flagged successfully'}), 200
 
 
@@ -121,6 +122,7 @@ def remove_entity():
         return jsonify({'error': 'type must be user or campaign'}), 400
 
     db.session.commit()
+    cache.delete('admin_stats')
     return jsonify({'message': f'{entity_type} removed successfully'}), 200
 
 
@@ -148,6 +150,7 @@ def search_entities():
 
 @admin_bp.route('/stats', methods=['GET'])
 @admin_required()
+@cache.cached(timeout=60, key_prefix='admin_stats')
 def get_stats():
     """Return platform-wide aggregate counts."""
     return jsonify({

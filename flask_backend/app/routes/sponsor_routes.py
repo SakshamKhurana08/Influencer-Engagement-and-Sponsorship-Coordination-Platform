@@ -12,6 +12,7 @@ from app import db
 from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.utils.auth import sponsor_required
+from app.utils.schemas import validate_schema, SponsorProfileSchema
 
 sponsor_bp = Blueprint('sponsor', __name__)
 
@@ -54,13 +55,14 @@ def update_profile():
     user_id = int(get_jwt_identity())
     body = request.get_json(silent=True) or {}
 
-    name = body.get('name', '').strip()
-    company_name = body.get('companyName', '').strip()
-    industry = body.get('industry', '').strip()
-    budget = body.get('budget')
+    cleaned, errors = validate_schema(SponsorProfileSchema(), body)
+    if errors:
+        return jsonify({'message': 'Validation failed', 'errors': errors}), 422
 
-    if not all([name, company_name, industry, budget]):
-        return jsonify({'message': 'name, companyName, industry, and budget are required'}), 400
+    name         = cleaned['name']
+    company_name = cleaned['companyName']
+    industry     = cleaned['industry']
+    budget       = cleaned['budget']
 
     user = User.query.get(user_id)
     sponsor = _get_sponsor(user_id)

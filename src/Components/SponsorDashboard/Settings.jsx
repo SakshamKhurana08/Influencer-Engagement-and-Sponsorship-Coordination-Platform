@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { User, Building2, Tag, Wallet, Pencil, Check, X, Lock } from 'lucide-react';
 
@@ -52,10 +52,9 @@ export default function Settings() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (!token) { navigate('/login'); return; }
-    axios
-      .get('/api/sponsors/profile', { headers: { Authorization: `Bearer ${token}` } })
+    if (!localStorage.getItem('token')) { navigate('/login'); return; }
+    api
+      .get('/api/sponsors/profile')
       .then(r => {
         setUser(r.data.user);
         setProfile(r.data.sponsor);
@@ -77,11 +76,8 @@ export default function Settings() {
 
   const handleSave = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem('token');
     try {
-      const r = await axios.put('/api/sponsors/profile', formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const r = await api.put('/api/sponsors/profile', formData);
       setUser(r.data.user);
       setProfile(r.data.sponsor);
       setMessage('Profile updated successfully.');

@@ -10,12 +10,12 @@ export default defineConfig({
       // Proxy all /api/* and /uploads/* requests to the Flask backend.
       // Change the target port if you run Flask on a different port.
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'http://localhost:5000',
+        target: 'http://localhost:5001',
         changeOrigin: true,
         secure: false,
       },

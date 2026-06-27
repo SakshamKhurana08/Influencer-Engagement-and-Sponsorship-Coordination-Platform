@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../../api/axiosInstance';
 import { Building2, Tag, Wallet, TrendingUp, Megaphone, Settings, ArrowRight, Zap, BarChart3 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -11,7 +11,7 @@ export default function SponsorHome() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) { setError('Not authenticated.'); setLoading(false); return; }
-    axios.get('/api/sponsors/details', { headers: { Authorization: `Bearer ${token}` } })
+    api.get('/api/sponsors/details')
       .then(r => { setSponsor(r.data); setLoading(false); })
       .catch(() => { setError('Failed to load profile.'); setLoading(false); });
   }, []);

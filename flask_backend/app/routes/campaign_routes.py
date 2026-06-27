@@ -18,6 +18,7 @@ from app.models.sponsor import Sponsor
 from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.utils.auth import sponsor_required
+from app.utils.schemas import validate_schema, CampaignSchema, AdRequestSchema, AdRequestUpdateSchema
 
 campaign_bp = Blueprint('campaign', __name__)
 
@@ -42,17 +43,17 @@ def create_campaign():
         return jsonify({'error': 'Sponsor profile not found'}), 404
 
     body = request.get_json(silent=True) or {}
-    title = body.get('title', '').strip()
-    if not title:
-        return jsonify({'error': 'title is required'}), 400
+    cleaned, errors = validate_schema(CampaignSchema(), body)
+    if errors:
+        return jsonify({'errors': errors}), 422
 
     campaign = Campaign(
         sponsor_id=sponsor.id,
-        title=title,
-        description=body.get('description', ''),
-        category=body.get('category', ''),
-        budget=int(body['budget']) if body.get('budget') else None,
-        is_public=bool(body.get('isPublic', True))
+        title=cleaned['title'],
+        description=cleaned.get('description', ''),
+        category=cleaned.get('category', ''),
+        budget=cleaned.get('budget'),
+        is_public=cleaned.get('isPublic', True)
     )
     db.session.add(campaign)
     db.session.commit()
@@ -67,8 +68,22 @@ def get_my_campaigns():
     if not sponsor:
         return jsonify({'error': 'Sponsor profile not found'}), 404
 
-    campaigns = Campaign.query.filter_by(sponsor_id=sponsor.id).all()
-    return jsonify([c.to_dict(include_influencers=True) for c in campaigns]), 200
+    page     = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 20, type=int), 100)
+
+    pagination = (
+        Campaign.query
+        .filter_by(sponsor_id=sponsor.id)
+        .order_by(Campaign.created_at.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+    return jsonify({
+        'items':    [c.to_dict(include_influencers=True) for c in pagination.items],
+        'total':    pagination.total,
+        'page':     page,
+        'per_page': per_page,
+        'pages':    pagination.pages,
+    }), 200
 
 
 @campaign_bp.route('/<int:campaign_id>', methods=['PUT'])
@@ -132,13 +147,17 @@ def create_ad_request(campaign_id):
         return jsonify({'error': 'Campaign not found or unauthorized'}), 404
 
     body = request.get_json(silent=True) or {}
-    influencer_id = body.get('influencerId')
+    cleaned, errors = validate_schema(AdRequestSchema(), body)
+    if errors:
+        return jsonify({'errors': errors}), 422
+
+    influencer_id = cleaned.get('influencerId')
 
     ad_request = AdRequest(
         campaign_id=campaign_id,
-        influencer_id=int(influencer_id) if influencer_id else None,
-        message=body.get('message', ''),
-        proposed_terms=body.get('proposedTerms', '')
+        influencer_id=influencer_id,
+        message=cleaned.get('message', ''),
+        proposed_terms=cleaned.get('proposedTerms', '')
     )
     db.session.add(ad_request)
     db.session.commit()
@@ -158,8 +177,22 @@ def get_ad_requests(campaign_id):
     if not campaign:
         return jsonify({'error': 'Campaign not found or unauthorized'}), 404
 
-    ad_requests = AdRequest.query.filter_by(campaign_id=campaign_id).all()
-    return jsonify([ar.to_dict() for ar in ad_requests]), 200
+    page     = request.args.get('page', 1, type=int)
+    per_page = min(request.args.get('per_page', 20, type=int), 100)
+
+    pagination = (
+        AdRequest.query
+        .filter_by(campaign_id=campaign_id)
+        .order_by(AdRequest.created_at.desc())
+        .paginate(page=page, per_page=per_page, error_out=False)
+    )
+    return jsonify({
+        'items':    [ar.to_dict() for ar in pagination.items],
+        'total':    pagination.total,
+        'page':     page,
+        'per_page': per_page,
+        'pages':    pagination.pages,
+    }), 200
 
 
 @campaign_bp.route('/ad-request/<int:ad_request_id>', methods=['PUT'])
@@ -181,15 +214,16 @@ def update_ad_request(ad_request_id):
         return jsonify({'error': 'Unauthorized to update this ad request'}), 403
 
     body = request.get_json(silent=True) or {}
-    valid_statuses = ('pending', 'accepted', 'rejected', 'negotiation')
-    if 'status' in body:
-        if body['status'] not in valid_statuses:
-            return jsonify({'error': f'status must be one of {valid_statuses}'}), 400
-        ar.status = body['status']
-    if 'message' in body:
-        ar.message = body['message']
-    if 'proposedTerms' in body:
-        ar.proposed_terms = body['proposedTerms']
+    cleaned, errors = validate_schema(AdRequestUpdateSchema(), body)
+    if errors:
+        return jsonify({'errors': errors}), 422
+
+    if cleaned.get('status') is not None:
+        ar.status = cleaned['status']
+    if cleaned.get('message') is not None:
+        ar.message = cleaned['message']
+    if cleaned.get('proposedTerms') is not None:
+        ar.proposed_terms = cleaned['proposedTerms']
 
     db.session.commit()
     return jsonify(ar.to_dict()), 200

@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './theme/ThemeContext';
 import { SignUpProvider } from './signup/SignUpContext';
+import ProtectedRoute from './components/ProtectedRoute';
 
 import DeviceDisplay    from './Components/DeviceDisplay';
 import About            from './Components/About';
@@ -36,11 +37,29 @@ const router = createBrowserRouter([
     ],
   },
   { path: '/signup-success',    element: <SignUpSuccess /> },
-  { path: '/admin-dashboard',   element: <AdminDashboard /> },
-  { path: '/influencer/dashboard', element: <InfluencerDashboard /> },
+  {
+    path: '/admin-dashboard',
+    element: (
+      <ProtectedRoute role="admin">
+        <AdminDashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/influencer/dashboard',
+    element: (
+      <ProtectedRoute role="influencer">
+        <InfluencerDashboard />
+      </ProtectedRoute>
+    ),
+  },
   {
     path: '/sponsor-dashboard',
-    element: <DashboardLayout />,
+    element: (
+      <ProtectedRoute role="sponsor">
+        <DashboardLayout />
+      </ProtectedRoute>
+    ),
     children: [
       { path: 'home',     element: <SponsorHome /> },
       { path: 'campaign', element: <Campaigns /> },

@@ -51,6 +51,10 @@ class BaseConfig:
     EXECUTOR_MAX_WORKERS = 4
     EXECUTOR_PROPAGATE_EXCEPTIONS = True
 
+    # ── Caching (simple in-memory, 5-min default TTL) ─────────────────────────
+    CACHE_TYPE = 'SimpleCache'
+    CACHE_DEFAULT_TIMEOUT = 300   # 5 minutes
+
     # ── Admin seed ────────────────────────────────────────────────────────────
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@insync.dev')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Admin@1234')

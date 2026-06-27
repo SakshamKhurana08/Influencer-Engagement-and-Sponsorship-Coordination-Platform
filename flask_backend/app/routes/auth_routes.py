@@ -14,6 +14,7 @@ from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.models.influencer import Influencer
 from app.utils.files import save_profile_image
+from app.utils.schemas import validate_schema, RegisterSchema, LoginSchema
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -30,16 +31,14 @@ def register():
     data = request.form.to_dict() if request.content_type and 'multipart' in request.content_type \
         else (request.get_json(silent=True) or {})
 
-    name = data.get('name', '').strip()
-    email = data.get('email', '').strip().lower()
-    password = data.get('password', '')
-    role = data.get('role', '').strip()
+    cleaned, errors = validate_schema(RegisterSchema(), data)
+    if errors:
+        return jsonify({'message': 'Validation failed', 'errors': errors}), 422
 
-    if not all([name, email, password, role]):
-        return jsonify({'message': 'name, email, password, and role are required'}), 400
-
-    if role not in ('sponsor', 'influencer'):
-        return jsonify({'message': 'role must be sponsor or influencer'}), 400
+    name     = cleaned['name'].strip()
+    email    = cleaned['email'].strip().lower()
+    password = cleaned['password']
+    role     = cleaned['role']
 
     if User.query.filter_by(email=email).first():
         return jsonify({'message': 'User already exists'}), 400
@@ -51,9 +50,9 @@ def register():
         db.session.flush()  # get user.id before committing
 
         if role == 'sponsor':
-            company = data.get('company', '').strip()
-            industry = data.get('industry', '').strip()
-            budget = data.get('budget')
+            company = cleaned.get('company') or data.get('company', '').strip()
+            industry = cleaned.get('industry') or data.get('industry', '').strip()
+            budget = cleaned.get('budget') or data.get('budget')
             if not company:
                 raise ValueError('companyName is required for sponsors')
             sponsor = Sponsor(
@@ -65,9 +64,9 @@ def register():
             db.session.add(sponsor)
 
         elif role == 'influencer':
-            category = data.get('category', '').strip()
-            niche = data.get('niche', '').strip()
-            reach = data.get('reach')
+            category = cleaned.get('category') or data.get('category', '').strip()
+            niche = cleaned.get('niche') or data.get('niche', '').strip()
+            reach = cleaned.get('reach') or data.get('reach')
             if not category:
                 raise ValueError('category is required for influencers')
 
@@ -103,8 +102,12 @@ def login():
     Returns: { token, user }
     """
     body = request.get_json(silent=True) or {}
-    email = body.get('email', '').strip().lower()
-    password = body.get('password', '')
+    cleaned, errors = validate_schema(LoginSchema(), body)
+    if errors:
+        return jsonify({'message': 'Validation failed', 'errors': errors}), 422
+
+    email    = cleaned['email'].strip().lower()
+    password = cleaned['password']
 
     if not email or not password:
         return jsonify({'message': 'email and password are required'}), 400
