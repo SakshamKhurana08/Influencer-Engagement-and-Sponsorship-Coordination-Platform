@@ -2,7 +2,7 @@
 
 A full-stack web application that connects **sponsors** with **influencers** for campaign management and ad-request coordination.
 
-> **Architecture Note (June 2026 Migration):** The backend has been fully migrated from Node.js/Express/MySQL to **Flask/SQLAlchemy/PostgreSQL** (with SQLite fallback for local development). The React frontend remains unchanged. All API contracts are preserved so no frontend data-contract changes were needed.
+> **Architecture Note (June 2026 Migration):** The backend has been fully migrated from Node.js/Express/MySQL to **Flask/SQLAlchemy/PostgreSQL** (with SQLite fallback for local development). The React frontend is fully integrated with the Flask API. All API contracts are preserved.
 
 ---
 
@@ -18,7 +18,6 @@ A full-stack web application that connects **sponsors** with **influencers** for
 - [Frontend Pages & Features](#frontend-pages--features)
 - [What's Implemented](#whats-implemented)
 - [What's Pending / TODO](#whats-pending--todo)
-- [Known Issues](#known-issues)
 - [Contributing / Collaborating](#contributing--collaborating)
 
 ---
@@ -29,68 +28,31 @@ Two startup scripts handle everything automatically — dependency checks, venv 
 
 ### Prerequisites
 
-Make sure the following are installed and available on your `PATH` before running either script:
-
 | Tool | Version | Download |
 |------|---------|----------|
-| Python | 3.10 + | https://python.org |
-| Node.js | 18 + | https://nodejs.org |
-| curl | any | pre-installed on macOS, Linux, and Windows 10 1803+ |
+| Python | 3.10+ | https://python.org |
+| Node.js | 18+ | https://nodejs.org |
 
 > **PostgreSQL is not required for local development.** The `.env` defaults to SQLite — no database server setup needed.
+
+> **macOS note:** If port 5000 is blocked by AirPlay Receiver, set `PORT=5001` in `flask_backend/.env` and update `vite.config.js` proxy target to `http://localhost:5001`.
 
 ---
 
 ### ▶ macOS / Linux
 
-Open a terminal in the project root and run:
-
 ```bash
 bash start.sh
 ```
 
-The script will:
-1. Check for Python 3 and Node.js
-2. Create `flask_backend/venv` if it doesn't exist
-3. Activate the venv and install Python packages (only when `requirements.txt` changes)
-4. Copy `.env.example` → `.env` if no `.env` exists yet
-5. Run `flask init-db` to create database tables
-6. Run `flask seed-admin` to create the default admin account
-7. Install npm packages if `node_modules` is missing
-8. Start the Flask backend in the background on port **5000**
-9. Start the Vite frontend in the background on port **5173**
-10. Open `http://localhost:5173` in your default browser
-
-Press **Ctrl + C** once in the terminal to stop both servers cleanly.
-
-To stop without Ctrl + C (e.g., if you ran the script with `&`):
-
-```bash
-bash stop.sh
-```
-
-Logs are written to `flask.log` and `vite.log` in the project root.
+Starts Flask on port **5000** and Vite on **5173**, opens browser automatically.
+Press **Ctrl + C** to stop both. Run `bash stop.sh` if started with `&`.
 
 ---
 
 ### ▶ Windows
 
-Double-click `start.bat`, or run it from **Command Prompt** or **PowerShell**:
-
-```bat
-start.bat
-```
-
-The script performs the same 10 steps as the shell version. Two console windows open:
-
-- **"InSync — Flask API"** — keep open, shows Flask logs
-- **"InSync — Vite Frontend"** — keep open, shows Vite output
-
-Your default browser opens automatically to `http://localhost:5173`.
-
-To stop, close both console windows or press **Ctrl + C** in each.
-
-> **Tip (PowerShell users):** If execution policy blocks `.bat` files, run `cmd /c start.bat` instead, or call it directly from a standard Command Prompt.
+Double-click `start.bat` or run from Command Prompt. Two console windows open — keep both open.
 
 ---
 
@@ -101,47 +63,33 @@ To stop, close both console windows or press **Ctrl + C** in each.
 | Email | `admin@insync.dev` |
 | Password | `Admin@1234` |
 
-These are set in `flask_backend/.env`. Change them before any shared or production deployment.
-
----
-
-### What the Scripts Do at Each Step
-
-| Step | Action | Skipped if… |
-|------|--------|-------------|
-| 1 | Check Python 3 is on PATH | — |
-| 2 | Check Node.js is on PATH | — |
-| 3 | Create Python venv | `venv/` already exists |
-| 4 | `pip install -r requirements.txt` | `.deps_installed` marker file exists and `requirements.txt` hasn't changed |
-| 5 | Copy `.env.example` → `.env` | `.env` already exists |
-| 6 | `flask init-db` + `flask seed-admin` | Tables and admin already exist (commands are idempotent) |
-| 7 | `npm install` | `node_modules/` already exists |
-| 8 | Start Flask on port 5000 | — |
-| 9 | Start Vite on port 5173 | — |
-| 10 | Open browser at `http://localhost:5173` | — |
+Change these in `flask_backend/.env` before any shared or production deployment.
 
 ---
 
 ## Tech Stack
 
-| Layer        | Technology                                               |
-|--------------|----------------------------------------------------------|
-| **Frontend** | React 19, Vite 6, Tailwind CSS v4, Framer Motion         |
-| Routing      | React Router v7                                          |
-| HTTP client  | Axios (with Vite proxy — no hardcoded localhost URLs needed) |
-| Animations   | Lottie React                                             |
-| Icons        | Lucide React, React Icons                                |
-| **Backend**  | Python 3.12, Flask 3.0                                   |
-| ORM          | SQLAlchemy 2.0 via Flask-SQLAlchemy                      |
-| Migrations   | Flask-Migrate (Alembic)                                  |
-| **Database** | PostgreSQL (production) / SQLite (local dev fallback)    |
-| Auth         | Flask-JWT-Extended (PyJWT), bcrypt                       |
-| RBAC         | Custom role-guard decorators (`admin_required`, etc.)    |
-| File Upload  | Werkzeug FileStorage (replaces Multer)                   |
-| Async Tasks  | Flask-Executor (threading — replaces Redis/Celery)       |
-| CORS         | Flask-CORS                                               |
+| Layer        | Technology                                                        |
+|--------------|-------------------------------------------------------------------|
+| **Frontend** | React 19, Vite 6, Tailwind CSS v4, Framer Motion, Bootstrap 5    |
+| Routing      | React Router v7                                                   |
+| HTTP client  | Axios — shared `axiosInstance` with auto-token + 401 interceptor  |
+| Charts       | Chart.js via react-chartjs-2                                      |
+| Animations   | Lottie React                                                      |
+| Icons        | Lucide React, React Icons                                         |
+| **Backend**  | Python 3.12, Flask 3.0                                            |
+| ORM          | SQLAlchemy 2.0 via Flask-SQLAlchemy                               |
+| Migrations   | Flask-Migrate (Alembic)                                           |
+| **Database** | PostgreSQL (production) / SQLite (local dev fallback)             |
+| Auth         | Flask-JWT-Extended (PyJWT), bcrypt                                |
+| RBAC         | Custom role-guard decorators (`admin_required`, etc.)             |
+| Validation   | Marshmallow schemas (field-level, 422 on failure)                 |
+| Caching      | Flask-Caching (SimpleCache, 60s TTL on admin stats)               |
+| File Upload  | Werkzeug FileStorage (UUID filename, images only, 10MB limit)     |
+| Async Tasks  | Flask-Executor (threading)                                        |
+| CORS         | Flask-CORS                                                        |
 
-> **Legacy backend** (Node.js/Express/MySQL) is preserved in `Server/` for reference. It is **no longer the active backend**.
+> **Legacy backend** (Node.js/Express/MySQL) is preserved in `Server/` for reference only. Do not run it alongside Flask.
 
 ---
 
@@ -152,49 +100,57 @@ root/
 ├── flask_backend/                    # ✅ Active Python/Flask backend
 │   ├── run.py                        # Application entry point
 │   ├── requirements.txt              # All Python dependencies (pinned)
-│   ├── .env                          # Local environment variables (git-ignored)
+│   ├── .env                          # Local env vars (git-ignored)
 │   ├── .env.example                  # Template — copy to .env and fill in values
 │   ├── venv/                         # Python virtual environment
 │   └── app/
-│       ├── __init__.py               # App factory (create_app)
-│       ├── config.py                 # Config classes: Dev / Prod / Test + DB fallback
+│       ├── __init__.py               # App factory — Flask-Caching added in Phase 4
+│       ├── config.py                 # Dev/Prod/Test configs + SQLite fallback + cache config
 │       ├── commands.py               # CLI: flask seed-admin, flask init-db
 │       ├── models/
-│       │   ├── __init__.py           # Imports all models for Flask-Migrate
-│       │   ├── user.py               # User (base auth table, all roles)
-│       │   ├── sponsor.py            # Sponsor profile
-│       │   ├── influencer.py         # Influencer profile + AcceptedCampaigns junction
-│       │   ├── campaign.py           # Campaign
-│       │   └── ad_request.py         # AdRequest
+│       │   ├── user.py
+│       │   ├── sponsor.py
+│       │   ├── influencer.py         # AcceptedCampaigns many-to-many junction
+│       │   ├── campaign.py
+│       │   └── ad_request.py
 │       ├── routes/
-│       │   ├── auth_routes.py        # /api/auth — register, login, profile
-│       │   ├── admin_routes.py       # /api/admin — stats, flag, remove, search
-│       │   ├── influencer_routes.py  # /api/influencer — profile, campaigns, ad-requests
-│       │   ├── sponsor_routes.py     # /api/sponsors — profile CRUD
-│       │   └── campaign_routes.py    # /api/campaign — full campaign + ad-request CRUD
+│       │   ├── auth_routes.py        # /api/auth — marshmallow-validated register/login
+│       │   ├── admin_routes.py       # /api/admin — cached stats, flag, remove, search
+│       │   ├── influencer_routes.py  # /api/influencer — paginated open-campaigns
+│       │   ├── sponsor_routes.py     # /api/sponsors — marshmallow-validated profile update
+│       │   └── campaign_routes.py    # /api/campaign — paginated my-campaigns + ad-requests
 │       └── utils/
-│           ├── auth.py               # RBAC decorators (admin_required, etc.)
-│           └── files.py              # Profile image upload helper
+│           ├── auth.py               # RBAC decorators
+│           ├── files.py              # Profile image upload helper
+│           └── schemas.py            # Marshmallow validation schemas (Phase 4)
 │
 ├── src/                              # React frontend (Vite)
-│   ├── App.jsx                       # All client-side routes
-│   └── Components/
-│       ├── AdminDashboard.jsx
-│       ├── InfluencerDashboard.jsx
-│       ├── LoginForm.jsx
-│       └── SponsorDashboard/
-│           ├── Campaigns.jsx
-│           ├── Settings.jsx
-│           └── ...
+│   ├── App.jsx                       # All routes wrapped in ProtectedRoute
+│   ├── api/
+│   │   └── axiosInstance.js          # Shared axios — auto Bearer token + 401 redirect
+│   ├── Components/
+│   │   ├── ProtectedRoute.jsx        # Role-based frontend guard (Phase 4)
+│   │   ├── AdminDashboard.jsx        # Stats charts, flagged, search, ongoing campaigns
+│   │   ├── InfluencerDashboard.jsx   # Profile, filter campaigns, ad requests
+│   │   ├── LoginForm.jsx
+│   │   └── SponsorDashboard/
+│   │       ├── Campaigns.jsx         # Full campaign + ad-request CRUD
+│   │       ├── Settings.jsx          # Sponsor profile update
+│   │       ├── SponsorHome.jsx
+│   │       └── Sidebar.jsx
+│   ├── signup/                       # Multi-step signup flow
+│   │   └── steps/
+│   │       ├── SignUpStep1.jsx
+│   │       ├── SignUpStep2.jsx
+│   │       └── SignUpStep3.jsx       # Uses shared api instance
+│   └── theme/
+│       └── ThemeContext.jsx          # Light/dark mode toggle
 │
 ├── Server/                           # ⚠️ Legacy Node.js backend (reference only)
-│   └── ...                           # Do NOT run alongside Flask
-│
 ├── uploads/
-│   └── influencer_photos/            # Profile image storage (auto-created)
-├── public/
-│   └── assets/                       # Static images and slider assets
-├── vite.config.js                    # Vite config with /api and /uploads proxy
+│   └── influencer_photos/            # Auto-created; stores influencer profile images
+├── public/assets/                    # Static images and slider assets
+├── vite.config.js                    # Proxy: /api/* and /uploads/* → Flask
 ├── index.html
 └── package.json
 ```
@@ -206,83 +162,68 @@ root/
 ### ✅ Phase 1 — Environment Setup, Shared Schema & PostgreSQL Modeling
 **Status: COMPLETE**
 
-- [x] Python 3.12 virtual environment created at `flask_backend/venv`
-- [x] `requirements.txt` generated with all pinned dependencies
-- [x] Flask app factory pattern (`create_app`) with dev/prod/test configs
-- [x] PostgreSQL-first database config with automatic SQLite fallback
-- [x] `SQLALCHEMY_DATABASE_URI` auto-detects from `DATABASE_URL` env var
+- [x] Python 3.12 virtual environment at `flask_backend/venv`
+- [x] `requirements.txt` with all pinned dependencies
+- [x] Flask app factory (`create_app`) with dev/prod/test configs
+- [x] PostgreSQL-first DB config with automatic SQLite fallback
 - [x] SQLAlchemy 2.0 models: User, Sponsor, Influencer, Campaign, AdRequest
 - [x] AcceptedCampaigns many-to-many junction table
-- [x] All cascade deletes configured on foreign keys
-- [x] Flask-Migrate (Alembic) integrated for schema version control
-- [x] `flask init-db` CLI command for first-time table creation
-- [x] `flask seed-admin` CLI command seeds admin from `.env` credentials
+- [x] Cascade deletes on all foreign keys
+- [x] Flask-Migrate (Alembic) for schema version control
+- [x] `flask init-db` and `flask seed-admin` CLI commands
 
 ### ✅ Phase 2 — Authentication & RBAC
 **Status: COMPLETE**
 
 - [x] `POST /api/auth/register` — transactional multi-table user creation
-- [x] `POST /api/auth/login` — bcrypt verify + JWT with role claim embedded
-- [x] `GET /api/auth/profile` — returns authenticated user record
-- [x] JWT tokens expire in 1 hour; role claim embedded in token payload
-- [x] `admin_required()` decorator — blocks non-admin JWT tokens with 403
-- [x] `sponsor_required()` decorator — blocks non-sponsor JWT tokens with 403
-- [x] `influencer_required()` decorator — blocks non-influencer JWT tokens with 403
-- [x] `roles_required(*roles)` — flexible multi-role guard
-- [x] Admin user created via `flask seed-admin` (no public registration endpoint)
+- [x] `POST /api/auth/login` — bcrypt verify + JWT with role claim
+- [x] JWT tokens expire in 1 hour
+- [x] `admin_required`, `sponsor_required`, `influencer_required` decorators
+- [x] `roles_required(*roles)` flexible multi-role guard
 - [x] Profile image upload for influencers (Werkzeug, UUID filename, 10MB limit)
-- [x] Vite proxy configured so frontend uses `/api/...` relative paths
+- [x] Vite proxy configured — frontend uses `/api/...` relative paths
 
 ### ✅ Phase 3 — Core Dashboards & Management Features
 **Status: COMPLETE**
 
-- [x] **Sponsor campaigns:** Full CRUD — create, list (with accepted influencers), update, delete
-- [x] **Ad requests:** Sponsors can create, list, update (status/message/terms), delete per campaign
-- [x] **Influencer campaigns:** Browse public campaigns with `category` + `minBudget` filters; `isAcceptedByUser` flag per result
-- [x] **Campaign acceptance:** Influencer accepts public campaign → AcceptedCampaigns junction
-- [x] **Ad request actions:** Influencer can accept or reject pending requests; status transitions enforced
-- [x] **Admin ongoing campaigns:** Real progress % (accepted/total ad requests, not random)
-- [x] **Admin flagged:** View flagged campaigns with sponsor company name
-- [x] **Admin flag/remove:** Flag or permanently delete users and campaigns
-- [x] **Admin search:** Case-insensitive substring search across users and campaigns
-- [x] **Admin stats:** Platform-wide counts including flagged users and campaigns
-- [x] **Sponsor profile:** View + update name, company, industry, budget; email immutable
-- [x] **Influencer profile:** View + update name, category, niche, reach
+- [x] Sponsor campaign CRUD (create, list with accepted influencers, update, delete)
+- [x] Ad request CRUD per campaign
+- [x] Influencer: browse + filter public campaigns, `isAcceptedByUser` flag
+- [x] Influencer: accept campaigns, accept/reject ad requests with status enforcement
+- [x] Admin: ongoing campaigns with real progress %, flagged entities, search, stats, flag/remove
 
-### 🔲 Phase 4 — Optimization, Performance Caching & Frontend Integration
+### ✅ Phase 4 — Optimization, Performance Caching & Frontend Integration
+**Status: COMPLETE**
+
+- [x] **ProtectedRoute** — `src/Components/ProtectedRoute.jsx` wraps all three dashboards; redirects unauthenticated users to `/login` and wrong-role users to their own dashboard
+- [x] **Shared axios instance** — `src/api/axiosInstance.js` auto-attaches Bearer token; 401 interceptor clears localStorage and redirects to `/login`
+- [x] **All axios calls migrated** — every frontend component (LoginForm, SignUpStep3, InfluencerDashboard, Campaigns, Settings, SponsorHome, SponsorForm, InfluencerForm, Navbar) now uses the shared `api` instance — zero hardcoded `localhost` URLs remain
+- [x] **Marshmallow validation** — `flask_backend/app/utils/schemas.py` defines RegisterSchema, LoginSchema, CampaignSchema, AdRequestSchema, AdRequestUpdateSchema, SponsorProfileSchema, InfluencerProfileSchema; all routes return 422 with field-level errors on invalid input
+- [x] **Pagination** — `GET /api/campaign/my-campaigns`, `GET /api/campaign/<id>/ad-requests`, and `GET /api/influencer/open-campaigns` support `page` + `per_page` query params; responses return `{ items, total, page, per_page, pages }`
+- [x] **Flask-Caching** — admin `/stats` endpoint cached for 60s (SimpleCache); cache invalidated on flag/remove operations
+- [x] **JSX syntax bugs fixed** — stray `{/* comment */}` inside ternaries in `AdminDashboard.jsx` and `Campaigns.jsx` resolved
+- [x] **Campaign filter UI** — influencer dashboard has category and min-budget filter inputs wired to the API
+- [x] **`setMessage` bug fixed** — `InfluencerDashboard.jsx` now uses `setError` consistently
+
+### 🔲 Phase 5 — Background Tasks, CSV Exports & Negotiation Flow
 **Status: PLANNED**
 
-- [ ] Wire admin Stats tab in `AdminDashboard.jsx` to `/api/admin/stats`
-- [ ] Connect admin Flag/Remove buttons in search results
-- [ ] Add campaign filter inputs to `InfluencerDashboard.jsx` (API already supports it)
-- [ ] Add `ProtectedRoute` component in React for frontend RBAC
-- [ ] Switch all `http://localhost:2020` hardcoded URLs to relative `/api/...` paths (Vite proxy active)
-- [ ] JWT session expiry handling — detect 401 responses, redirect to `/login`
-- [ ] Add result pagination (`page`, `per_page` query params) on list endpoints
-- [ ] Response caching layer (Flask-Caching with simple in-memory or Redis)
-- [ ] Input validation layer (marshmallow schemas)
-- [ ] Fix `InfluencerDashboard.jsx` bug: `setMessage` → `setError`
-- [ ] Fix profile image path: store only filename, not full OS path
-
-### 🔲 Phase 5 — Background Tasks, CSV Exports & Scheduled Notification Crons
-**Status: PLANNED**
-
-- [ ] Flask-Executor async tasks: email notifications on ad request status change
-- [ ] CSV export endpoint for admin: `/api/admin/export/campaigns`
-- [ ] CSV export endpoint for admin: `/api/admin/export/users`
-- [ ] Webhook-based scheduled cron for daily digest emails (external trigger, free-tier Docker compatible)
-- [ ] Negotiation flow UI: counter-offer on ad request (status: `negotiation`, `proposedTerms` field)
+- [ ] Flask-Executor async email notifications on ad request status change
+- [ ] CSV export: `GET /api/admin/export/campaigns`
+- [ ] CSV export: `GET /api/admin/export/users`
+- [ ] Webhook-based daily digest cron (free-tier Docker compatible)
+- [ ] Negotiation flow UI — counter-offer on ad requests (`negotiation` status + `proposedTerms`)
 - [ ] Sponsor profile image upload (mirroring influencer upload)
 
-### 🔲 Phase 6 — Multi-Stage Dockerization, System Testing & Final Documentation
+### 🔲 Phase 6 — Dockerization, Testing & Final Documentation
 **Status: PLANNED**
 
-- [ ] Multi-stage `Dockerfile` for Flask backend (builder + slim runtime)
+- [ ] Multi-stage `Dockerfile` for Flask backend
 - [ ] `docker-compose.yml` — Flask + PostgreSQL + React (nginx)
-- [ ] Integration test suite for all API endpoints (pytest + Flask test client)
-- [ ] `.env.production` template for deployment
-- [ ] Full API documentation (OpenAPI/Swagger or Redoc)
-- [ ] Final README polish + deployment guide
+- [ ] Integration test suite (pytest + Flask test client)
+- [ ] `.env.production` template
+- [ ] OpenAPI/Swagger documentation
+- [ ] Final deployment guide
 
 ---
 
@@ -293,92 +234,80 @@ Managed by SQLAlchemy + Flask-Migrate. PostgreSQL in production; SQLite auto-fal
 ### Tables
 
 **users**
-| Column      | Type                                        | Notes                  |
-|-------------|---------------------------------------------|------------------------|
-| id          | INTEGER PK autoincrement                    |                        |
-| name        | VARCHAR(255) NOT NULL                       |                        |
-| email       | VARCHAR(255) UNIQUE NOT NULL                | indexed                |
-| password    | VARCHAR(255) NOT NULL                       | bcrypt hashed          |
-| role        | ENUM('admin','sponsor','influencer')        |                        |
-| is_flagged  | BOOLEAN default false                       |                        |
-| created_at  | TIMESTAMP                                   |                        |
-| updated_at  | TIMESTAMP                                   |                        |
+| Column      | Type                                        | Notes             |
+|-------------|---------------------------------------------|-------------------|
+| id          | INTEGER PK autoincrement                    |                   |
+| name        | VARCHAR(255) NOT NULL                       |                   |
+| email       | VARCHAR(255) UNIQUE NOT NULL                | indexed           |
+| password    | VARCHAR(255) NOT NULL                       | bcrypt hashed     |
+| role        | ENUM('admin','sponsor','influencer')        |                   |
+| is_flagged  | BOOLEAN default false                       |                   |
+| created_at  | TIMESTAMP                                   |                   |
+| updated_at  | TIMESTAMP                                   |                   |
 
 **sponsors**
-| Column       | Type             | Notes                   |
-|--------------|------------------|-------------------------|
-| id           | INTEGER PK       |                         |
-| user_id      | FK → users.id    | CASCADE DELETE, UNIQUE  |
-| company_name | VARCHAR(255)     |                         |
-| industry     | VARCHAR(255)     |                         |
-| budget       | INTEGER          |                         |
+| Column       | Type             | Notes                  |
+|--------------|------------------|------------------------|
+| id           | INTEGER PK       |                        |
+| user_id      | FK → users.id    | CASCADE DELETE, UNIQUE |
+| company_name | VARCHAR(255)     |                        |
+| industry     | VARCHAR(255)     |                        |
+| budget       | INTEGER          |                        |
 
 **influencers**
-| Column            | Type             | Notes                   |
-|-------------------|------------------|-------------------------|
-| id                | INTEGER PK       |                         |
-| user_id           | FK → users.id    | CASCADE DELETE, UNIQUE  |
-| category          | VARCHAR(255)     | NOT NULL                |
-| niche             | VARCHAR(255)     |                         |
-| reach             | INTEGER          |                         |
-| profile_image_url | VARCHAR(500)     | stored filename         |
+| Column            | Type          | Notes                  |
+|-------------------|---------------|------------------------|
+| id                | INTEGER PK    |                        |
+| user_id           | FK → users.id | CASCADE DELETE, UNIQUE |
+| category          | VARCHAR(255)  | NOT NULL               |
+| niche             | VARCHAR(255)  |                        |
+| reach             | INTEGER       |                        |
+| profile_image_url | VARCHAR(500)  | stored filename only   |
 
 **campaigns**
-| Column      | Type             | Notes                          |
-|-------------|------------------|--------------------------------|
-| id          | INTEGER PK       |                                |
-| sponsor_id  | FK → sponsors.id | CASCADE DELETE                 |
-| title       | VARCHAR(255)     | NOT NULL                       |
-| description | TEXT             |                                |
-| category    | VARCHAR(255)     |                                |
-| budget      | INTEGER          |                                |
-| is_public   | BOOLEAN          | default true                   |
-| is_flagged  | BOOLEAN          | default false                  |
-| created_at  | TIMESTAMP        |                                |
-| updated_at  | TIMESTAMP        |                                |
+| Column      | Type             | Notes           |
+|-------------|------------------|-----------------|
+| id          | INTEGER PK       |                 |
+| sponsor_id  | FK → sponsors.id | CASCADE DELETE  |
+| title       | VARCHAR(255)     | NOT NULL        |
+| description | TEXT             |                 |
+| category    | VARCHAR(255)     |                 |
+| budget      | INTEGER          |                 |
+| is_public   | BOOLEAN          | default true    |
+| is_flagged  | BOOLEAN          | default false   |
+| created_at  | TIMESTAMP        |                 |
+| updated_at  | TIMESTAMP        |                 |
 
 **ad_requests**
-| Column         | Type                                               | Notes           |
-|----------------|----------------------------------------------------|-----------------|
-| id             | INTEGER PK                                         |                 |
-| campaign_id    | FK → campaigns.id                                  | CASCADE DELETE  |
-| influencer_id  | FK → influencers.id                                | nullable        |
-| status         | ENUM('pending','accepted','rejected','negotiation') | default pending |
-| message        | TEXT                                               |                 |
-| proposed_terms | TEXT                                               |                 |
-| created_at     | TIMESTAMP                                          |                 |
-| updated_at     | TIMESTAMP                                          |                 |
+| Column         | Type                                                | Notes          |
+|----------------|-----------------------------------------------------|----------------|
+| id             | INTEGER PK                                          |                |
+| campaign_id    | FK → campaigns.id                                   | CASCADE DELETE |
+| influencer_id  | FK → influencers.id                                 | nullable       |
+| status         | ENUM('pending','accepted','rejected','negotiation') | default pending|
+| message        | TEXT                                                |                |
+| proposed_terms | TEXT                                                |                |
+| created_at     | TIMESTAMP                                           |                |
+| updated_at     | TIMESTAMP                                           |                |
 
-**accepted_campaigns** (many-to-many junction)
-| Column         | Type               |
-|----------------|--------------------|
-| influencer_id  | FK → influencers.id |
-| campaign_id    | FK → campaigns.id  |
-| accepted_at    | TIMESTAMP          |
+**accepted_campaigns** (junction)
+| Column        | Type                |
+|---------------|---------------------|
+| influencer_id | FK → influencers.id |
+| campaign_id   | FK → campaigns.id   |
+| accepted_at   | TIMESTAMP           |
 
 ---
 
 ## Manual Environment Setup
 
-> These are the manual steps. If you used `start.sh` or `start.bat` above, everything below has already been done for you.
-
-### Prerequisites
-
-- Python 3.10+
-- Node.js 18+ (for the React frontend)
-- PostgreSQL (optional for local dev — SQLite is used by default)
-
-### 1. Clone & set up Python venv
+### 1. Set up Python venv
 
 ```bash
 cd flask_backend
 python -m venv venv
-
-# Windows
-.\venv\Scripts\activate
-
-# macOS / Linux
-source venv/bin/activate
+source venv/bin/activate   # macOS/Linux
+# .\venv\Scripts\activate  # Windows
 
 pip install -r requirements.txt
 ```
@@ -386,224 +315,185 @@ pip install -r requirements.txt
 ### 2. Configure environment variables
 
 ```bash
-# Copy the example file
-cp .env.example .env
+cp flask_backend/.env.example flask_backend/.env
 ```
 
 Edit `flask_backend/.env`:
 
 ```env
-# Use SQLite for local dev (default — no setup needed)
+# SQLite for local dev (default — no setup needed)
 DATABASE_URL=sqlite:///influencer_dev.db
 
-# Switch to PostgreSQL when ready
+# PostgreSQL when ready:
 # DATABASE_URL=postgresql://postgres:your_password@localhost:5432/influencer_db
 
 JWT_SECRET_KEY=your-long-random-secret
 SECRET_KEY=another-long-random-secret
 ADMIN_EMAIL=admin@insync.dev
 ADMIN_PASSWORD=Admin@1234
+PORT=5001   # change if 5000 is taken (macOS AirPlay conflict)
 ```
 
 ### 3. Initialise the database
 
 ```bash
 # From flask_backend/ with venv active:
-
-# Option A — quick dev setup (creates all tables directly)
-python run.py  # tables auto-created on first run
-
-# Option B — use Flask-Migrate (recommended for production)
-flask db init
-flask db migrate -m "initial schema"
-flask db upgrade
-```
-
-### 4. Seed the admin user
-
-```bash
+flask init-db
 flask seed-admin
-# ✅ Admin user created: admin@insync.dev
 ```
 
-### 5. Install frontend dependencies
+### 4. Install frontend dependencies
 
 ```bash
 # From project root
-npm install
+npm install --legacy-peer-deps
 ```
+
+### 5. Vite proxy
+
+`vite.config.js` already proxies `/api/*` and `/uploads/*` to Flask. If you changed the Flask port, update the `target` values in `vite.config.js` to match.
 
 ---
 
 ## Running the Project Manually
 
-> Prefer `start.sh` / `start.bat` instead. These manual steps are here for reference or CI environments.
-
-### Flask Backend
-
 ```bash
+# Terminal 1 — Flask backend
 cd flask_backend
-.\venv\Scripts\activate   # Windows
-# source venv/bin/activate  # macOS/Linux
-
+source venv/bin/activate
 python run.py
-# 🚀 InSync Flask API starting on http://0.0.0.0:5000
-```
+# 🚀 InSync Flask API starting on http://0.0.0.0:5001
 
-### React Frontend
-
-```bash
-# From project root
+# Terminal 2 — React frontend
 npm run dev
 # Vite starts on http://localhost:5173
-# All /api/* requests are proxied to http://localhost:5000
 ```
-
-> The `vite.config.js` proxy is configured. The frontend no longer needs hardcoded `http://localhost:5000` URLs — use relative `/api/...` paths.
 
 ---
 
 ## API Reference
 
-All protected routes require `Authorization: Bearer <token>` header.
+All protected routes require `Authorization: Bearer <token>`.
+
+Validation errors return HTTP **422** with a structured `{ errors: { field: [messages] } }` body.
+
+Paginated list endpoints accept `?page=1&per_page=20` and return:
+```json
+{ "items": [...], "total": 42, "page": 1, "per_page": 20, "pages": 3 }
+```
 
 ### Auth — `/api/auth`
 
 | Method | Endpoint    | Auth | Description |
 |--------|-------------|------|-------------|
 | POST   | `/register` | No   | Register sponsor or influencer. `multipart/form-data` for influencer profile image. |
-| POST   | `/login`    | No   | Login. Returns `{ token, user }`. |
+| POST   | `/login`    | No   | Returns `{ token, user }`. |
 | GET    | `/profile`  | JWT  | Returns authenticated user record. |
 
-### Admin — `/api/admin` *(role: admin only)*
+### Admin — `/api/admin` *(admin only)*
 
-| Method | Endpoint               | Description |
-|--------|------------------------|-------------|
-| GET    | `/ongoing-campaigns`   | Campaigns with active ad requests + real progress % |
-| GET    | `/flagged`             | Flagged campaigns |
-| POST   | `/flag`                | Flag user or campaign. Body: `{ type, id }` |
-| DELETE | `/remove`              | Delete user or campaign. Body: `{ type, id }` |
-| GET    | `/search?query=`       | Search users by name + campaigns by title |
-| GET    | `/stats`               | Counts: users, sponsors, influencers, campaigns, adRequests, flaggedUsers, flaggedCampaigns |
+| Method | Endpoint             | Description |
+|--------|----------------------|-------------|
+| GET    | `/ongoing-campaigns` | Campaigns with active ad requests + real progress % |
+| GET    | `/flagged`           | Flagged campaigns |
+| POST   | `/flag`              | Flag user or campaign. Body: `{ type, id }` |
+| DELETE | `/remove`            | Delete user or campaign. Body: `{ type, id }` |
+| GET    | `/search?query=`     | Search users by name + campaigns by title |
+| GET    | `/stats`             | Platform counts (cached 60s). Returns `users, sponsors, influencers, campaigns, adRequests, flaggedUsers, flaggedCampaigns` |
 
-### Influencer — `/api/influencer` *(role: influencer only)*
+### Influencer — `/api/influencer` *(influencer only)*
 
-| Method | Endpoint                           | Description |
-|--------|------------------------------------|-------------|
-| GET    | `/profile`                         | View profile + user data |
-| PUT    | `/profile`                         | Update name, category, niche, reach |
-| GET    | `/open-campaigns`                  | Public campaigns. Params: `category`, `minBudget`. Includes `isAcceptedByUser`. |
-| POST   | `/campaigns/<id>/accept`           | Accept a public campaign |
-| GET    | `/ad-requests`                     | Ad requests for accepted campaigns (with Campaign + Sponsor data) |
-| POST   | `/ad-requests/<id>/<action>`       | `accept` or `reject` a pending ad request |
+| Method | Endpoint                      | Description |
+|--------|-------------------------------|-------------|
+| GET    | `/profile`                    | View profile + user data |
+| PUT    | `/profile`                    | Update name, category, niche, reach |
+| GET    | `/open-campaigns`             | Paginated public campaigns. Params: `category`, `minBudget`, `page`, `per_page`. Includes `isAcceptedByUser`. |
+| POST   | `/campaigns/<id>/accept`      | Accept a public campaign |
+| GET    | `/ad-requests`                | Ad requests for accepted campaigns |
+| POST   | `/ad-requests/<id>/<action>`  | `accept` or `reject` a pending ad request |
 
-### Sponsor — `/api/sponsors` *(role: sponsor only)*
+### Sponsor — `/api/sponsors` *(sponsor only)*
 
-| Method | Endpoint    | Description |
-|--------|-------------|-------------|
-| GET    | `/details`  | Raw Sponsor record |
-| GET    | `/profile`  | Sponsor + User combined |
-| PUT    | `/profile`  | Update name, companyName, industry, budget |
+| Method | Endpoint   | Description |
+|--------|------------|-------------|
+| GET    | `/details` | Raw Sponsor record |
+| GET    | `/profile` | Sponsor + User combined |
+| PUT    | `/profile` | Update name, companyName, industry, budget |
 
-### Campaigns — `/api/campaign` *(role: sponsor only)*
+### Campaigns — `/api/campaign` *(sponsor only)*
 
-| Method | Endpoint                              | Description |
-|--------|---------------------------------------|-------------|
-| POST   | `/`                                   | Create campaign |
-| GET    | `/my-campaigns`                       | List own campaigns (with accepted influencers) |
-| PUT    | `/<id>`                               | Update campaign |
-| DELETE | `/<id>`                               | Delete campaign |
-| POST   | `/<campaign_id>/ad-request`           | Send ad request to influencer |
-| GET    | `/<campaign_id>/ad-requests`          | List ad requests for a campaign |
-| PUT    | `/ad-request/<ad_request_id>`         | Update ad request status/message/terms |
-| DELETE | `/ad-request/<ad_request_id>`         | Delete ad request |
+| Method | Endpoint                          | Description |
+|--------|-----------------------------------|-------------|
+| POST   | `/`                               | Create campaign |
+| GET    | `/my-campaigns`                   | Paginated list. Params: `page`, `per_page` |
+| PUT    | `/<id>`                           | Update campaign |
+| DELETE | `/<id>`                           | Delete campaign |
+| POST   | `/<campaign_id>/ad-request`       | Send ad request |
+| GET    | `/<campaign_id>/ad-requests`      | Paginated ad requests for a campaign |
+| PUT    | `/ad-request/<ad_request_id>`     | Update status/message/terms |
+| DELETE | `/ad-request/<ad_request_id>`     | Delete ad request |
 
 ---
 
 ## Frontend Pages & Features
 
-| Route                         | Component           | Description |
-|-------------------------------|---------------------|-------------|
-| `/`                           | DeviceDisplay       | Landing page with device mockups and sliders |
-| `/about`                      | About               | About section with Lottie animation |
-| `/login`                      | LoginForm           | Email/password login, JWT in localStorage |
-| `/signup/step1–3`             | SignUpLayout        | Multi-step signup flow |
-| `/signup-success`             | SignUpSuccess       | Post-registration confirmation |
-| `/admin-dashboard`            | AdminDashboard      | Ongoing campaigns, flagged entities, search, stats |
-| `/influencer/dashboard`       | InfluencerDashboard | Profile, open campaigns, ad requests |
-| `/sponsor-dashboard/home`     | SponsorHome         | Sponsor overview |
-| `/sponsor-dashboard/campaign` | Campaigns           | Full CRUD for campaigns and ad requests |
-| `/sponsor-dashboard/settings` | Settings            | Sponsor profile update |
+| Route                         | Component           | Auth guard | Description |
+|-------------------------------|---------------------|------------|-------------|
+| `/`                           | DeviceDisplay       | None       | Landing page with device mockups |
+| `/about`                      | About               | None       | About section with Lottie animation |
+| `/login`                      | LoginForm           | None       | Email/password login, JWT stored, role redirect |
+| `/signup/step1–3`             | SignUpLayout        | None       | Multi-step signup (role → details → confirm) |
+| `/signup-success`             | SignUpSuccess       | None       | Post-registration confirmation |
+| `/admin-dashboard`            | AdminDashboard      | admin only | Stats charts, ongoing campaigns, flagged, search |
+| `/influencer/dashboard`       | InfluencerDashboard | influencer | Profile edit, filter campaigns, ad requests |
+| `/sponsor-dashboard/home`     | SponsorHome         | sponsor    | Company overview + quick actions |
+| `/sponsor-dashboard/campaign` | Campaigns           | sponsor    | Full campaign + ad-request CRUD |
+| `/sponsor-dashboard/settings` | Settings            | sponsor    | Profile update |
 
 ---
 
 ## What's Implemented
 
-### Flask Backend (Phase 1–3 complete)
-- [x] Python venv + all dependencies in `requirements.txt`
-- [x] Flask app factory with dev/prod/test config classes
-- [x] PostgreSQL database config with automatic SQLite fallback
-- [x] SQLAlchemy 2.0 models matching PRD schema exactly
-- [x] Flask-Migrate (Alembic) for schema version control
-- [x] User registration — transactional multi-table inserts, bcrypt password hashing
-- [x] JWT login with role claim embedded in token
-- [x] **Full RBAC** — `admin_required`, `sponsor_required`, `influencer_required` decorators on every route
-- [x] Admin seeded via `flask seed-admin` CLI command
-- [x] Profile image upload via Werkzeug (UUID filename, images only, 10MB limit)
-- [x] All sponsor campaign CRUD endpoints
-- [x] All ad request CRUD endpoints
-- [x] Influencer: browse + filter public campaigns, accept campaign
-- [x] Influencer: view + act on ad requests
-- [x] Admin: ongoing campaigns with real progress %, flagged entities, search, stats, flag/remove
-- [x] CORS configured for React frontend
-- [x] Vite proxy configured — no hardcoded API URLs needed
-- [x] Flask-Executor integrated for Phase 5 async tasks
+### Backend (Phases 1–4 complete)
+- [x] Flask app factory, SQLAlchemy models, Flask-Migrate
+- [x] PostgreSQL + SQLite fallback
+- [x] Transactional registration (bcrypt + JWT)
+- [x] Full RBAC decorators on every protected route
+- [x] All sponsor, influencer, admin, and campaign endpoints
+- [x] Marshmallow input validation — 422 with field-level errors
+- [x] Pagination on campaign list, ad-request list, open-campaigns
+- [x] Flask-Caching on admin stats (60s TTL, invalidated on mutation)
+- [x] Flask-Executor integrated for Phase 5 email tasks
+- [x] Profile image upload (UUID filename, images only, 10MB limit)
 
-### React Frontend (legacy, unchanged)
-- [x] Animated landing page
-- [x] Multi-step signup flow
-- [x] JWT-based login with role redirect
-- [x] Influencer dashboard
-- [x] Sponsor dashboard with campaign/ad request manager
-- [x] Admin dashboard (Stats tab and action buttons pending wire-up — Phase 4)
+### Frontend (Phases 1–4 complete)
+- [x] Animated landing page, About, multi-step signup
+- [x] JWT login with role-based redirect
+- [x] `ProtectedRoute` — wraps all three dashboards with role enforcement
+- [x] Shared `axiosInstance` — auto Bearer token + 401 → `/login` redirect
+- [x] Zero hardcoded `localhost` URLs — all API calls use Vite proxy
+- [x] Admin dashboard — stats charts (Bar + Doughnut), ongoing campaigns with progress bars, flagged entities, search with flag/remove buttons
+- [x] Influencer dashboard — profile edit, campaign filter (category + min budget), ad request accept/reject
+- [x] Sponsor dashboard — campaign CRUD, ad-request CRUD per campaign, accepted influencer list, settings
 
 ---
 
 ## What's Pending / TODO
 
-### Phase 4 (Next Up)
-
-- [ ] **Wire admin Stats tab** — `AdminDashboard.jsx` shows "coming soon"; connect to `/api/admin/stats`
-- [ ] **Admin Flag/Remove buttons** — no `onClick` handlers; connect to `/api/admin/flag` and `/api/admin/remove`
-- [ ] **Frontend RBAC** — add `ProtectedRoute` component; anyone with a token can navigate to any dashboard
-- [ ] **Switch hardcoded URLs** — replace all `http://localhost:2020` in React components with relative `/api/...` paths
-- [ ] **JWT expiry UX** — detect 401 responses and redirect to `/login` with a message
-- [ ] **Campaign filter UI** — influencer dashboard has no filter inputs (API supports `category`, `minBudget`)
-- [ ] **Fix `InfluencerDashboard.jsx` bug** — `setMessage` called but never declared; should be `setError`
-- [ ] **Fix profile image display** — `slice(-35)` on Windows path is fragile; store only filename in DB
-
 ### Phase 5
 
-- [ ] **Negotiation flow** — `proposedTerms` field exists; no UI for counter-offers
-- [ ] **Email notifications** — async via Flask-Executor on ad request status change
-- [ ] **CSV exports** — admin can download campaigns/users as CSV
-- [ ] **Scheduled cron** — daily digest via external webhook (free-tier Docker compatible)
-- [ ] **Sponsor profile image** — sponsors have no image upload yet
+- [ ] **Negotiation flow** — `proposedTerms` and `negotiation` status exist on the model; no UI for counter-offers yet
+- [ ] **Email notifications** — async via Flask-Executor when ad request status changes
+- [ ] **CSV exports** — `GET /api/admin/export/campaigns` and `GET /api/admin/export/users`
+- [ ] **Scheduled digest cron** — daily email via external webhook trigger
+- [ ] **Sponsor profile image** — sponsors have no image upload (influencers do)
 
 ### Phase 6
 
-- [ ] Multi-stage Docker setup
-- [ ] Integration test suite (pytest)
+- [ ] Multi-stage Docker setup (Dockerfile + docker-compose)
+- [ ] Integration test suite (pytest + Flask test client)
 - [ ] OpenAPI/Swagger documentation
-
----
-
-## Known Issues
-
-- `AdminDashboard.jsx` fetches `/api/admin/flagged-campaigns` but the Flask route is `/api/admin/flagged` — update the frontend fetch URL.
-- All React components still call `http://localhost:2020` (old Node.js port). The Vite proxy is configured but the components need to be updated to use relative `/api/...` paths.
-- `InfluencerDashboard.jsx` calls `setMessage` which is never declared (causes silent 401 handling failure).
-- The legacy `Server/` directory (Node.js) is still present for reference. Do not run it alongside the Flask backend on the same machine without changing ports.
+- [ ] `.env.production` template + deployment guide
 
 ---
 
@@ -612,30 +502,22 @@ All protected routes require `Authorization: Bearer <token>` header.
 ### Getting Started
 
 1. Clone the repo
-2. `cd flask_backend && python -m venv venv && .\venv\Scripts\activate`
+2. `cd flask_backend && python -m venv venv && source venv/bin/activate`
 3. `pip install -r requirements.txt`
 4. Copy `flask_backend/.env.example` → `flask_backend/.env` and fill in values
-5. `python run.py` (tables auto-created, SQLite used by default)
-6. `flask seed-admin` to create the admin user
-7. `cd ..` → `npm install` → `npm run dev` for the frontend
-
-### Branch Strategy
-
-```
-main      → stable only
-dev       → active development
-feature/  → branch from dev
-bugfix/   → branch from dev
-```
+5. `flask init-db && flask seed-admin`
+6. `cd .. && npm install --legacy-peer-deps && npm run dev`
+7. In a separate terminal: `cd flask_backend && python run.py`
 
 ### Key Files
 
 | File | Why it matters |
 |------|----------------|
-| `flask_backend/app/__init__.py` | App factory — extension init + blueprint registration |
-| `flask_backend/app/models/` | All SQLAlchemy models — central schema truth |
+| `flask_backend/app/__init__.py` | App factory — register blueprints + extensions here |
+| `flask_backend/app/utils/schemas.py` | All marshmallow schemas — add validation here |
 | `flask_backend/app/utils/auth.py` | RBAC decorators — applied to every protected route |
-| `flask_backend/app/config.py` | DB URL detection logic + all config classes |
-| `flask_backend/run.py` | Entry point — do not add business logic here |
-| `src/App.jsx` | All React routes |
-| `vite.config.js` | Proxy config — `/api/*` → Flask port 5000 |
+| `flask_backend/app/config.py` | DB URL detection + cache config |
+| `src/api/axiosInstance.js` | Shared HTTP client — token injection + 401 handling |
+| `src/Components/ProtectedRoute.jsx` | Frontend route guard — role enforcement |
+| `src/App.jsx` | All React routes — wrap new dashboards in ProtectedRoute |
+| `vite.config.js` | Proxy config — update port here if Flask port changes |
