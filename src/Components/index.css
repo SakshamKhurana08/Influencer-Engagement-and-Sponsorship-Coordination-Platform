@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+html,body,#root {
+    /* overflow-x: hidden; */
+    height:100%;
+    overflow:hidden;
+    font-family: "Inter", sans-serif;
+}
+
+.new-font{
+    font-family: "Barlow Condensed", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+}
+
+/* Slider Container */
+.slider {
+    width: 100vw;
+    height: var(--height);
+    overflow: hidden;
+    position: relative;
+    mask-image: linear-gradient(to right,
+            transparent,
+            #000 10% 90%,
+            transparent);
+}
+
+/* Slider List */
+.slider .list {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* Individual Item */
+.slider .item {
+    width: var(--width);
+    height: var(--height);
+    position: absolute;
+    top: 0;
+    left: calc(var(--width) * var(--position));
+    animation: autoRun 20s linear infinite;
+    transition: filter 0.5s;
+    animation-delay: calc((20s / var(--quantity)) * (var(--position) - 1) - 20s) !important;
+}
+
+
+/* Hover Effects */
+.slider:hover .item {
+    animation-play-state: paused !important;
+    filter: grayscale(1);
+}
+
+.slider .item:hover {
+    filter: grayscale(0);
+}
+
+/* Keyframes */
+@keyframes autoRun {
+    from {
+        left: 100%;
+    }
+
+    to {
+        left: calc(var(--width) * -1);
+    }
+}
