@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../api/axiosInstance';
 import { useNavigate, Link } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import { useTheme } from '../theme/ThemeContext';
@@ -22,7 +22,7 @@ export default function LoginForm() {
     if (!email || !password) { setMessage('Email and password are required.'); setIsError(true); return; }
     setLoading(true);
     try {
-      const { data } = await axios.post('/api/auth/login', { email, password });
+      const { data } = await api.post('/api/auth/login', { email, password });
       const { token, user } = data;
       localStorage.setItem('token', token);
       localStorage.setItem('userRole', user.role);
