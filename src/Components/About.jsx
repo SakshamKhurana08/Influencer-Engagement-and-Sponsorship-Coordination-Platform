@@ -1,119 +1,155 @@
-import Lottie from 'lottie-react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, ArrowLeft, Link2, BarChart2, Shield, MessageSquare, Zap, Target, Rocket, HeartHandshake } from 'lucide-react';
-import aboutAnimation from '../about-animation.json';
+import {
+  Mail, Phone, MapPin, ArrowLeft,
+  Link2, BarChart2, Shield, MessageSquare,
+  Zap, Target, Rocket, HeartHandshake,
+  Users, Building2, TrendingUp, Award,
+} from 'lucide-react';
 import Navbar from './Navbar';
 
 const PILLARS = [
-  {
-    Icon: Link2, title: 'Smart Matchmaking',
-    desc: 'AI-powered pairing between brands and creators based on niche, audience, and measurable campaign goals.',
-    grad: 'linear-gradient(135deg,#e60023,#d63384)',
-  },
-  {
-    Icon: BarChart2, title: 'Real-time Analytics',
-    desc: 'Track campaign ROI, reach, and engagement from a single unified dashboard — updated live.',
-    grad: 'linear-gradient(135deg,#d63384,#7c3aed)',
-  },
-  {
-    Icon: Shield, title: 'Secure & Scalable',
-    desc: 'JWT auth, role-based access, and a PostgreSQL-backed infrastructure designed for enterprise reliability.',
-    grad: 'linear-gradient(135deg,#7c3aed,#0d9488)',
-  },
-  {
-    Icon: MessageSquare, title: 'Negotiation Tools',
-    desc: 'Propose terms, counter-offer, and close deals entirely within the platform — no email chains needed.',
-    grad: 'linear-gradient(135deg,#0d9488,#e60023)',
-  },
+  { Icon: Link2,         title: 'Smart Matchmaking',   desc: 'AI-powered pairing between brands and creators based on niche, audience, and campaign goals.',       grad: 'linear-gradient(135deg,#5B58EB,#BB63FF)', glow: 'rgba(91,88,235,0.40)' },
+  { Icon: BarChart2,     title: 'Real-time Analytics', desc: 'Track campaign ROI, reach, and engagement from a single unified dashboard — updated live.',           grad: 'linear-gradient(135deg,#BB63FF,#56E1E9)', glow: 'rgba(187,99,255,0.40)' },
+  { Icon: Shield,        title: 'Secure & Scalable',   desc: 'JWT auth, role-based access, and PostgreSQL infrastructure designed for enterprise scale.',            grad: 'linear-gradient(135deg,#56E1E9,#5B58EB)', glow: 'rgba(86,225,233,0.40)' },
+  { Icon: MessageSquare, title: 'Negotiation Tools',   desc: 'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.',       grad: 'linear-gradient(135deg,#5B58EB,#56E1E9)', glow: 'rgba(91,88,235,0.40)' },
 ];
 
 const TIMELINE = [
-  { year:'2023', Icon: Zap,           title:'Platform Founded',       desc:'InSync was born from a single idea: influencer marketing deserved a modern, transparent home.' },
-  { year:'2024', Icon: Target,        title:'10,000 Creators Joined', desc:'Rapid adoption across fashion, tech, and lifestyle verticals with 10K verified creator profiles.' },
-  { year:'2025', Icon: Rocket,        title:'Enterprise Launch',      desc:'Full sponsor portal, campaign analytics dashboard, and negotiation suite released to the public.' },
-  { year:'2026', Icon: HeartHandshake,title:'₹28 Crore Facilitated',  desc:'Platform crossed ₹28 crore in successfully facilitated campaign budgets across 3,400+ brands.' },
+  { year: '2023', Icon: Zap,            title: 'Platform Founded',       desc: 'InSync was born from a single idea: influencer marketing deserved a modern, transparent home.',      color: '#5B58EB' },
+  { year: '2024', Icon: Target,         title: '10,000 Creators Joined', desc: 'Rapid adoption across fashion, tech, and lifestyle verticals with 10K verified creator profiles.',    color: '#BB63FF' },
+  { year: '2025', Icon: Rocket,         title: 'Enterprise Launch',      desc: 'Full sponsor portal, campaign analytics dashboard, and negotiation suite released to the public.',     color: '#56E1E9' },
+  { year: '2026', Icon: HeartHandshake, title: '₹28 Crore Facilitated',  desc: 'Platform crossed ₹28 crore in successfully facilitated campaign budgets across 3,400+ brands.',       color: '#BB63FF' },
+];
+
+const STATS = [
+  { value: '12K+',  label: 'Active Creators',  Icon: Users,      color: '#56E1E9' },
+  { value: '3.4K',  label: 'Brands Connected', Icon: Building2,  color: '#BB63FF' },
+  { value: '₹28Cr', label: 'Campaigns Funded', Icon: TrendingUp, color: '#5B58EB' },
+  { value: '97%',   label: 'Success Rate',     Icon: Award,      color: '#56E1E9' },
+];
+
+const CONTACT = [
+  { Icon: Mail,   text: 'customer-care@insync.org',       color: '#56E1E9' },
+  { Icon: Phone,  text: '+91 44 3993 XXXX',               color: '#BB63FF' },
+  { Icon: MapPin, text: 'New Delhi', color: '#5B58EB' },
 ];
 
 export default function About() {
   return (
-    <div className="is-page" style={{ overflowY:'auto', minHeight:'100vh' }}>
-      <div className="is-page-orb-c" />
+    <div className="is-page" style={{ overflowY: 'auto', minHeight: '20vh' }}>
+      <div className="is-page-orb-c" aria-hidden="true" />
       <Navbar />
 
       {/* ═══ HERO ═══ */}
-      <div className="is-section" style={{ paddingTop:'clamp(5rem,10vh,8rem)' }}>
-        <div className="row align-items-center g-5">
-          <div className="col-lg-6 order-lg-2 d-flex justify-content-center">
-            <Lottie animationData={aboutAnimation} loop style={{ maxWidth:460, width:'100%' }} />
-          </div>
-          <div className="col-lg-6 order-lg-1">
-            <Link to="/" className="is-btn is-btn-ghost text-decoration-none d-inline-flex mb-4" style={{ padding:'8px 18px', fontSize:'0.82rem' }}>
-              <ArrowLeft size={14} /> Home
+      <div style={{ padding: '74px var(--section-px) 2rem' }}>
+        <div className="row align-items-stretch g-4">
+
+          {/* Left: text */}
+          <div className="col-lg-6 d-flex flex-column justify-content-center">
+            <Link to="/" className="is-btn is-btn-ghost text-decoration-none d-inline-flex mb-3"
+              style={{ padding: '5px 12px', fontSize: '0.78rem', width: 'fit-content' }}>
+              <ArrowLeft size={13} strokeWidth={1.75} /> Home
             </Link>
-            <h1 className="display-brand mb-4" style={{ fontSize:'clamp(2.4rem,5vw,3.6rem)', color:'var(--text-primary)', lineHeight:1.08, letterSpacing:'-0.03em' }}>
+            <h1 className="display-brand" style={{ fontSize: 'clamp(1.9rem,4.2vw,3rem)', color: 'var(--text-primary)', lineHeight: 1.08, letterSpacing: '-0.03em', marginBottom: 14 }}>
               We're building the<br />
               <span className="is-gradient-text">future of creator</span><br />
               marketing.
             </h1>
-            <p style={{ color:'var(--text-secondary)', fontSize:'1.05rem', lineHeight:1.75, marginBottom:32, maxWidth:480 }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.70, marginBottom: 22, maxWidth: 460 }}>
               InSync connects brands with creators to build impactful, authentic digital campaigns — from first contact to final delivery, all in one transparent platform.
             </p>
             <div className="d-flex gap-3 flex-wrap">
-              <Link to="/signup" className="is-btn is-btn-brand text-decoration-none" style={{ padding:'12px 30px' }}>
-                <Rocket size={16} /> Join InSync
+              <Link to="/signup" className="is-btn is-btn-brand text-decoration-none" style={{ padding: '10px 24px' }}>
+                <Rocket size={15} strokeWidth={1.75} /> Join InSync
               </Link>
-              <Link to="/login" className="is-btn is-btn-ghost text-decoration-none" style={{ padding:'12px 30px' }}>
+              <Link to="/login" className="is-btn is-btn-ghost text-decoration-none" style={{ padding: '10px 24px' }}>
                 Sign In
               </Link>
+            </div>
+          </div>
+
+          {/* Right: instant-render stats grid (replaces Lottie) */}
+          <div className="col-lg-6 d-flex align-items-center">
+            <div style={{ width: '100%' }}>
+              {/* Top stat row */}
+              <div className="row g-3 mb-3">
+                {STATS.map(({ value, label, Icon, color }) => (
+                  <div key={label} className="col-6">
+                    <div style={{
+                      background: 'var(--bg-surface)',
+                      backdropFilter: 'var(--glass-blur)',
+                      border: `1px solid ${color}25`,
+                      borderRadius: 14,
+                      padding: '16px 18px',
+                      display: 'flex', alignItems: 'center', gap: 14,
+                    }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon size={18} color={color} strokeWidth={1.75} />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '1.5rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1, letterSpacing: '-0.02em' }}>{value}</div>
+                        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 3 }}>{label}</div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              {/* Bottom feature bar */}
+              <div style={{
+                background: 'var(--brand-grad)',
+                borderRadius: 14,
+                padding: '18px 22px',
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+                boxShadow: 'var(--brand-glow-btn)',
+              }}>
+                <div>
+                  <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', marginBottom: 4 }}>Platform Status</p>
+                  <p style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 800, margin: 0 }}>Live & Growing</p>
+                </div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['Fashion', 'Tech', 'Travel', 'Food'].map(tag => (
+                    <span key={tag} style={{ background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)', borderRadius: 999, padding: '3px 10px', fontSize: '0.68rem', fontWeight: 700, color: '#fff', whiteSpace: 'nowrap' }}>{tag}</span>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ═══ GLASSMORPHIC PILLARS ═══ */}
-      <div className="is-section" style={{ paddingTop:0 }}>
-        <h2 className="is-section-title text-center">
-          Our Core <span>Pillars</span>
-        </h2>
-        <div className="row g-4">
-          {PILLARS.map(({ Icon, title, desc, grad }) => (
+      {/* ═══ PILLARS ═══ */}
+      <div style={{ padding: '0 var(--section-px) 2rem' }}>
+        <h2 className="is-section-title text-center">Our Core <span>Pillars</span></h2>
+        <div className="row g-3">
+          {PILLARS.map(({ Icon, title, desc, grad, glow }) => (
             <div key={title} className="col-sm-6 col-lg-3">
-              <div className="is-card h-100 p-4" style={{ display:'flex', flexDirection:'column' }}>
-                {/* Gradient icon */}
-                <div style={{ width:52, height:52, borderRadius:15, background:grad, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:18, boxShadow:'0 6px 24px rgba(230,0,35,0.30)', flexShrink:0 }}>
-                  <Icon size={24} color="#fff" strokeWidth={2} />
+              <div className="is-card h-100 p-4 d-flex flex-column">
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: grad, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, boxShadow: `0 6px 20px ${glow}`, flexShrink: 0 }}>
+                  <Icon size={20} color="#fff" strokeWidth={1.75} />
                 </div>
-                <h6 className="fw-800 mb-2" style={{ color:'var(--text-primary)', fontSize:'0.95rem' }}>{title}</h6>
-                <p className="mb-0" style={{ color:'var(--text-secondary)', fontSize:'0.86rem', lineHeight:1.65, flexGrow:1 }}>{desc}</p>
+                <h6 className="fw-800 mb-2" style={{ color: 'var(--text-primary)', fontSize: '0.90rem' }}>{title}</h6>
+                <p className="mb-0" style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.65, flexGrow: 1 }}>{desc}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* ═══ TIMELINE ═══ */}
-      <div className="is-section" style={{ paddingTop:0 }}>
-        <h2 className="is-section-title text-center">
-          Our <span>Journey</span>
-        </h2>
-        <div style={{ maxWidth:760, margin:'0 auto' }}>
-          {TIMELINE.map(({ year, Icon, title, desc }, i) => (
-            <div key={year} className="d-flex gap-4 mb-5 align-items-start" style={{ position:'relative' }}>
-              {/* Connector line */}
-              {i < TIMELINE.length - 1 && (
-                <div style={{ position:'absolute', left:27, top:56, width:2, height:'calc(100% + 8px)', background:'var(--brand-grad)', opacity:0.25 }} />
-              )}
-              {/* Icon node */}
-              <div style={{ flexShrink:0, width:54, height:54, borderRadius:'50%', background:'var(--brand-grad)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'var(--brand-glow-btn)', zIndex:1 }}>
-                <Icon size={22} color="#fff" />
-              </div>
-              {/* Content */}
-              <div className="is-card p-4 flex-grow-1">
-                <div className="d-flex align-items-center gap-3 mb-2 flex-wrap">
-                  <span className="is-pill" style={{ background:'var(--brand-grad)', color:'#fff', fontSize:'0.68rem' }}>{year}</span>
-                  <h6 className="fw-800 mb-0" style={{ color:'var(--text-primary)' }}>{title}</h6>
+      {/* ═══ TIMELINE — 2×2 grid, no connector line, instant render ═══ */}
+      <div style={{ padding: '0 var(--section-px) 2rem' }}>
+        <h2 className="is-section-title text-center">Our <span>Journey</span></h2>
+        <div className="row g-3">
+          {TIMELINE.map(({ year, Icon, title, desc, color }) => (
+            <div key={year} className="col-sm-6">
+              <div className="is-card h-100 p-4 d-flex gap-3">
+                <div style={{ flexShrink: 0, width: 42, height: 42, borderRadius: '50%', background: `${color}18`, border: `1.5px solid ${color}38`, display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start' }}>
+                  <Icon size={19} color={color} strokeWidth={1.75} />
                 </div>
-                <p className="mb-0" style={{ color:'var(--text-secondary)', fontSize:'0.87rem', lineHeight:1.65 }}>{desc}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span className="is-pill d-inline-flex mb-2" style={{ background: 'var(--brand-grad)', color: '#fff', fontSize: '0.58rem' }}>{year}</span>
+                  <h6 className="fw-800 mb-1" style={{ color: 'var(--text-primary)', fontSize: '0.90rem' }}>{title}</h6>
+                  <p className="mb-0" style={{ color: 'var(--text-secondary)', fontSize: '0.81rem', lineHeight: 1.62 }}>{desc}</p>
+                </div>
               </div>
             </div>
           ))}
@@ -121,29 +157,23 @@ export default function About() {
       </div>
 
       {/* ═══ CONTACT ═══ */}
-      <div className="is-section" style={{ paddingTop:0 }}>
+      <div style={{ padding: '0 var(--section-px) 3rem' }}>
         <div className="row justify-content-center">
           <div className="col-md-8 col-lg-5">
-            <div className="is-card p-4 p-md-5">
+            <div className="is-card p-4">
               <h2 className="is-section-title">Get in <span>Touch</span></h2>
-              {[
-                { Icon: Mail,   text:'customer-care@insync.org' },
-                { Icon: Phone,  text:'+91 44 3993 XXXX' },
-                { Icon: MapPin, text:'Vellore Institute of Technology' },
-              ].map(({ Icon, text }) => (
-                <div key={text} className="d-flex align-items-center gap-3 mb-4">
-                  <div className="is-icon-box is-icon-box-sm">
-                    <Icon size={16} color="#fff" />
+              {CONTACT.map(({ Icon, text, color }) => (
+                <div key={text} className="d-flex align-items-center gap-3 mb-3">
+                  <div style={{ width: 34, height: 34, borderRadius: 9, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <Icon size={15} color={color} strokeWidth={1.75} />
                   </div>
-                  <span style={{ color:'var(--text-secondary)', fontSize:'0.9rem' }}>{text}</span>
+                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.87rem' }}>{text}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
-
-      <div style={{ height:48 }} />
     </div>
   );
 }

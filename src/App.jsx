@@ -1,7 +1,7 @@
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, Link } from 'react-router-dom';
 import { ThemeProvider } from './theme/ThemeContext';
 import { SignUpProvider } from './signup/SignUpContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './Components/ProtectedRoute';
 
 import DeviceDisplay    from './Components/DeviceDisplay';
 import About            from './Components/About';
@@ -65,6 +65,19 @@ const router = createBrowserRouter([
       { path: 'campaign', element: <Campaigns /> },
       { path: 'settings', element: <Settings /> },
     ],
+  },
+  {
+    path: '*',
+    element: (
+      <div className="is-page d-flex align-items-center justify-content-center" style={{ minHeight: '100vh', padding: 24, textAlign: 'center' }}>
+        <div className="is-page-orb-c" aria-hidden="true" />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <p className="display-brand is-gradient-text" style={{ fontSize: '5rem', fontWeight: 900, lineHeight: 1 }}>404</p>
+          <p style={{ color: 'var(--text-secondary)', marginBottom: 28, fontSize: '1rem' }}>This page doesn't exist.</p>
+          <Link to="/" className="is-btn is-btn-brand text-decoration-none">Go Home</Link>
+        </div>
+      </div>
+    ),
   },
 ]);
 

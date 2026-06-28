@@ -50,35 +50,36 @@ export default function SignUpStep2() {
     if (validate()) navigate('/signup/step3');
   };
 
+  /* Compact field — no extra wrapper card, tight spacing */
   const Field = ({ name, label, type = 'text', placeholder }) => (
-    <div className="mb-4">
-      <label className="is-label">{label}</label>
-      <input
-        name={name} type={type}
+    <div style={{ marginBottom:12 }}>
+      <label className="is-label" style={{ marginBottom:5 }}>{label}</label>
+      <input name={name} type={type}
         className={`is-input${errors[name] ? ' is-input-error' : ''}`}
         placeholder={placeholder} value={formData[name] || ''}
         onChange={handleChange}
         min={type === 'number' ? 1 : undefined}
-      />
+        style={{ height:44, fontSize:'0.875rem' }} />
       {errors[name] && <p className="is-error-msg">{errors[name]}</p>}
     </div>
   );
 
   return (
-    <div className="is-card p-4 p-md-5">
-      <div className="d-flex align-items-center gap-2 mb-4">
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--brand-grad)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--brand-glow-btn)' }}>
-          <Zap size={13} color="#fff" fill="#fff" />
+    <div>
+      {/* Step badge */}
+      <div className="d-flex align-items-center gap-2" style={{ marginBottom:14 }}>
+        <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 10px rgba(91,88,235,0.55)', flexShrink:0 }}>
+          <Zap size={11} color="#fff" fill="#fff" strokeWidth={1.75} />
         </div>
-        <span style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        <span style={{ fontSize:'0.60rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--text-muted)' }}>
           Step 2 of 3
         </span>
       </div>
 
-      <h2 className="fw-900 display-brand mb-1" style={{ fontSize: '1.9rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+      <h2 className="fw-900 display-brand" style={{ fontSize:'1.55rem', color:'var(--text-primary)', letterSpacing:'-0.02em', marginBottom:2 }}>
         {formData.role === 'influencer' ? 'Creator Details' : 'Brand Details'}
       </h2>
-      <p className="mb-5" style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+      <p style={{ color:'var(--text-muted)', fontSize:'0.82rem', marginBottom:16 }}>
         {formData.role === 'influencer'
           ? 'Tell brands about your content and reach'
           : 'Tell influencers about your company'}
@@ -91,32 +92,28 @@ export default function SignUpStep2() {
             <Field name="niche"    label="Your Niche"       placeholder="e.g. Streetwear, AI Tools" />
             <Field name="reach"    label="Total Reach (followers)" type="number" placeholder="50000" />
 
-            <div className="mb-4">
-              <label className="is-label">Profile Photo (optional)</label>
-              <label
-                htmlFor="profileImage"
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 16, padding: '16px',
-                  borderRadius: 14,
-                  border: `2px dashed ${preview ? 'var(--brand-1)' : 'var(--border-glass)'}`,
-                  background: 'var(--bg-input)',
-                  cursor: 'pointer',
-                  transition: 'var(--transition)',
-                  boxShadow: preview ? 'var(--brand-glow-btn)' : 'none',
-                }}
-              >
-                {preview ? (
-                  <img src={preview} alt="preview" style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--brand-grad)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Upload size={20} color="#fff" />
-                  </div>
-                )}
+            {/* Photo upload — compact */}
+            <div style={{ marginBottom:14 }}>
+              <label className="is-label" style={{ marginBottom:5 }}>Profile Photo <span style={{ fontWeight:500, textTransform:'none', letterSpacing:0 }}>(optional)</span></label>
+              <label htmlFor="profileImage" style={{
+                display:'flex', alignItems:'center', gap:12, padding:'10px 14px',
+                borderRadius:12,
+                border:`1.5px dashed ${preview ? '#5B58EB' : 'var(--border-glass)'}`,
+                background:'var(--bg-input)', cursor:'pointer',
+                transition:'var(--transition)',
+                boxShadow: preview ? '0 0 12px rgba(91,88,235,0.28)' : 'none',
+              }}>
+                {preview
+                  ? <img src={preview} alt="preview" style={{ width:40, height:40, borderRadius:'50%', objectFit:'cover', flexShrink:0 }} />
+                  : <div style={{ width:40, height:40, borderRadius:'50%', background:'var(--brand-grad)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                      <Upload size={17} color="#fff" strokeWidth={1.75} />
+                    </div>
+                }
                 <div>
-                  <p className="mb-0 fw-700" style={{ color: 'var(--text-primary)', fontSize: '0.875rem' }}>
+                  <p className="mb-0 fw-700" style={{ color:'var(--text-primary)', fontSize:'0.84rem' }}>
                     {preview ? 'Change photo' : 'Upload a photo'}
                   </p>
-                  <p className="mb-0" style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>PNG, JPG up to 10 MB</p>
+                  <p className="mb-0" style={{ color:'var(--text-muted)', fontSize:'0.74rem' }}>PNG, JPG up to 10 MB</p>
                 </div>
               </label>
               <input id="profileImage" type="file" accept="image/*" className="d-none" onChange={handleFile} />
@@ -126,16 +123,17 @@ export default function SignUpStep2() {
           <>
             <Field name="company"  label="Company Name"         placeholder="Acme Corp." />
             <Field name="industry" label="Industry"             placeholder="e.g. Retail, Software" />
-            <Field name="budget"   label="Campaign Budget (₹)" type="number" placeholder="50000" />
+            <Field name="budget"   label="Campaign Budget (₹)"  type="number" placeholder="50000" />
           </>
         )}
 
-        <div className="d-flex gap-3 mt-2">
-          <button type="button" onClick={() => navigate('/signup/step1')} className="is-btn is-btn-ghost" style={{ padding: '12px 24px' }}>
-            <ChevronLeft size={16} /> Back
+        <div className="d-flex gap-2" style={{ marginTop:16 }}>
+          <button type="button" onClick={() => navigate('/signup/step1')}
+            className="is-btn is-btn-ghost" style={{ padding:'11px 20px', fontSize:'0.875rem' }}>
+            <ChevronLeft size={15} strokeWidth={1.75} /> Back
           </button>
-          <button type="submit" className="is-btn is-btn-brand" style={{ flex: 1, padding: '12px' }}>
-            Continue <ChevronRight size={16} />
+          <button type="submit" className="is-btn is-btn-brand" style={{ flex:1, padding:'11px', fontSize:'0.875rem' }}>
+            Continue <ChevronRight size={15} strokeWidth={1.75} />
           </button>
         </div>
       </form>

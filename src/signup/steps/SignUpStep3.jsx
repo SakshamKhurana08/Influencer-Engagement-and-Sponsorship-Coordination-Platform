@@ -7,22 +7,17 @@ import { ChevronLeft, CheckCircle2, AlertCircle, Zap } from 'lucide-react';
 const Row = ({ label, value }) => {
   if (value == null || value === '') return null;
   return (
-    <div
-      className="d-flex justify-content-between align-items-center py-2"
-      style={{ borderBottom: '1px solid var(--border-glass)' }}
-    >
-      <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>{label}</span>
-      <span className="fw-700" style={{ color: 'var(--text-primary)', fontSize: '0.85rem' }}>{value}</span>
+    <div className="d-flex justify-content-between align-items-center"
+      style={{ padding:'7px 0', borderBottom:'1px solid var(--border-glass)' }}>
+      <span style={{ color:'var(--text-muted)', fontSize:'0.81rem' }}>{label}</span>
+      <span className="fw-700" style={{ color:'var(--text-primary)', fontSize:'0.81rem' }}>{value}</span>
     </div>
   );
 };
 
 const SectionBox = ({ title, children }) => (
-  <div
-    className="rounded-3 p-3 mb-3"
-    style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)' }}
-  >
-    <p className="fw-800 mb-3" style={{ fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
+  <div style={{ background:'rgba(13,31,74,0.50)', border:'1px solid var(--border-glass)', borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
+    <p className="fw-800" style={{ fontSize:'0.60rem', textTransform:'uppercase', letterSpacing:'0.10em', color:'var(--text-muted)', marginBottom:8 }}>
       {title}
     </p>
     {children}
@@ -45,64 +40,57 @@ export default function SignUpStep3() {
     }
   }, [profileImageFile]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (submitting) return;
     setSubmitting(true); setStatus(''); setIsError(false);
-
     const fd = new FormData();
     Object.entries(formData).forEach(([k, v]) => { if (v != null) fd.append(k, v); });
-    if (formData.role === 'influencer' && profileImageFile instanceof File) {
+    if (formData.role === 'influencer' && profileImageFile instanceof File)
       fd.append('profileImage', profileImageFile);
-    }
-
     try {
       await api.post('/api/auth/register', fd);
       navigate('/signup-success');
     } catch (err) {
       setStatus(err.response?.data?.message || 'Registration failed. Please try again.');
-      setIsError(true);
-      setSubmitting(false);
+      setIsError(true); setSubmitting(false);
     }
   };
 
   return (
-    <div className="is-card p-4 p-md-5">
-      <div className="d-flex align-items-center gap-2 mb-4">
-        <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--brand-grad)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--brand-glow-btn)' }}>
-          <Zap size={13} color="#fff" fill="#fff" />
+    <div>
+      {/* Step badge */}
+      <div className="d-flex align-items-center gap-2" style={{ marginBottom:14 }}>
+        <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 10px rgba(91,88,235,0.55)', flexShrink:0 }}>
+          <Zap size={11} color="#fff" fill="#fff" strokeWidth={1.75} />
         </div>
-        <span style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)' }}>
+        <span style={{ fontSize:'0.60rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--text-muted)' }}>
           Step 3 of 3
         </span>
       </div>
 
-      <h2 className="fw-900 display-brand mb-1" style={{ fontSize: '1.9rem', color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>
+      <h2 className="fw-900 display-brand" style={{ fontSize:'1.55rem', color:'var(--text-primary)', letterSpacing:'-0.02em', marginBottom:2 }}>
         Review &amp; Confirm
       </h2>
-      <p className="mb-5" style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+      <p style={{ color:'var(--text-muted)', fontSize:'0.82rem', marginBottom:16 }}>
         Check your details before completing registration.
       </p>
 
       {status && (
-        <div
-          className="d-flex align-items-center gap-2 rounded-3 p-3 mb-4 fw-700"
-          style={{
-            fontSize: '0.84rem',
+        <div className="d-flex align-items-center gap-2 rounded-3 p-3 fw-700"
+          style={{ fontSize:'0.82rem', marginBottom:12, borderRadius:10,
             background: isError ? 'var(--pill-rejected)' : 'var(--pill-accepted)',
-            color: isError ? 'var(--pill-rejected-text)' : 'var(--pill-accepted-text)',
-          }}
-        >
-          {isError ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+            color: isError ? 'var(--pill-rejected-text)' : 'var(--pill-accepted-text)' }}>
+          {isError ? <AlertCircle size={15} strokeWidth={1.75} /> : <CheckCircle2 size={15} strokeWidth={1.75} />}
           {status}
         </div>
       )}
 
       <SectionBox title="Account Info">
         {imgPreview && (
-          <div className="d-flex align-items-center gap-3 mb-3">
-            <img src={imgPreview} alt="profile" style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', border: '2px solid var(--brand-1)' }} />
-            <span className="fw-700" style={{ color: 'var(--text-primary)' }}>{formData.name}</span>
+          <div className="d-flex align-items-center gap-2" style={{ marginBottom:8 }}>
+            <img src={imgPreview} alt="profile"
+              style={{ width:38, height:38, borderRadius:'50%', objectFit:'cover', border:'2px solid #5B58EB', flexShrink:0 }} />
+            <span className="fw-700" style={{ color:'var(--text-primary)', fontSize:'0.84rem' }}>{formData.name}</span>
           </div>
         )}
         <Row label="Name"  value={formData.name} />
@@ -127,23 +115,13 @@ export default function SignUpStep3() {
         )}
       </SectionBox>
 
-      <div className="d-flex gap-3 mt-2">
-        <button
-          type="button"
-          onClick={() => navigate('/signup/step2')}
-          disabled={submitting}
-          className="is-btn is-btn-ghost"
-          style={{ padding: '12px 24px' }}
-        >
-          <ChevronLeft size={16} /> Back
+      <div className="d-flex gap-2" style={{ marginTop:16 }}>
+        <button type="button" onClick={() => navigate('/signup/step2')} disabled={submitting}
+          className="is-btn is-btn-ghost" style={{ padding:'11px 20px', fontSize:'0.875rem' }}>
+          <ChevronLeft size={15} strokeWidth={1.75} /> Back
         </button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="is-btn is-btn-brand"
-          style={{ flex: 1, padding: '12px', opacity: submitting ? 0.7 : 1 }}
-        >
+        <button type="button" onClick={handleSubmit} disabled={submitting}
+          className="is-btn is-btn-brand" style={{ flex:1, padding:'11px', fontSize:'0.875rem', opacity: submitting ? 0.7 : 1 }}>
           {submitting ? 'Creating account…' : 'Confirm & Register'}
         </button>
       </div>
