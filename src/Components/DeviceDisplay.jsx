@@ -33,10 +33,10 @@ const SHOWCASE = [
 ];
 
 const STATS = [
-  { value:'12K+', label:'Active Creators',  Icon:Users,     color:'#56E1E9' },
-  { value:'3.4K', label:'Brands Connected', Icon:Building2, color:'#BB63FF' },
-  { value:'₹28Cr',label:'Campaigns Funded', Icon:TrendingUp,color:'#5B58EB' },
-  { value:'97%',  label:'Success Rate',     Icon:Award,     color:'#56E1E9' },
+  { value: 'Free',     label: 'To Get Started',   Icon: Zap,        color: '#56E1E9' },
+  { value: 'RBAC',     label: 'Role-Based Access', Icon: Shield,     color: '#BB63FF' },
+  { value: 'Live',     label: 'Real-time Deals',   Icon: TrendingUp, color: '#5B58EB' },
+  { value: 'Open',     label: 'Negotiation Flow',  Icon: Award,      color: '#56E1E9' },
 ];
 
 const PILLARS = [
@@ -96,11 +96,11 @@ export default function DeviceDisplay() {
           {/* Metric chips — compact horizontal row */}
           <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
             {[
-              { Icon: Activity, label: 'Live Analytics',   val: '+24%', color: '#56E1E9' },
-              { Icon: Users,    label: 'Active Campaigns', val: '1.2K', color: '#BB63FF' },
-              { Icon: Award,    label: 'Verified Brands',  val: '3.4K', color: '#56E1E9' },
-              { Icon: Layers,   label: 'Deals Closed',     val: '8.7K', color: '#BB63FF' },
-            ].map(({ Icon, label, val, color }) => (
+              { Icon: Activity, label: 'Live Analytics',    desc: 'Real-time',  color: '#56E1E9' },
+              { Icon: Users,    label: 'For Influencers',   desc: 'Browse Campaigns', color: '#BB63FF' },
+              { Icon: Award,    label: 'For Sponsors',      desc: 'Find Creators', color: '#56E1E9' },
+              { Icon: Layers,   label: 'Negotiate Deals',   desc: 'Built-in',   color: '#BB63FF' },
+            ].map(({ Icon, label, desc, color }) => (
               <div key={label} style={{
                 background: 'rgba(10,35,83,0.55)', backdropFilter: 'blur(16px)',
                 border: `1px solid ${color}28`,
@@ -108,8 +108,8 @@ export default function DeviceDisplay() {
                 display: 'flex', alignItems: 'center', gap: 8,
               }}>
                 <Icon size={14} color={color} strokeWidth={1.75} />
-                <span style={{ fontSize: '0.88rem', fontWeight: 900, color: '#fff', lineHeight: 1 }}>{val}</span>
-                <span style={{ fontSize: '0.60rem', fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{label}</span>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#fff', lineHeight: 1 }}>{label}</span>
+                <span style={{ fontSize: '0.60rem', fontWeight: 700, color: 'rgba(255,255,255,0.55)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{desc}</span>
               </div>
             ))}
           </div>
@@ -119,7 +119,7 @@ export default function DeviceDisplay() {
       {/* ═══ TICKER — tight below hero ═══ */}
       <div style={{ padding: '16px var(--section-px) 14px' }}>
         <p style={{ textAlign: 'center', fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 12 }}>
-          Trusted by leading brands worldwide
+          Explore campaigns across every category
         </p>
         <div className="is-ticker">
           <div className="is-ticker-track">

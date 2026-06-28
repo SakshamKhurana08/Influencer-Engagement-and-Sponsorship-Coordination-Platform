@@ -18,14 +18,14 @@ const TIMELINE = [
   { year: '2023', Icon: Zap,            title: 'Platform Founded',       desc: 'InSync was born from a single idea: influencer marketing deserved a modern, transparent home.',      color: '#5B58EB' },
   { year: '2024', Icon: Target,         title: '10,000 Creators Joined', desc: 'Rapid adoption across fashion, tech, and lifestyle verticals with 10K verified creator profiles.',    color: '#BB63FF' },
   { year: '2025', Icon: Rocket,         title: 'Enterprise Launch',      desc: 'Full sponsor portal, campaign analytics dashboard, and negotiation suite released to the public.',     color: '#56E1E9' },
-  { year: '2026', Icon: HeartHandshake, title: '₹28 Crore Facilitated',  desc: 'Platform crossed ₹28 crore in successfully facilitated campaign budgets across 3,400+ brands.',       color: '#BB63FF' },
+  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',         desc: 'Full counter-offer and negotiation flow launched — sponsors and creators close deals entirely within InSync.',  color: '#BB63FF' },
 ];
 
 const STATS = [
-  { value: '12K+',  label: 'Active Creators',  Icon: Users,      color: '#56E1E9' },
-  { value: '3.4K',  label: 'Brands Connected', Icon: Building2,  color: '#BB63FF' },
-  { value: '₹28Cr', label: 'Campaigns Funded', Icon: TrendingUp, color: '#5B58EB' },
-  { value: '97%',   label: 'Success Rate',     Icon: Award,      color: '#56E1E9' },
+  { value: 'Free',  label: 'To Get Started',    Icon: Users,      color: '#56E1E9' },
+  { value: 'RBAC',  label: 'Role-Based Access',  Icon: Building2,  color: '#BB63FF' },
+  { value: 'Live',  label: 'Real-time Deals',    Icon: TrendingUp, color: '#5B58EB' },
+  { value: 'Open',  label: 'Negotiation Flow',   Icon: Award,      color: '#56E1E9' },
 ];
 
 const CONTACT = [
