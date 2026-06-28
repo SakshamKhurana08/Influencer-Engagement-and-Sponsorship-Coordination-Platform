@@ -7,8 +7,12 @@ POST   /api/admin/flag                — flag a user or campaign
 DELETE /api/admin/remove              — remove a user or campaign
 GET    /api/admin/search?query=       — search users + campaigns
 GET    /api/admin/stats               — platform-wide counts
+GET    /api/admin/export/campaigns    — download all campaigns as CSV
+GET    /api/admin/export/users        — download all users as CSV
 """
-from flask import Blueprint, request, jsonify
+import csv
+import io
+from flask import Blueprint, request, jsonify, Response
 from flask_jwt_extended import jwt_required
 
 from app import db, cache
@@ -162,3 +166,62 @@ def get_stats():
         'flaggedUsers': User.query.filter_by(is_flagged=True).count(),
         'flaggedCampaigns': Campaign.query.filter_by(is_flagged=True).count(),
     }), 200
+
+
+@admin_bp.route('/export/campaigns', methods=['GET'])
+@admin_required()
+def export_campaigns():
+    """Download all campaigns as a CSV file."""
+    campaigns = Campaign.query.join(Sponsor).all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['id', 'title', 'category', 'budget', 'is_public',
+                     'is_flagged', 'sponsor_company', 'created_at'])
+
+    for c in campaigns:
+        writer.writerow([
+            c.id,
+            c.title,
+            c.category or '',
+            c.budget or '',
+            c.is_public,
+            c.is_flagged,
+            c.sponsor.company_name if c.sponsor else '',
+            c.created_at.strftime('%Y-%m-%d %H:%M') if c.created_at else '',
+        ])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=campaigns.csv'}
+    )
+
+
+@admin_bp.route('/export/users', methods=['GET'])
+@admin_required()
+def export_users():
+    """Download all users as a CSV file."""
+    users = User.query.all()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(['id', 'name', 'email', 'role', 'is_flagged', 'created_at'])
+
+    for u in users:
+        writer.writerow([
+            u.id,
+            u.name,
+            u.email,
+            u.role,
+            u.is_flagged,
+            u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else '',
+        ])
+
+    output.seek(0)
+    return Response(
+        output.getvalue(),
+        mimetype='text/csv',
+        headers={'Content-Disposition': 'attachment; filename=users.csv'}
+    )

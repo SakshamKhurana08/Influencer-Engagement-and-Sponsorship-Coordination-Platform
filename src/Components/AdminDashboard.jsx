@@ -176,13 +176,29 @@ export default function AdminDashboard() {
         {/* ══ Overview ══ */}
         {tab === 'overview' && (
           <>
-            <div className="mb-5">
-              <p style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
-                Admin Console
-              </p>
-              <h1 className="display-brand" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: 'var(--text-primary)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 0 }}>
-                Platform <span className="is-gradient-text">Overview</span>
-              </h1>
+            <div className="d-flex align-items-start justify-content-between mb-5 flex-wrap gap-3">
+              <div>
+                <p style={{ fontSize: '0.72rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--text-muted)', marginBottom: 6 }}>
+                  Admin Console
+                </p>
+                <h1 className="display-brand" style={{ fontSize: 'clamp(2rem,4vw,2.8rem)', color: 'var(--text-primary)', fontWeight: 900, letterSpacing: '-0.03em', marginBottom: 0 }}>
+                  Platform <span className="is-gradient-text">Overview</span>
+                </h1>
+              </div>
+              <div className="d-flex gap-2 flex-wrap">
+                <a href="/api/admin/export/campaigns"
+                  className="is-btn is-btn-ghost"
+                  style={{ padding: '9px 18px', fontSize: '0.82rem', textDecoration: 'none' }}
+                  download="campaigns.csv">
+                  ↓ Export Campaigns
+                </a>
+                <a href="/api/admin/export/users"
+                  className="is-btn is-btn-ghost"
+                  style={{ padding: '9px 18px', fontSize: '0.82rem', textDecoration: 'none' }}
+                  download="users.csv">
+                  ↓ Export Users
+                </a>
+              </div>
             </div>
             <div className="row g-4 mb-5">
               {[
