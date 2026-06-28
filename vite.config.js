@@ -6,9 +6,11 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    watch: {
+      // Prevent Vite from reloading when the SQLite DB file changes
+      ignored: ['**/flask_backend/**', '**/*.db', '**/*.db-shm', '**/*.db-wal'],
+    },
     proxy: {
-      // Proxy all /api/* and /uploads/* requests to the Flask backend.
-      // Change the target port if you run Flask on a different port.
       '/api': {
         target: 'http://localhost:5001',
         changeOrigin: true,

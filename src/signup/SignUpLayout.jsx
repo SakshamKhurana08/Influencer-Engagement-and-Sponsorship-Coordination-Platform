@@ -26,126 +26,105 @@ export default function SignUpLayout() {
   const step = useStepIndex();
 
   return (
-    <div className="is-page d-flex" style={{ minHeight: '100vh', overflowY: 'auto' }}>
+    <div className="is-auth-page">
 
-      {/* ── Left atmospheric panel ── */}
-      <div
-        className="d-none d-lg-flex flex-column"
-        style={{
-          width: '40%', flexShrink: 0,
-          background: 'var(--brand-grad)',
-          padding: '48px 40px',
-          position: 'relative', overflow: 'hidden',
-          justifyContent: 'space-between',
-        }}
-      >
-        {/* Background depth shapes */}
-        <div style={{ position:'absolute', width:500, height:500, borderRadius:'50%', background:'rgba(255,255,255,0.07)', top:'-180px', left:'-180px', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', width:400, height:400, borderRadius:'50%', background:'rgba(124,58,237,0.20)', bottom:'-120px', right:'-100px', filter:'blur(80px)', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', width:300, height:300, borderRadius:'50%', background:'rgba(255,255,255,0.05)', bottom:'40%', left:'-80px', pointerEvents:'none' }} />
+      {/* ── Left marketing panel (desktop only — hidden via CSS @media) ── */}
+      <div className="is-auth-left">
+        {/* Depth rings */}
+        <div style={{ position:'absolute', width:380, height:380, borderRadius:'50%', border:'1px solid rgba(91,88,235,0.15)', top:'4%', left:'-20%', pointerEvents:'none', zIndex:1 }} />
+        <div style={{ position:'absolute', width:240, height:240, borderRadius:'50%', border:'1px solid rgba(86,225,233,0.10)', bottom:'7%', right:'-10%', pointerEvents:'none', zIndex:1 }} />
 
-        {/* Brand */}
-        <Link to="/" className="d-flex align-items-center gap-2 text-decoration-none" style={{ position:'relative', zIndex:1 }}>
-          <div style={{ width:34, height:34, borderRadius:'50%', background:'rgba(255,255,255,0.20)', border:'1.5px solid rgba(255,255,255,0.40)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <Zap size={16} color="#fff" fill="#fff" />
-          </div>
-          <span className="display-brand" style={{ fontSize:'1.5rem', color:'#fff' }}>InSync</span>
-        </Link>
+        {/* All content centered as a single vertical stack */}
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:20, textAlign:'center', maxWidth:320, width:'100%' }}>
 
-        {/* Center content */}
-        <div style={{ position:'relative', zIndex:1 }}>
-          <Lottie animationData={signupAnimation} loop style={{ width:240, margin:'0 auto 28px' }} />
-          <h2 className="display-brand mb-3" style={{ fontSize:'2rem', color:'#fff', fontWeight:900, lineHeight:1.1 }}>
-            Join the creator<br />economy today.
-          </h2>
-          <div className="d-flex flex-column gap-2 mt-4">
-            {PERKS.map(p => (
-              <div key={p} className="d-flex align-items-center gap-2">
-                <div style={{ width:20, height:20, borderRadius:'50%', background:'rgba(255,255,255,0.22)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                  <Check size={11} color="#fff" strokeWidth={3} />
+          {/* Brand */}
+          <Link to="/" className="text-decoration-none d-flex align-items-center gap-2">
+            <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 18px rgba(91,88,235,0.60)' }}>
+              <Zap size={15} color="#fff" fill="#fff" strokeWidth={1.75} />
+            </div>
+            <span className="display-brand" style={{ fontSize:'1.35rem', color:'#fff' }}>InSync</span>
+          </Link>
+
+          {/* Animation */}
+          <Lottie animationData={signupAnimation} loop style={{ width:180, opacity:0.92, flexShrink:0 }} />
+
+          {/* Headline */}
+          <div>
+            <h2 className="display-brand" style={{ fontSize:'1.75rem', color:'#fff', fontWeight:900, lineHeight:1.08, marginBottom:12 }}>
+              Join the creator<br />
+              <span style={{ color:'#56E1E9' }}>economy today.</span>
+            </h2>
+            <div className="d-flex flex-column gap-2" style={{ textAlign:'left' }}>
+              {PERKS.map(p => (
+                <div key={p} className="d-flex align-items-center gap-2">
+                  <div style={{ width:16, height:16, borderRadius:'50%', background:'rgba(86,225,233,0.18)', border:'1px solid rgba(86,225,233,0.38)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    <Check size={9} color="#56E1E9" strokeWidth={2.5} />
+                  </div>
+                  <span style={{ color:'rgba(172,196,230,0.88)', fontSize:'0.82rem', fontWeight:500 }}>{p}</span>
                 </div>
-                <span style={{ color:'rgba(255,255,255,0.82)', fontSize:'0.875rem', fontWeight:500 }}>{p}</span>
+              ))}
+            </div>
+          </div>
+
+          {/* Step progress */}
+          <div className="d-flex align-items-center gap-2">
+            {STEPS.map((label, i) => (
+              <div key={label} className="d-flex align-items-center gap-1">
+                <div className="d-flex align-items-center justify-content-center rounded-circle"
+                  style={{ width:24, height:24, fontSize:'0.68rem', fontWeight:800, flexShrink:0,
+                    transition:'all 0.45s var(--ease-spring)',
+                    background: i <= step ? 'linear-gradient(135deg,#5B58EB,#BB63FF)' : 'rgba(255,255,255,0.10)',
+                    color:'#fff',
+                    boxShadow: i <= step ? '0 0 12px rgba(91,88,235,0.65)' : 'none',
+                  }}>
+                  {i < step ? <Check size={11} strokeWidth={2.5} /> : i + 1}
+                </div>
+                <span style={{ color: i <= step ? '#fff' : 'rgba(255,255,255,0.35)', fontSize:'0.72rem', fontWeight: i <= step ? 700 : 400 }}>
+                  {label}
+                </span>
+                {i < STEPS.length - 1 && (
+                  <div style={{ width:12, height:2, borderRadius:2, marginLeft:2,
+                    background: i < step ? 'linear-gradient(90deg,#5B58EB,#BB63FF)' : 'rgba(255,255,255,0.15)',
+                    transition:'background 0.45s ease' }} />
+                )}
               </div>
             ))}
           </div>
-        </div>
 
-        {/* Step progress */}
-        <div className="d-flex align-items-center gap-3" style={{ position:'relative', zIndex:1 }}>
-          {STEPS.map((label, i) => (
-            <div key={label} className="d-flex align-items-center gap-2">
-              <div
-                className="d-flex align-items-center justify-content-center rounded-circle fw-800"
-                style={{
-                  width: 28, height: 28, fontSize: '0.72rem',
-                  background: i <= step ? '#fff' : 'rgba(255,255,255,0.22)',
-                  color: i <= step ? 'var(--brand-1)' : '#fff',
-                  transition: 'all 0.5s cubic-bezier(0.16,1,0.3,1)',
-                  flexShrink: 0,
-                }}
-              >
-                {i < step ? <Check size={13} strokeWidth={3} /> : i + 1}
-              </div>
-              <span style={{
-                color: i <= step ? '#fff' : 'rgba(255,255,255,0.50)',
-                fontSize: '0.78rem',
-                fontWeight: i <= step ? 700 : 400,
-                transition: 'all 0.3s ease',
-              }}>
-                {label}
-              </span>
-              {i < STEPS.length - 1 && (
-                <div style={{
-                  width: 20, height: 2, borderRadius: 2,
-                  background: i < step ? '#fff' : 'rgba(255,255,255,0.25)',
-                  transition: 'background 0.5s ease',
-                }} />
-              )}
-            </div>
-          ))}
         </div>
       </div>
 
       {/* ── Right form panel ── */}
-      <div
-        className="flex-grow-1 d-flex flex-column align-items-center justify-content-start p-4 p-md-5"
-        style={{ background: 'var(--bg-app)', overflowY: 'auto', position: 'relative', zIndex: 1 }}
-      >
-        {/* Top bar */}
-        <div className="d-flex justify-content-between align-items-center w-100 mb-4" style={{ maxWidth: 520 }}>
-          <div className="d-lg-none d-flex align-items-center gap-2">
-            <Zap size={18} color="var(--brand-1)" />
-            <Link to="/" className="display-brand text-decoration-none" style={{ fontSize: '1.2rem', color: 'var(--brand-1)' }}>
-              InSync
-            </Link>
+      <div className="is-auth-right" style={{ position:'relative', zIndex:1 }}>
+        {/* Theme toggle */}
+        <button onClick={toggleTheme} className="is-btn is-btn-ghost"
+          style={{ position:'absolute', top:16, right:18, width:32, height:32, padding:0, borderRadius:'50%' }}
+          aria-label="Toggle theme">
+          {theme === 'light' ? <Moon size={13} strokeWidth={1.75} /> : <Sun size={13} strokeWidth={1.75} />}
+        </button>
+
+        {/* Mobile brand */}
+        <div style={{ position:'absolute', top:16, left:18 }}>
+          <Link to="/" className="text-decoration-none d-flex align-items-center gap-2 d-lg-none">
+            <Zap size={14} color="#5B58EB" strokeWidth={1.75} />
+            <span className="display-brand" style={{ fontSize:'1rem', color:'#5B58EB' }}>InSync</span>
+          </Link>
+        </div>
+
+        {/* Form card */}
+        <div className="is-auth-form-card">
+          {/* Mobile step dots */}
+          <div className="d-lg-none d-flex gap-2 align-items-center" style={{ marginBottom:16, marginTop:4 }}>
+            {STEPS.map((label, i) => (
+              <div key={i} className="d-flex align-items-center gap-1">
+                <div style={{ width: i === step ? 18 : 5, height:5, borderRadius:999,
+                  background: i <= step ? '#5B58EB' : 'var(--border-subtle)',
+                  transition:'all 0.45s var(--ease-spring)' }} />
+                {i === step && <span style={{ fontSize:'0.60rem', fontWeight:700, color:'#56E1E9', textTransform:'uppercase', letterSpacing:'0.08em' }}>{label}</span>}
+              </div>
+            ))}
           </div>
-          <button
-            onClick={toggleTheme}
-            className="is-btn is-btn-ghost ms-auto"
-            style={{ width: 40, height: 40, padding: 0, borderRadius: '50%' }}
-            aria-label="Toggle theme"
-          >
-            {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-          </button>
-        </div>
 
-        {/* Mobile step dots */}
-        <div className="d-lg-none d-flex gap-2 mb-5 align-items-center">
-          {STEPS.map((label, i) => (
-            <div key={i} className="d-flex align-items-center gap-2">
-              <div style={{
-                width: i === step ? 24 : 8, height: 8, borderRadius: 999,
-                background: i <= step ? 'var(--brand-1)' : 'var(--border-subtle)',
-                transition: 'all 0.5s cubic-bezier(0.16,1,0.3,1)',
-              }} />
-              {i === step && (
-                <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--brand-1)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>{label}</span>
-              )}
-            </div>
-          ))}
-        </div>
-
-        <div className="w-100" style={{ maxWidth: 520 }}>
           <Outlet />
         </div>
       </div>

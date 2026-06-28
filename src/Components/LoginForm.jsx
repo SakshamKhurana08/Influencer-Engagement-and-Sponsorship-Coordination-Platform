@@ -4,16 +4,22 @@ import { useNavigate, Link } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import { useTheme } from '../theme/ThemeContext';
 import loginAnimation from '../login-animation.json';
-import { Sun, Moon, Eye, EyeOff, Zap, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Sun, Moon, Eye, EyeOff, Zap, Mail, Lock, ArrowRight, Activity, Users, Award } from 'lucide-react';
+
+const METRICS = [
+  { Icon: Activity, val: '+24%', label: 'Campaign Growth', color: '#56E1E9' },
+  { Icon: Users,    val: '12K+', label: 'Active Creators',  color: '#BB63FF' },
+  { Icon: Award,    val: '97%',  label: 'Success Rate',     color: '#56E1E9' },
+];
 
 export default function LoginForm() {
   const { theme, toggleTheme } = useTheme();
-  const [email, setEmail]     = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [showPw, setShowPw]   = useState(false);
-  const [message, setMessage] = useState('');
-  const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [showPw, setShowPw]     = useState(false);
+  const [message, setMessage]   = useState('');
+  const [isError, setIsError]   = useState(false);
+  const [loading, setLoading]   = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
@@ -40,123 +46,140 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="is-page d-flex" style={{ minHeight:'100vh', overflowY:'auto' }}>
-      <div className="is-page-orb-c" />
+    <div className="is-auth-page">
 
-      {/* ── Left atmospheric panel ── */}
-      <div className="d-none d-lg-flex flex-column align-items-center justify-content-center"
-        style={{ width:'48%', background:'var(--brand-grad)', padding:'56px 48px', position:'relative', overflow:'hidden', flexShrink:0 }}>
-        {/* Inner glow shapes */}
-        <div style={{ position:'absolute', width:500, height:500, borderRadius:'50%', background:'rgba(255,255,255,0.06)', top:'-150px', left:'-150px', pointerEvents:'none' }} />
-        <div style={{ position:'absolute', width:400, height:400, borderRadius:'50%', background:'rgba(124,58,237,0.18)', bottom:'-100px', right:'-100px', filter:'blur(60px)', pointerEvents:'none' }} />
+      {/* ── Left panel ── */}
+      <div className="is-auth-left">
+        {/* Depth ring decorations */}
+        <div style={{ position:'absolute', width:380, height:380, borderRadius:'50%', border:'1px solid rgba(91,88,235,0.15)', top:'8%', left:'-18%', pointerEvents:'none' }} />
+        <div style={{ position:'absolute', width:250, height:250, borderRadius:'50%', border:'1px solid rgba(86,225,233,0.10)', bottom:'12%', right:'-8%', pointerEvents:'none' }} />
 
-        <div style={{ position:'relative', zIndex:1, textAlign:'center', width:'100%', maxWidth:380 }}>
-          <div className="d-flex align-items-center justify-content-center gap-2 mb-6" style={{ marginBottom:40 }}>
-            <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(255,255,255,0.20)', border:'1.5px solid rgba(255,255,255,0.40)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <Zap size={18} color="#fff" fill="#fff" />
+        {/* Single centered vertical stack */}
+        <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:22, textAlign:'center', maxWidth:320, width:'100%' }}>
+
+          {/* Brand */}
+          <div className="d-flex align-items-center gap-2">
+            <div style={{ width:34, height:34, borderRadius:'50%', background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 18px rgba(91,88,235,0.60)' }}>
+              <Zap size={16} color="#fff" fill="#fff" strokeWidth={1.75} />
             </div>
-            <span className="display-brand" style={{ fontSize:'1.6rem', color:'#fff' }}>InSync</span>
+            <span className="display-brand" style={{ fontSize:'1.45rem', color:'#fff' }}>InSync</span>
           </div>
-          <h2 className="display-brand mb-3" style={{ fontSize:'2.6rem', color:'#fff', lineHeight:1.1, fontWeight:900 }}>
-            Welcome back,<br />Creator.
-          </h2>
-          <p style={{ color:'rgba(255,255,255,0.78)', fontSize:'1rem', lineHeight:1.7, marginBottom:40 }}>
-            Sign in to manage campaigns, connect with brands, and track your performance metrics in real time.
-          </p>
-          <div style={{ width:'100%', borderRadius:16, overflow:'hidden' }}>
-            <Lottie animationData={loginAnimation} loop style={{ width:'100%', maxWidth:340, margin:'0 auto' }} />
+
+          {/* Headline */}
+          <div>
+            <h2 className="display-brand" style={{ fontSize:'2rem', color:'#fff', lineHeight:1.08, fontWeight:900, marginBottom:8 }}>
+              Welcome back,<br />
+              <span style={{ color:'#56E1E9' }}>Creator.</span>
+            </h2>
+            <p style={{ color:'rgba(157,180,224,0.78)', fontSize:'0.86rem', lineHeight:1.60, margin:0 }}>
+              Manage campaigns, connect with brands, and track your performance in real time.
+            </p>
           </div>
+
+          {/* Metric chips */}
+          <div className="d-flex flex-column gap-2" style={{ width:'100%' }}>
+            {METRICS.map(({ Icon, val, label, color }) => (
+              <div key={label} style={{
+                background:'rgba(8,15,36,0.50)', backdropFilter:'blur(12px)',
+                border:`1px solid ${color}25`, borderRadius:12,
+                padding:'10px 14px', display:'flex', alignItems:'center', gap:12,
+                textAlign:'left',
+              }}>
+                <div style={{ width:32, height:32, borderRadius:9, background:`${color}18`, border:`1px solid ${color}28`, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                  <Icon size={15} color={color} strokeWidth={1.75} />
+                </div>
+                <div>
+                  <div style={{ fontSize:'1.05rem', fontWeight:900, color:'#fff', lineHeight:1 }}>{val}</div>
+                  <div style={{ fontSize:'0.62rem', fontWeight:700, color:'rgba(157,180,224,0.65)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{label}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Lottie */}
+          <div style={{ borderRadius:14, overflow:'hidden', opacity:0.88, width:220 }}>
+            <Lottie animationData={loginAnimation} loop style={{ width:'100%' }} />
+          </div>
+
         </div>
       </div>
 
       {/* ── Right form panel ── */}
-      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4 p-md-5"
-        style={{ background:'var(--bg-app)', position:'relative', zIndex:1 }}>
+      <div className="is-auth-right" style={{ position:'relative', zIndex:1 }}>
+        {/* Theme toggle */}
+        <button onClick={toggleTheme} className="is-btn is-btn-ghost"
+          style={{ position:'absolute', top:16, right:18, width:32, height:32, padding:0, borderRadius:'50%' }}
+          aria-label="Toggle theme">
+          {theme === 'light' ? <Moon size={13} strokeWidth={1.75} /> : <Sun size={13} strokeWidth={1.75} />}
+        </button>
 
-        {/* Top controls */}
-        <div className="d-flex justify-content-between align-items-center w-100 mb-5" style={{ maxWidth:440 }}>
-          <div className="d-lg-none d-flex align-items-center gap-2">
-            <Zap size={18} color="var(--brand-1)" />
-            <span className="display-brand" style={{ fontSize:'1.2rem', color:'var(--brand-1)' }}>InSync</span>
-          </div>
-          <button onClick={toggleTheme} className="is-btn is-btn-ghost ms-auto" style={{ width:40, height:40, padding:0, borderRadius:'50%' }}>
-            {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-          </button>
-        </div>
-
-        <div className="w-100" style={{ maxWidth:440 }}>
-          {/* Header */}
-          <div className="mb-6" style={{ marginBottom:32 }}>
-            <h2 className="fw-900 mb-1 display-brand" style={{ color:'var(--text-primary)', fontSize:'2rem' }}>Sign In</h2>
-            <p style={{ color:'var(--text-muted)', fontSize:'0.9rem' }}>
-              Don't have an account?{' '}
-              <Link to="/signup" style={{ color:'var(--brand-1)', fontWeight:700, textDecoration:'none' }}>Create one free</Link>
-            </p>
+        {/* Glass form card */}
+        <div className="is-auth-form-card">
+          {/* Mobile brand */}
+          <div className="d-lg-none d-flex align-items-center gap-2" style={{ marginBottom:16 }}>
+            <Zap size={15} color="#5B58EB" strokeWidth={1.75} />
+            <span className="display-brand" style={{ fontSize:'1.1rem', color:'#5B58EB' }}>InSync</span>
           </div>
 
-          {/* Message */}
+          <h2 className="fw-900 display-brand" style={{ color:'var(--text-primary)', fontSize:'1.65rem', marginBottom:2 }}>Sign In</h2>
+          <p style={{ color:'var(--text-muted)', fontSize:'0.83rem', marginBottom:20 }}>
+            No account?{' '}
+            <Link to="/signup" style={{ color:'#56E1E9', fontWeight:700, textDecoration:'none' }}>Create one free</Link>
+          </p>
+
           {message && (
-            <div className={`d-flex align-items-center gap-2 rounded-4 p-3 mb-4 small fw-700 ${isError ? 'is-pill-rejected' : 'is-pill-accepted'}`}
-              style={{ borderRadius:12 }}>
+            <div className={`d-flex align-items-center gap-2 p-3 fw-700 ${isError ? 'is-pill-rejected' : 'is-pill-accepted'}`}
+              style={{ borderRadius:10, fontSize:'0.81rem', marginBottom:14 }}>
               {message}
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleLogin}>
-            {/* Email — floating label */}
-            <div className="is-field mb-4">
+            {/* Email */}
+            <div className="is-field" style={{ marginBottom:12 }}>
               <div className="position-relative">
-                <Mail size={15} style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
-                <input
-                  type="email" className="is-input" placeholder=" " id="login-email"
+                <Mail size={14} strokeWidth={1.75} style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
+                <input type="email" className="is-input" placeholder=" " id="login-email"
                   value={email} onChange={e => setEmail(e.target.value)} required
-                  style={{ paddingLeft:40, paddingTop:22, paddingBottom:8, height:56 }}
-                />
+                  style={{ paddingLeft:38, paddingTop:20, paddingBottom:6, height:50 }} />
                 <label htmlFor="login-email" style={{
-                  position:'absolute', left:40, top:'50%', transform:'translateY(-50%)',
-                  fontSize:'0.9rem', color:'var(--text-muted)', pointerEvents:'none',
+                  position:'absolute', left:38, top:'50%', transform:'translateY(-50%)',
+                  fontSize:'0.86rem', color:'var(--text-muted)', pointerEvents:'none',
                   transition:'var(--transition-fast)',
-                  ...(email ? { top:14, transform:'none', fontSize:'0.7rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:'var(--brand-1)' } : {}),
-                }}>
-                  Email Address
-                </label>
+                  ...(email ? { top:10, transform:'none', fontSize:'0.60rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.09em', color:'#56E1E9' } : {}),
+                }}>Email Address</label>
               </div>
             </div>
 
-            {/* Password — floating label */}
-            <div className="is-field mb-5">
+            {/* Password */}
+            <div className="is-field" style={{ marginBottom:18 }}>
               <div className="position-relative">
-                <Lock size={15} style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
-                <input
-                  type={showPw ? 'text' : 'password'} className="is-input" placeholder=" " id="login-pw"
+                <Lock size={14} strokeWidth={1.75} style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
+                <input type={showPw ? 'text' : 'password'} className="is-input" placeholder=" " id="login-pw"
                   value={password} onChange={e => setPassword(e.target.value)} required
-                  style={{ paddingLeft:40, paddingRight:44, paddingTop:22, paddingBottom:8, height:56 }}
-                />
+                  style={{ paddingLeft:38, paddingRight:42, paddingTop:20, paddingBottom:6, height:50 }} />
                 <label htmlFor="login-pw" style={{
-                  position:'absolute', left:40, top:'50%', transform:'translateY(-50%)',
-                  fontSize:'0.9rem', color:'var(--text-muted)', pointerEvents:'none',
+                  position:'absolute', left:38, top:'50%', transform:'translateY(-50%)',
+                  fontSize:'0.86rem', color:'var(--text-muted)', pointerEvents:'none',
                   transition:'var(--transition-fast)',
-                  ...(password ? { top:14, transform:'none', fontSize:'0.7rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.07em', color:'var(--brand-1)' } : {}),
-                }}>
-                  Password
-                </label>
+                  ...(password ? { top:10, transform:'none', fontSize:'0.60rem', fontWeight:700, textTransform:'uppercase', letterSpacing:'0.09em', color:'#56E1E9' } : {}),
+                }}>Password</label>
                 <button type="button" onClick={() => setShowPw(v => !v)}
-                  style={{ position:'absolute', right:14, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', padding:0 }}>
-                  {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+                  style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:'var(--text-muted)', padding:0 }}>
+                  {showPw ? <EyeOff size={14} strokeWidth={1.75} /> : <Eye size={14} strokeWidth={1.75} />}
                 </button>
               </div>
             </div>
 
-            <button type="submit" className="is-btn is-btn-brand w-100" style={{ padding:'14px', fontSize:'0.95rem' }} disabled={loading}>
-              {loading ? 'Signing in…' : <><ArrowRight size={16} /> Sign In</>}
+            <button type="submit" className="is-btn is-btn-brand w-100" style={{ padding:'12px', fontSize:'0.9rem' }} disabled={loading}>
+              {loading ? 'Signing in…' : <><ArrowRight size={14} strokeWidth={1.75} /> Sign In</>}
             </button>
           </form>
 
-          <div className="is-divider" />
-          <p className="text-center mb-0" style={{ color:'var(--text-muted)', fontSize:'0.85rem' }}>
+          <div className="is-divider" style={{ margin:'16px 0' }} />
+          <p className="text-center mb-0" style={{ color:'var(--text-muted)', fontSize:'0.79rem' }}>
             Admin portal?{' '}
-            <Link to="/login" style={{ color:'var(--brand-1)', fontWeight:700, textDecoration:'none' }}>Use your admin credentials above.</Link>
+            <Link to="/login" style={{ color:'#BB63FF', fontWeight:700, textDecoration:'none' }}>Use admin credentials above.</Link>
           </p>
         </div>
       </div>

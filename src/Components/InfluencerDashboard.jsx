@@ -1,476 +1,318 @@
 import { useState, useEffect } from 'react';
 import api from '../api/axiosInstance';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../theme/ThemeContext';
 import {
-  User, Tag, Hash, Users, Pencil, Check, X,
-  Sun, Moon, LogOut, Filter, CheckCircle, XCircle,
-  Megaphone, FileText, Zap, Wallet, RotateCcw,
+  User, Tag, Hash, Users, Pencil, Check, X, Filter,
+  CheckCircle, XCircle, Megaphone, FileText, Zap, Wallet, RotateCcw,
 } from 'lucide-react';
-
-const API = () => ({});  // interceptor handles auth — kept so unused-var lint doesn't fire
+import Sidebar from './SponsorDashboard/Sidebar';
 
 const StatusPill = ({ status }) => {
-  const map = {
-    pending:     'is-pill-pending',
-    accepted:    'is-pill-accepted',
-    rejected:    'is-pill-rejected',
-    negotiation: 'is-pill-negotiation',
-  };
-  return <span className={`is-pill ${map[status] || 'is-pill-pending'}`}>{status}</span>;
+  const map = { pending:'is-pill-pending', accepted:'is-pill-accepted', rejected:'is-pill-rejected', negotiation:'is-pill-negotiation' };
+  return <span className={`is-pill ${map[status]||'is-pill-pending'}`}>{status}</span>;
 };
 
 export default function InfluencerDashboard() {
-  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
-
-  const [profile, setProfile]       = useState({});
-  const [user, setUser]             = useState({});
-  const [adRequests, setAds]        = useState([]);
-  const [campaigns, setCampaigns]   = useState([]);
-  const [filters, setFilters]       = useState({ category: '', minBudget: '' });
-  const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
-  const [success, setSuccess]       = useState('');
-  const [editMode, setEditMode]     = useState(false);
-  const [editData, setEditData]     = useState({});
-  const [activeTab, setActiveTab]   = useState('campaigns');
-  // Negotiation state
-  const [negotiatingId, setNegotiatingId]     = useState(null);
-  const [counterTerms, setCounterTerms]       = useState('');
+  const [profile, setProfile]             = useState({});
+  const [user, setUser]                   = useState({});
+  const [adRequests, setAds]              = useState([]);
+  const [campaigns, setCampaigns]         = useState([]);
+  const [filters, setFilters]             = useState({ category:'', minBudget:'' });
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState('');
+  const [success, setSuccess]             = useState('');
+  const [editMode, setEditMode]           = useState(false);
+  const [editData, setEditData]           = useState({});
+  const [activeTab, setActiveTab]         = useState('campaigns');
+  const [negotiatingId, setNegotiatingId] = useState(null);
+  const [counterTerms, setCounterTerms]   = useState('');
 
   useEffect(() => {
     if (!localStorage.getItem('token')) { navigate('/login'); return; }
-    Promise.all([fetchProfile(), fetchAds(), fetchCampaigns()])
-      .finally(() => setLoading(false));
+    Promise.all([fetchProfile(), fetchAds(), fetchCampaigns()]).finally(() => setLoading(false));
   }, []);
 
   const fetchProfile = async () => {
     try {
       const r = await api.get('/api/influencer/profile');
       setProfile(r.data.influencer); setUser(r.data.user);
-      setEditData({ name: r.data.user.name, category: r.data.influencer.category, niche: r.data.influencer.niche, reach: r.data.influencer.reach });
-    } catch (err) {
-      if (err.response?.status === 401) navigate('/login');
-      setError('Failed to load profile.');
-    }
+      setEditData({ name:r.data.user.name, category:r.data.influencer.category, niche:r.data.influencer.niche, reach:r.data.influencer.reach });
+    } catch (err) { if (err.response?.status===401) navigate('/login'); setError('Failed to load profile.'); }
   };
 
   const fetchAds = async () => {
+    try { const r = await api.get('/api/influencer/ad-requests'); setAds(Array.isArray(r.data)?r.data:[]); } catch {}
+  };
+
+  const fetchCampaigns = async (f=filters) => {
     try {
-      const r = await api.get('/api/influencer/ad-requests');
-      setAds(Array.isArray(r.data) ? r.data : []);
+      const params = {}; if (f.category) params.category=f.category; if (f.minBudget) params.minBudget=f.minBudget;
+      const r = await api.get('/api/influencer/open-campaigns',{params});
+      const d = r.data; setCampaigns(Array.isArray(d)?d:(d.items||[]));
     } catch {}
   };
 
-  const fetchCampaigns = async (f = filters) => {
-    try {
-      const params = {};
-      if (f.category)  params.category  = f.category;
-      if (f.minBudget) params.minBudget = f.minBudget;
-      const r = await api.get('/api/influencer/open-campaigns', { params });
-      // API now returns paginated { items, total, page, pages }
-      const data = r.data;
-      setCampaigns(Array.isArray(data) ? data : (data.items || []));
-    } catch { /* silently ignore */ }
-  };
-
-  const handleSaveProfile = async () => {
-    if (!editData.name || !editData.category || !editData.niche || !editData.reach) {
-      setError('All fields are required.'); return;
-    }
+  const saveProfile = async () => {
+    if (!editData.name||!editData.category||!editData.niche||!editData.reach){setError('All fields required.');return;}
     setError(''); setSuccess('');
     try {
-      await api.put('/api/influencer/profile', editData);
-      setUser(p => ({ ...p, name: editData.name }));
-      setProfile(p => ({ ...p, ...editData }));
-      setSuccess('Profile updated!');
-      setEditMode(false);
+      await api.put('/api/influencer/profile',editData);
+      setUser(p=>({...p,name:editData.name})); setProfile(p=>({...p,...editData}));
+      setSuccess('Profile updated.'); setEditMode(false);
     } catch { setError('Failed to save profile.'); }
   };
 
-  const handleAdAction = async (id, action) => {
+  const handleAdAction = async (id,action) => {
     setError('');
-    try {
-      await api.post(`/api/influencer/ad-requests/${id}/${action}`, {});
-      fetchAds();
-    } catch (err) { setError(err.response?.data?.message || 'Action failed.'); }
+    try { await api.post(`/api/influencer/ad-requests/${id}/${action}`,{}); fetchAds(); }
+    catch(err){ setError(err.response?.data?.message||'Action failed.'); }
   };
 
-  const handleNegotiate = async (id) => {
-    if (!counterTerms.trim()) { setError('Please enter your counter-offer terms.'); return; }
+  const handleNegotiate = async id => {
+    if(!counterTerms.trim()){setError('Enter counter-offer terms.');return;}
     setError('');
-    try {
-      await api.post(`/api/influencer/ad-requests/${id}/negotiate`, { counterTerms });
-      setNegotiatingId(null);
-      setCounterTerms('');
-      setSuccess('Counter-offer sent!');
-      fetchAds();
-    } catch (err) { setError(err.response?.data?.message || 'Failed to send counter-offer.'); }
+    try { await api.post(`/api/influencer/ad-requests/${id}/negotiate`,{counterTerms}); setNegotiatingId(null); setCounterTerms(''); setSuccess('Counter-offer sent.'); fetchAds(); }
+    catch(err){ setError(err.response?.data?.message||'Failed.'); }
   };
 
-  const handleAcceptCampaign = async (campId) => {
+  const acceptCampaign = async id => {
     setError('');
-    try {
-      await api.post(`/api/influencer/campaigns/${campId}/accept`, {});
-      fetchCampaigns();
-    } catch (err) { setError(err.response?.data?.message || 'Failed to accept campaign.'); }
+    try { await api.post(`/api/influencer/campaigns/${id}/accept`,{}); fetchCampaigns(); }
+    catch(err){ setError(err.response?.data?.message||'Failed.'); }
   };
 
-  const applyFilters  = () => fetchCampaigns(filters);
-  const clearFilters  = () => { setFilters({ category: '', minBudget: '' }); fetchCampaigns({ category: '', minBudget: '' }); };
-  const logout        = () => { localStorage.removeItem('token'); localStorage.removeItem('userRole'); navigate('/login'); };
+  const applyFilters = () => fetchCampaigns(filters);
+  const clearFilters = () => { setFilters({category:'',minBudget:''}); fetchCampaigns({category:'',minBudget:''}); };
+  const avatarUrl = () => { const r=profile.profileImageUrl; return r?`/uploads/influencer_photos/${r.split(/[\\/]/).pop()}`:null; };
 
-  const getImageUrl = () => {
-    const raw = profile.profileImageUrl;
-    if (!raw) return null;
-    return `/uploads/influencer_photos/${raw.split(/[\\/]/).pop()}`;
-  };
+  if (loading) return (
+    <div style={{ minHeight:'100vh' }}>
+      <Sidebar />
+      <main className="is-dash-main d-flex align-items-center justify-content-center">
+        <div className="is-spinner" role="status" />
+      </main>
+    </div>
+  );
 
-  if (loading) return <div className="is-spinner" />;
-
-  const avatarUrl = getImageUrl();
+  const av = avatarUrl();
 
   return (
-    <div className="is-page" style={{ minHeight: '100vh', overflowY: 'auto' }}>
-      <div className="is-page-orb-c" />
+    <div style={{ minHeight:'100vh' }}>
+      <Sidebar />
+      <main className="is-dash-main">
+        <div style={{ padding:'1.75rem var(--section-px)' }}>
 
-      {/* ── Sticky Navbar ── */}
-      <nav className="is-navbar px-4" style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
-        <div className="d-flex align-items-center justify-content-between" style={{ height: 64 }}>
-          <div className="d-flex align-items-center gap-3">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" className="rounded-circle"
-                style={{ width: 40, height: 40, objectFit: 'cover', border: '2px solid var(--brand-1)', boxShadow: 'var(--brand-glow-btn)' }} />
-            ) : (
-              <div className="rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: 40, height: 40, background: 'var(--brand-grad)', boxShadow: 'var(--brand-glow-btn)', flexShrink: 0 }}>
-                <User size={18} color="#fff" />
-              </div>
-            )}
-            <div>
-              <p className="mb-0 fw-700" style={{ color: 'var(--text-primary)', lineHeight: 1.2, fontSize: '0.9rem' }}>{user.name}</p>
-              <span className="is-pill" style={{ background: 'rgba(230,0,35,0.10)', color: 'var(--brand-1)', fontSize: '0.62rem' }}>Creator</span>
-            </div>
-          </div>
-          <div className="d-flex align-items-center gap-2">
-            <button onClick={toggleTheme} className="is-btn is-btn-ghost" style={{ width: 38, height: 38, padding: 0, borderRadius: '50%' }}>
-              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-            </button>
-            <button onClick={logout} className="is-btn is-btn-ghost" style={{ padding: '8px 18px', color: '#ef4444', fontSize: '0.82rem' }}>
-              <LogOut size={14} /> Logout
-            </button>
-          </div>
-        </div>
-      </nav>
+          {error   && <div className="rounded-3 p-3 mb-3 fw-700" style={{ fontSize:'0.82rem', background:'var(--pill-rejected)', color:'var(--pill-rejected-text)' }}>{error}</div>}
+          {success && <div className="rounded-3 p-3 mb-3 fw-700" style={{ fontSize:'0.82rem', background:'var(--pill-accepted)', color:'var(--pill-accepted-text)' }}>{success}</div>}
 
-      <div style={{ padding: '2.5rem var(--section-px)', maxWidth: 1400, margin: '0 auto' }}>
-
-        {/* Alerts */}
-        {error   && <div className="rounded-3 p-3 mb-4 fw-700" style={{ fontSize: '0.84rem', background: 'var(--pill-rejected)', color: 'var(--pill-rejected-text)' }}>{error}</div>}
-        {success && <div className="rounded-3 p-3 mb-4 fw-700" style={{ fontSize: '0.84rem', background: 'var(--pill-accepted)', color: 'var(--pill-accepted-text)' }}>{success}</div>}
-
-        <div className="row g-4">
-
-          {/* ── LEFT: Profile sidebar ── */}
-          <div className="col-lg-3">
-
-            {/* Profile card */}
-            <div className="is-card p-4 mb-4">
-              <div className="text-center mb-4">
-                {avatarUrl ? (
-                  <img src={avatarUrl} alt="profile" className="rounded-circle mb-3"
-                    style={{ width: 92, height: 92, objectFit: 'cover', border: '3px solid var(--brand-1)', boxShadow: 'var(--brand-glow)' }} />
-                ) : (
-                  <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
-                    style={{ width: 92, height: 92, background: 'var(--brand-grad)', boxShadow: 'var(--brand-glow)' }}>
-                    <User size={38} color="#fff" />
-                  </div>
-                )}
-                {!editMode && (
-                  <>
-                    <h5 className="fw-800 mb-1" style={{ color: 'var(--text-primary)', fontSize: '1rem' }}>{user.name}</h5>
-                    <span className="is-pill" style={{ background: 'var(--accent-light)', color: 'var(--accent)' }}>{profile.category}</span>
-                  </>
-                )}
-              </div>
-
-              {editMode ? (
-                <div>
-                  {[
-                    { key: 'name',     label: 'Name',     Icon: User,  type: 'text' },
-                    { key: 'category', label: 'Category', Icon: Tag,   type: 'text' },
-                    { key: 'niche',    label: 'Niche',    Icon: Hash,  type: 'text' },
-                    { key: 'reach',    label: 'Reach',    Icon: Users, type: 'number' },
-                  ].map(({ key, label, Icon: FieldIcon, type }) => (
-                    <div key={key} className="mb-3">
-                      <label className="is-label">{label}</label>
-                      <div className="position-relative">
-                        <FieldIcon size={14} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                        <input className="is-input" type={type} value={editData[key] || ''}
-                          onChange={e => setEditData(p => ({ ...p, [key]: e.target.value }))}
-                          style={{ paddingLeft: 34 }} />
+          <div className="row g-4">
+            {/* Profile sidebar */}
+            <div className="col-lg-3">
+              <div className="is-card p-4 mb-3">
+                <div className="text-center mb-3">
+                  {av
+                    ? <img src={av} alt="profile" className="rounded-circle mb-3" style={{ width:80, height:80, objectFit:'cover', border:'2px solid #5B58EB', boxShadow:'0 0 20px rgba(91,88,235,0.40)' }} />
+                    : <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width:80, height:80, background:'linear-gradient(135deg,#5B58EB,#BB63FF)', boxShadow:'0 0 20px rgba(91,88,235,0.40)' }}>
+                        <User size={32} color="#fff" strokeWidth={1.75} />
                       </div>
-                    </div>
-                  ))}
-                  <div className="d-flex gap-2 mt-3">
-                    <button onClick={handleSaveProfile} className="is-btn is-btn-brand" style={{ flex: 1, padding: '9px' }}>
-                      <Check size={14} /> Save
-                    </button>
-                    <button onClick={() => setEditMode(false)} className="is-btn is-btn-ghost" style={{ width: 40, height: 40, padding: 0, borderRadius: '50%' }}>
-                      <X size={14} />
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div>
-                  {[
-                    { Icon: Hash,  label: 'Niche',  value: profile.niche },
-                    { Icon: Users, label: 'Reach',  value: profile.reach ? `${Number(profile.reach).toLocaleString()}` : '—' },
-                  ].map(({ Icon: StatIcon, label, value }) => (
-                    <div key={label} className="d-flex align-items-center gap-2 mb-3">
-                      <StatIcon size={15} color="var(--text-muted)" />
-                      <div>
-                        <p className="mb-0" style={{ color: 'var(--text-muted)', fontSize: '0.68rem', textTransform: 'uppercase', letterSpacing: '0.07em' }}>{label}</p>
-                        <p className="mb-0 fw-700" style={{ color: 'var(--text-primary)', fontSize: '0.875rem' }}>{value || '—'}</p>
-                      </div>
-                    </div>
-                  ))}
-                  <button onClick={() => setEditMode(true)} className="is-btn is-btn-ghost w-100 mt-2" style={{ padding: '9px', fontSize: '0.82rem' }}>
-                    <Pencil size={14} /> Edit Profile
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Mini stat cards */}
-            <div className="is-stat-card mb-3">
-              <div className="d-flex align-items-center gap-3">
-                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'var(--brand-grad)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--brand-glow-btn)' }}>
-                  <Megaphone size={17} color="#fff" />
-                </div>
-                <div>
-                  <div className="is-stat-value" style={{ fontSize: '1.6rem' }}>{campaigns.filter(c => c.isAcceptedByUser).length}</div>
-                  <div className="is-stat-label">Campaigns Joined</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="is-stat-card">
-              <div className="d-flex align-items-center gap-3">
-                <div style={{ width: 38, height: 38, borderRadius: 11, background: 'linear-gradient(135deg,#0d9488,#2dd4bf)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Check size={17} color="#fff" strokeWidth={3} />
-                </div>
-                <div>
-                  <div className="is-stat-value" style={{ fontSize: '1.6rem' }}>{adRequests.filter(a => a.status === 'accepted').length}</div>
-                  <div className="is-stat-label">Accepted Deals</div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ── RIGHT: Main content ── */}
-          <div className="col-lg-9">
-
-            {/* Tab switcher */}
-            <div className="d-flex gap-2 mb-4 flex-wrap">
-              {[
-                { key: 'campaigns', label: 'Open Campaigns', Icon: Megaphone, count: campaigns.length },
-                { key: 'ads',       label: 'Ad Requests',    Icon: FileText,  count: adRequests.length },
-              ].map(({ key, label, Icon: TabIcon, count }) => (
-                <button
-                  key={key}
-                  onClick={() => setActiveTab(key)}
-                  className={`is-btn ${activeTab === key ? 'is-btn-brand' : 'is-btn-ghost'}`}
-                  style={{ padding: '9px 22px', fontSize: '0.875rem' }}
-                >
-                  <TabIcon size={15} /> {label}
-                  <span style={{
-                    marginLeft: 6, padding: '2px 8px', borderRadius: 999, fontSize: '0.7rem',
-                    background: activeTab === key ? 'rgba(255,255,255,0.22)' : 'var(--bg-surface-2)',
-                    color: activeTab === key ? '#fff' : 'var(--text-muted)',
-                  }}>
-                    {count}
-                  </span>
-                </button>
-              ))}
-            </div>
-
-            {/* ── Campaigns tab ── */}
-            {activeTab === 'campaigns' && (
-              <>
-                {/* Filter bar */}
-                <div className="is-card p-3 mb-4 d-flex flex-wrap align-items-end gap-3">
-                  <div style={{ flex: '1 1 160px' }}>
-                    <label className="is-label">Category</label>
-                    <input className="is-input" placeholder="e.g. Fashion"
-                      value={filters.category} onChange={e => setFilters(p => ({ ...p, category: e.target.value }))} />
-                  </div>
-                  <div style={{ flex: '1 1 140px' }}>
-                    <label className="is-label">Min Budget (₹)</label>
-                    <input className="is-input" type="number" placeholder="10000"
-                      value={filters.minBudget} onChange={e => setFilters(p => ({ ...p, minBudget: e.target.value }))} />
-                  </div>
-                  <button onClick={applyFilters} className="is-btn is-btn-brand" style={{ padding: '10px 20px', fontSize: '0.85rem' }}>
-                    <Filter size={14} /> Filter
-                  </button>
-                  <button onClick={clearFilters} className="is-btn is-btn-ghost" style={{ padding: '10px 16px', fontSize: '0.85rem' }}>
-                    <RotateCcw size={14} /> Clear
-                  </button>
+                  }
+                  {!editMode && (
+                    <>
+                      <h6 className="fw-800 mb-1" style={{ color:'var(--text-primary)', fontSize:'0.94rem' }}>{user.name}</h6>
+                      <span style={{ padding:'2px 10px', borderRadius:999, background:'rgba(86,225,233,0.12)', color:'#56E1E9', fontSize:'0.64rem', fontWeight:800, letterSpacing:'0.07em', textTransform:'uppercase' }}>
+                        {profile.category}
+                      </span>
+                    </>
+                  )}
                 </div>
 
-                {campaigns.length === 0 ? (
-                  <div className="is-card p-5 text-center">
-                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'var(--brand-grad)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', boxShadow: 'var(--brand-glow-btn)' }}>
-                      <Megaphone size={26} color="#fff" />
-                    </div>
-                    <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>No campaigns found. Try clearing filters.</p>
-                  </div>
-                ) : (
-                  <div className="is-masonry">
-                    {campaigns.map(c => (
-                      <div key={c.id} className="is-masonry-item">
-                        {/* Gradient card header */}
-                        <div style={{
-                          height: 88,
-                          background: 'var(--brand-grad)',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          position: 'relative', overflow: 'hidden',
-                        }}>
-                          <div style={{ position: 'absolute', width: 140, height: 140, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', filter: 'blur(20px)', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }} />
-                          <Megaphone size={32} color="rgba(255,255,255,0.92)" strokeWidth={1.5} style={{ position: 'relative', zIndex: 1 }} />
-                        </div>
-                        <div className="p-3 pb-4">
-                          {c.category && (
-                            <span className="is-pill mb-2" style={{ background: 'rgba(230,0,35,0.10)', color: 'var(--brand-1)', display: 'inline-flex' }}>
-                              {c.category}
-                            </span>
-                          )}
-                          <h6 className="fw-800 mt-2 mb-1" style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>{c.title}</h6>
-                          {c.description && (
-                            <p className="mb-2" style={{ color: 'var(--text-secondary)', fontSize: '0.8rem', lineHeight: 1.5 }}>
-                              {c.description.length > 80 ? c.description.slice(0, 80) + '…' : c.description}
-                            </p>
-                          )}
-                          {c.budget && (
-                            <p className="mb-1 fw-800" style={{ color: 'var(--brand-1)', fontSize: '0.875rem' }}>
-                              <Wallet size={12} style={{ marginRight: 4, verticalAlign: 'middle' }} />
-                              ₹{Number(c.budget).toLocaleString()}
-                            </p>
-                          )}
-                          {c.Sponsor?.companyName && (
-                            <p className="mb-3" style={{ color: 'var(--text-muted)', fontSize: '0.78rem' }}>by {c.Sponsor.companyName}</p>
-                          )}
-                          {c.isAcceptedByUser ? (
-                            <div className="is-pill is-pill-accepted w-100 justify-content-center" style={{ padding: '8px' }}>
-                              <CheckCircle size={13} /> Joined
-                            </div>
-                          ) : (
-                            <button onClick={() => handleAcceptCampaign(c.id)} className="is-btn is-btn-brand w-100" style={{ padding: '9px', fontSize: '0.8rem' }}>
-                              Accept Campaign
-                            </button>
-                          )}
+                {editMode ? (
+                  <div>
+                    {[{k:'name',l:'Name',I:User},{k:'category',l:'Category',I:Tag},{k:'niche',l:'Niche',I:Hash},{k:'reach',l:'Reach',I:Users,t:'number'}].map(({k,l,I,t='text'}) => (
+                      <div key={k} className="mb-2">
+                        <label className="is-label">{l}</label>
+                        <div className="position-relative">
+                          <I size={13} strokeWidth={1.75} style={{ position:'absolute', left:11, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)' }} />
+                          <input className="is-input" type={t} value={editData[k]||''} onChange={e=>setEditData(p=>({...p,[k]:e.target.value}))} style={{ paddingLeft:30 }} />
                         </div>
                       </div>
                     ))}
-                  </div>
-                )}
-              </>
-            )}
-
-            {/* ── Ad Requests tab ── */}
-            {activeTab === 'ads' && (
-              <div className="d-flex flex-column gap-3">
-                {adRequests.length === 0 ? (
-                  <div className="is-card p-5 text-center">
-                    <div style={{ width: 56, height: 56, borderRadius: 16, background: 'linear-gradient(135deg,#d63384,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-                      <FileText size={26} color="#fff" />
+                    <div className="d-flex gap-2 mt-3">
+                      <button onClick={saveProfile} className="is-btn is-btn-brand" style={{ flex:1, padding:'8px' }}><Check size={13} strokeWidth={1.75} /> Save</button>
+                      <button onClick={()=>setEditMode(false)} className="is-btn is-btn-ghost" style={{ width:36, height:36, padding:0, borderRadius:'50%' }}><X size={13} strokeWidth={1.75} /></button>
                     </div>
-                    <p style={{ color: 'var(--text-muted)', fontWeight: 600 }}>No ad requests yet.</p>
                   </div>
                 ) : (
-                  adRequests.map(req => (
-                    <div key={req.id} className="is-card p-4">
-                      <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
-                        <div className="flex-grow-1">
-                          <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                            <span className="fw-800" style={{ color: 'var(--text-primary)', fontSize: '0.95rem' }}>
-                              {req.Campaign?.Sponsor?.companyName || req.Campaign?.title || 'Campaign'}
-                            </span>
-                            <StatusPill status={req.status} />
-                          </div>
-                          {req.message && (
-                            <p className="mb-2" style={{ color: 'var(--text-secondary)', lineHeight: 1.55, fontSize: '0.875rem' }}>
-                              {req.message}
-                            </p>
-                          )}
-                          {req.proposedTerms && (
-                            <div className="rounded-3 p-2 mb-2" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                              <span className="fw-700">Terms: </span>{req.proposedTerms}
-                            </div>
-                          )}
-
-                          {/* Inline negotiate form */}
-                          {negotiatingId === req.id && (
-                            <div className="mt-3 rounded-3 p-3" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)' }}>
-                              <label className="is-label mb-2">Your Counter-Offer</label>
-                              <textarea
-                                className="is-input mb-2"
-                                rows={2}
-                                placeholder="Describe your revised terms, compensation, or deliverables…"
-                                value={counterTerms}
-                                onChange={e => setCounterTerms(e.target.value)}
-                                style={{ resize: 'vertical' }}
-                              />
-                              <div className="d-flex gap-2">
-                                <button
-                                  onClick={() => handleNegotiate(req.id)}
-                                  className="is-btn is-btn-brand"
-                                  style={{ padding: '7px 18px', fontSize: '0.8rem' }}
-                                >
-                                  <Check size={13} /> Send Counter-Offer
-                                </button>
-                                <button
-                                  onClick={() => { setNegotiatingId(null); setCounterTerms(''); }}
-                                  className="is-btn is-btn-ghost"
-                                  style={{ padding: '7px 14px', fontSize: '0.8rem' }}
-                                >
-                                  <X size={13} /> Cancel
-                                </button>
-                              </div>
-                            </div>
-                          )}
+                  <div>
+                    {[{I:Hash,l:'Niche',v:profile.niche,c:'#BB63FF'},{I:Users,l:'Reach',v:profile.reach?Number(profile.reach).toLocaleString():'—',c:'#56E1E9'}].map(({I,l,v,c})=>(
+                      <div key={l} className="d-flex align-items-center gap-2 mb-3">
+                        <I size={13} color={c} strokeWidth={1.75} />
+                        <div>
+                          <p className="mb-0" style={{ color:'var(--text-muted)', fontSize:'0.62rem', textTransform:'uppercase', letterSpacing:'0.09em' }}>{l}</p>
+                          <p className="mb-0 fw-700" style={{ color:'var(--text-primary)', fontSize:'0.84rem' }}>{v||'—'}</p>
                         </div>
-
-                        {/* Action buttons — shown for pending or negotiation status */}
-                        {(req.status === 'pending' || req.status === 'negotiation') && negotiatingId !== req.id && (
-                          <div className="d-flex gap-2 flex-shrink-0 flex-wrap">
-                            <button onClick={() => handleAdAction(req.id, 'accept')} className="is-btn is-btn-brand" style={{ padding: '8px 18px', fontSize: '0.82rem' }}>
-                              <CheckCircle size={13} /> Accept
-                            </button>
-                            <button
-                              onClick={() => { setNegotiatingId(req.id); setCounterTerms(''); }}
-                              className="is-btn is-btn-ghost"
-                              style={{ padding: '8px 16px', fontSize: '0.82rem', color: 'var(--accent)' }}
-                            >
-                              <Pencil size={13} /> Negotiate
-                            </button>
-                            <button onClick={() => handleAdAction(req.id, 'reject')} className="is-btn is-btn-ghost" style={{ padding: '8px 16px', fontSize: '0.82rem', color: '#ef4444' }}>
-                              <XCircle size={13} /> Decline
-                            </button>
-                          </div>
-                        )}
                       </div>
-                    </div>
-                  ))
+                    ))}
+                    <button onClick={()=>setEditMode(true)} className="is-btn is-btn-ghost w-100 mt-1" style={{ padding:'8px', fontSize:'0.80rem' }}>
+                      <Pencil size={12} strokeWidth={1.75} /> Edit Profile
+                    </button>
+                  </div>
                 )}
               </div>
-            )}
 
+              {/* Mini stats */}
+              <div className="is-stat-card mb-3">
+                <div className="d-flex align-items-center gap-3">
+                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(91,88,235,0.18)', border:'1px solid rgba(91,88,235,0.28)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Megaphone size={15} color="#5B58EB" strokeWidth={1.75} />
+                  </div>
+                  <div>
+                    <div className="is-stat-value" style={{ fontSize:'1.45rem' }}>{campaigns.filter(c=>c.isAcceptedByUser).length}</div>
+                    <div className="is-stat-label">Campaigns Joined</div>
+                  </div>
+                </div>
+              </div>
+              <div className="is-stat-card">
+                <div className="d-flex align-items-center gap-3">
+                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(86,225,233,0.15)', border:'1px solid rgba(86,225,233,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Check size={15} color="#56E1E9" strokeWidth={2} />
+                  </div>
+                  <div>
+                    <div className="is-stat-value" style={{ fontSize:'1.45rem' }}>{adRequests.filter(a=>a.status==='accepted').length}</div>
+                    <div className="is-stat-label">Accepted Deals</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Main content */}
+            <div className="col-lg-9">
+              <div className="is-tabs mb-4">
+                {[
+                  { key:'campaigns', l:'Open Campaigns', I:Megaphone, n:campaigns.length },
+                  { key:'ads',       l:'Ad Requests',    I:FileText,  n:adRequests.length },
+                ].map(({ key,l,I,n }) => (
+                  <button key={key} onClick={()=>setActiveTab(key)} className={`is-tab${activeTab===key?' active':''}`}>
+                    <I size={13} strokeWidth={1.75} /> {l}
+                    <span style={{ marginLeft:5, padding:'1px 7px', borderRadius:999, fontSize:'0.64rem', background: activeTab===key?'rgba(255,255,255,0.18)':'rgba(91,88,235,0.12)', color: activeTab===key?'#fff':'var(--text-muted)' }}>{n}</span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Campaigns */}
+              {activeTab==='campaigns' && (
+                <>
+                  <div className="is-card p-3 mb-3 d-flex flex-wrap align-items-end gap-3">
+                    <div style={{ flex:'1 1 140px' }}>
+                      <label className="is-label">Category</label>
+                      <input className="is-input" placeholder="e.g. Fashion" value={filters.category} onChange={e=>setFilters(p=>({...p,category:e.target.value}))} />
+                    </div>
+                    <div style={{ flex:'1 1 120px' }}>
+                      <label className="is-label">Min Budget (₹)</label>
+                      <input className="is-input" type="number" placeholder="10000" value={filters.minBudget} onChange={e=>setFilters(p=>({...p,minBudget:e.target.value}))} />
+                    </div>
+                    <button onClick={applyFilters} className="is-btn is-btn-brand" style={{ padding:'9px 16px', fontSize:'0.83rem' }}>
+                      <Filter size={13} strokeWidth={1.75} /> Filter
+                    </button>
+                    <button onClick={clearFilters} className="is-btn is-btn-ghost" style={{ padding:'9px 13px', fontSize:'0.83rem' }}>
+                      <RotateCcw size={12} strokeWidth={1.75} /> Clear
+                    </button>
+                  </div>
+
+                  {campaigns.length===0
+                    ? <div className="is-card p-5 is-empty">
+                        <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 6px 20px rgba(91,88,235,0.40)' }}>
+                          <Megaphone size={24} color="#fff" strokeWidth={1.75} />
+                        </div>
+                        <p style={{ color:'var(--text-muted)', fontWeight:600 }}>No campaigns found. Try clearing filters.</p>
+                      </div>
+                    : <div className="is-camp-grid">
+                        {campaigns.map(c => (
+                          <div key={c.id} className="is-camp-card">
+                            <div className="is-camp-card-header" style={{ background:'linear-gradient(145deg,#091e48,#1a2e80)' }}>
+                              <div style={{ position:'absolute', width:120, height:120, borderRadius:'50%', background:'rgba(91,88,235,0.25)', filter:'blur(30px)', top:'50%', left:'50%', transform:'translate(-50%,-50%)' }} />
+                              <Megaphone size={30} color="rgba(86,225,233,0.90)" strokeWidth={1.5} style={{ position:'relative', zIndex:1 }} />
+                            </div>
+                            <div className="is-camp-card-body">
+                              {c.category && <span className="is-pill mb-1 d-inline-flex" style={{ background:'rgba(187,99,255,0.14)', color:'#BB63FF' }}>{c.category}</span>}
+                              <h6 className="fw-800 mt-1 mb-1" style={{ color:'var(--text-primary)', fontSize:'0.90rem' }}>{c.title}</h6>
+                              {c.description && <p className="mb-1" style={{ color:'var(--text-secondary)', fontSize:'0.77rem', lineHeight:1.5 }}>{c.description.length>65?c.description.slice(0,65)+'…':c.description}</p>}
+                              {c.budget && <p className="mb-1 fw-800" style={{ color:'#56E1E9', fontSize:'0.82rem' }}><Wallet size={11} strokeWidth={1.75} style={{ marginRight:3, verticalAlign:'middle' }} />₹{Number(c.budget).toLocaleString()}</p>}
+                              {c.Sponsor?.companyName && <p className="mb-2" style={{ color:'var(--text-muted)', fontSize:'0.75rem' }}>by {c.Sponsor.companyName}</p>}
+                              {c.isAcceptedByUser
+                                ? <div className="is-pill is-pill-accepted w-100 justify-content-center" style={{ padding:'7px', marginTop:'auto' }}><CheckCircle size={11} strokeWidth={1.75} /> Joined</div>
+                                : <button onClick={()=>acceptCampaign(c.id)} className="is-btn is-btn-brand w-100" style={{ padding:'8px', fontSize:'0.79rem', marginTop:'auto' }}>Accept Campaign</button>
+                              }
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                  }
+                </>
+              )}
+
+              {/* Ad requests */}
+              {activeTab==='ads' && (
+                <div className="d-flex flex-column gap-3">
+                  {adRequests.length===0
+                    ? <div className="is-card p-5 is-empty">
+                        <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#BB63FF,#5B58EB)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 6px 20px rgba(187,99,255,0.40)' }}>
+                          <FileText size={24} color="#fff" strokeWidth={1.75} />
+                        </div>
+                        <p style={{ color:'var(--text-muted)', fontWeight:600 }}>No ad requests yet.</p>
+                      </div>
+                    : adRequests.map(req => (
+                        <div key={req.id} className="is-card p-4">
+                          <div className="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+                            <div className="flex-grow-1">
+                              <div className="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                                <span className="fw-800" style={{ color:'var(--text-primary)', fontSize:'0.91rem' }}>
+                                  {req.Campaign?.Sponsor?.companyName||req.Campaign?.title||'Campaign'}
+                                </span>
+                                <StatusPill status={req.status} />
+                              </div>
+                              {req.message && <p className="mb-2" style={{ color:'var(--text-secondary)', lineHeight:1.55, fontSize:'0.85rem' }}>{req.message}</p>}
+                              {req.proposedTerms && (
+                                <div className="rounded-3 p-2 mb-2" style={{ background:'var(--bg-surface-2)', border:'1px solid var(--border-glass)', fontSize:'0.80rem', color:'var(--text-secondary)' }}>
+                                  <span className="fw-700" style={{ color:'#56E1E9' }}>Terms: </span>{req.proposedTerms}
+                                </div>
+                              )}
+                              {negotiatingId===req.id && (
+                                <div className="mt-2 rounded-3 p-3" style={{ background:'var(--bg-surface-2)', border:'1px solid var(--border-glass)' }}>
+                                  <label className="is-label mb-2">Your Counter-Offer</label>
+                                  <textarea className="is-input mb-2" rows={2} placeholder="Describe your revised terms…"
+                                    value={counterTerms} onChange={e=>setCounterTerms(e.target.value)} style={{ resize:'vertical' }} />
+                                  <div className="d-flex gap-2">
+                                    <button onClick={()=>handleNegotiate(req.id)} className="is-btn is-btn-brand" style={{ padding:'6px 14px', fontSize:'0.78rem' }}><Check size={12} strokeWidth={1.75} /> Send</button>
+                                    <button onClick={()=>{setNegotiatingId(null);setCounterTerms('');}} className="is-btn is-btn-ghost" style={{ padding:'6px 11px', fontSize:'0.78rem' }}><X size={12} strokeWidth={1.75} /> Cancel</button>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                            {(req.status==='pending'||req.status==='negotiation')&&negotiatingId!==req.id && (
+                              <div className="d-flex gap-2 flex-shrink-0 flex-wrap">
+                                <button onClick={()=>handleAdAction(req.id,'accept')} className="is-btn is-btn-brand" style={{ padding:'7px 14px', fontSize:'0.80rem' }}>
+                                  <CheckCircle size={12} strokeWidth={1.75} /> Accept
+                                </button>
+                                <button onClick={()=>{setNegotiatingId(req.id);setCounterTerms('');}} className="is-btn is-btn-ghost" style={{ padding:'7px 13px', fontSize:'0.80rem', color:'#BB63FF' }}>
+                                  <Pencil size={12} strokeWidth={1.75} /> Negotiate
+                                </button>
+                                <button onClick={()=>handleAdAction(req.id,'reject')} className="is-btn is-btn-ghost" style={{ padding:'7px 13px', fontSize:'0.80rem', color:'#f87171' }}>
+                                  <XCircle size={12} strokeWidth={1.75} /> Decline
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                  }
+                </div>
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

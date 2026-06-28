@@ -4,9 +4,8 @@ import { useTheme } from '../theme/ThemeContext';
 import { Sun, Moon, Menu, X, Zap } from 'lucide-react';
 
 const LINKS = [
-  { to: '/about', label: 'About' },
+  { to: '/about',  label: 'About' },
   { to: '/signup', label: 'Register' },
-  { to: '/login', label: 'Sign In' },
 ];
 
 export default function Navbar() {
@@ -15,30 +14,28 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ── Floating capsule bar (desktop) ── */}
-      <nav className="is-navbar-floating d-none d-md-flex" style={{ justifyContent: 'space-between' }}>
-        {/* Brand */}
+      {/* Desktop floating capsule */}
+      <nav className="is-navbar-floating d-none d-md-flex">
         <Link to="/" className="text-decoration-none d-flex align-items-center gap-2" style={{ flexShrink: 0 }}>
           <div style={{
             width: 30, height: 30, borderRadius: '50%',
-            background: 'var(--brand-grad)',
+            background: 'linear-gradient(135deg,#5B58EB,#BB63FF)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: 'var(--brand-glow-btn)',
+            boxShadow: '0 0 16px rgba(91,88,235,0.55)',
           }}>
-            <Zap size={15} color="#fff" fill="#fff" />
+            <Zap size={14} color="#fff" fill="#fff" strokeWidth={1.75} />
           </div>
-          <span className="display-brand" style={{ fontSize: '1.25rem', color: 'var(--brand-1)', letterSpacing: '-0.01em' }}>
+          <span className="display-brand" style={{ fontSize: '1.2rem', color: '#5B58EB', letterSpacing: '-0.01em' }}>
             InSync
           </span>
         </Link>
 
-        {/* Links */}
         <div className="d-flex align-items-center gap-1">
-          {LINKS.slice(0, 2).map(l => (
+          {LINKS.map(l => (
             <NavLink key={l.to} to={l.to} className="text-decoration-none" style={({ isActive }) => ({
-              padding: '7px 18px', borderRadius: 999, fontSize: '0.875rem', fontWeight: 600,
-              color: isActive ? 'var(--brand-1)' : 'var(--text-secondary)',
-              background: isActive ? 'rgba(230,0,35,0.08)' : 'transparent',
+              padding: '7px 16px', borderRadius: 999, fontSize: '0.85rem', fontWeight: 600,
+              color: isActive ? '#56E1E9' : 'var(--text-secondary)',
+              background: isActive ? 'rgba(86,225,233,0.10)' : 'transparent',
               transition: 'var(--transition)',
             })}>
               {l.label}
@@ -46,40 +43,42 @@ export default function Navbar() {
           ))}
         </div>
 
-        {/* Right controls */}
         <div className="d-flex align-items-center gap-2" style={{ flexShrink: 0 }}>
           <button onClick={toggleTheme} className="is-btn is-btn-ghost"
-            style={{ width: 36, height: 36, padding: 0, borderRadius: '50%' }}
+            style={{ width: 34, height: 34, padding: 0, borderRadius: '50%' }}
             aria-label="Toggle theme">
-            {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
+            {theme === 'light' ? <Moon size={14} strokeWidth={1.75} /> : <Sun size={14} strokeWidth={1.75} />}
           </button>
-          <Link to="/login" className="is-btn is-btn-brand text-decoration-none" style={{ padding: '8px 20px', fontSize: '0.85rem' }}>
+          <Link to="/login" className="is-btn is-btn-brand text-decoration-none" style={{ padding: '7px 18px', fontSize: '0.83rem' }}>
             Sign In
           </Link>
         </div>
       </nav>
 
-      {/* ── Mobile navbar ── */}
-      <nav className="is-navbar d-md-none px-4">
-        <div className="d-flex align-items-center justify-content-between" style={{ height: 60 }}>
-          <Link to="/" className="text-decoration-none d-flex align-items-center gap-2">
-            <Zap size={18} color="var(--brand-1)" />
-            <span className="display-brand" style={{ fontSize: '1.2rem', color: 'var(--brand-1)' }}>InSync</span>
-          </Link>
-          <div className="d-flex gap-2">
-            <button onClick={toggleTheme} className="is-btn is-btn-ghost" style={{ width: 36, height: 36, padding: 0 }}>
-              {theme === 'light' ? <Moon size={15} /> : <Sun size={15} />}
-            </button>
-            <button onClick={() => setOpen(o => !o)} className="is-btn is-btn-ghost" style={{ width: 36, height: 36, padding: 0 }}>
-              {open ? <X size={16} /> : <Menu size={16} />}
-            </button>
-          </div>
+      {/* Mobile bar */}
+      <nav className="is-navbar d-md-none" style={{ padding: '0 1.25rem', justifyContent: 'space-between' }}>
+        <Link to="/" className="text-decoration-none d-flex align-items-center gap-2">
+          <Zap size={16} color="#5B58EB" strokeWidth={1.75} />
+          <span className="display-brand" style={{ fontSize: '1.1rem', color: '#5B58EB' }}>InSync</span>
+        </Link>
+        <div className="d-flex gap-2">
+          <button onClick={toggleTheme} className="is-btn is-btn-ghost" style={{ width: 34, height: 34, padding: 0, borderRadius: '50%' }}>
+            {theme === 'light' ? <Moon size={14} strokeWidth={1.75} /> : <Sun size={14} strokeWidth={1.75} />}
+          </button>
+          <button onClick={() => setOpen(o => !o)} className="is-btn is-btn-ghost" style={{ width: 34, height: 34, padding: 0, borderRadius: '50%' }}>
+            {open ? <X size={15} strokeWidth={1.75} /> : <Menu size={15} strokeWidth={1.75} />}
+          </button>
         </div>
         {open && (
-          <div className="pb-3 d-flex flex-column gap-1">
-            {LINKS.map(l => (
+          <div style={{
+            position: 'absolute', top: 'var(--navbar-h)', left: 0, right: 0, zIndex: 999,
+            background: 'rgba(9,20,50,0.97)', backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(91,88,235,0.20)',
+            padding: '12px 1.25rem 16px', display: 'flex', flexDirection: 'column', gap: 3,
+          }}>
+            {[...LINKS, { to: '/login', label: 'Sign In' }].map(l => (
               <Link key={l.to} to={l.to} onClick={() => setOpen(false)}
-                className="is-sidebar-link text-decoration-none">
+                style={{ padding: '9px 14px', borderRadius: 10, color: 'rgba(157,180,224,0.85)', fontWeight: 500, fontSize: '0.86rem', textDecoration: 'none', transition: 'var(--transition-fast)' }}>
                 {l.label}
               </Link>
             ))}
