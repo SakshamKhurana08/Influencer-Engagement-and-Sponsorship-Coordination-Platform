@@ -205,15 +205,15 @@ root/
 - [x] **Campaign filter UI** — influencer dashboard has category and min-budget filter inputs wired to the API
 - [x] **`setMessage` bug fixed** — `InfluencerDashboard.jsx` now uses `setError` consistently
 
-### 🔲 Phase 5 — Background Tasks, CSV Exports & Negotiation Flow
-**Status: PLANNED**
+### ✅ Phase 5 — Negotiation Flow, CSV Exports & Sponsor Profile Image
+**Status: COMPLETE**
 
-- [ ] Flask-Executor async email notifications on ad request status change
-- [ ] CSV export: `GET /api/admin/export/campaigns`
-- [ ] CSV export: `GET /api/admin/export/users`
-- [ ] Webhook-based daily digest cron (free-tier Docker compatible)
-- [ ] Negotiation flow UI — counter-offer on ad requests (`negotiation` status + `proposedTerms`)
-- [ ] Sponsor profile image upload (mirroring influencer upload)
+- [x] **Negotiation flow backend** — `POST /api/influencer/ad-requests/<id>/negotiate` accepts `{ counterTerms }` body, sets `status='negotiation'`, updates `proposed_terms`; re-negotiation allowed from `negotiation` status; blocked after `accepted`/`rejected`
+- [x] **Negotiation UI** — Influencer dashboard Ad Requests tab shows a "Negotiate" button on `pending` and `negotiation` ad requests; clicking opens an inline counter-offer textarea; "Send Counter-Offer" submits, "Cancel" clears the form
+- [x] **CSV export — campaigns** — `GET /api/admin/export/campaigns` returns a downloadable `campaigns.csv` (id, title, category, budget, is_public, is_flagged, sponsor_company, created_at)
+- [x] **CSV export — users** — `GET /api/admin/export/users` returns a downloadable `users.csv` (id, name, email, role, is_flagged, created_at)
+- [x] **Export buttons in admin UI** — "↓ Export Campaigns" and "↓ Export Users" download buttons added to the Admin Overview tab header
+- [x] **Sponsor profile image** — `profile_image_url` column added to `sponsors` table; `POST /api/sponsors/profile/image` endpoint accepts `multipart/form-data`; Settings page shows company avatar with an upload button (live preview on select, loading state during upload)
 
 ### 🔲 Phase 6 — Dockerization, Testing & Final Documentation
 **Status: PLANNED**
