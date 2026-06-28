@@ -45,7 +45,7 @@ Two startup scripts handle everything automatically — dependency checks, venv 
 bash start.sh
 ```
 
-Starts Flask on port **5000** and Vite on **5173**, opens browser automatically.
+Starts Flask on port **5001** and Vite on **5173**, opens browser automatically.
 Press **Ctrl + C** to stop both. Run `bash stop.sh` if started with `&`.
 
 ---
