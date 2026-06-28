@@ -191,11 +191,15 @@ def get_ad_requests():
 @influencer_required()
 def handle_ad_request(request_id, action):
     """
-    Accept or reject an ad request.
-    :action: 'accept' | 'reject'
+    Accept, reject, or negotiate an ad request.
+    :action: 'accept' | 'reject' | 'negotiate'
+
+    For 'negotiate', optionally pass a body:
+      { "counterTerms": "my counter offer text" }
+    This updates proposed_terms and sets status to 'negotiation'.
     """
-    if action not in ('accept', 'reject'):
-        return jsonify({'message': 'Invalid action — use accept or reject'}), 400
+    if action not in ('accept', 'reject', 'negotiate'):
+        return jsonify({'message': 'Invalid action — use accept, reject, or negotiate'}), 400
 
     user_id = int(get_jwt_identity())
     influencer = _get_influencer(user_id)
@@ -206,19 +210,27 @@ def handle_ad_request(request_id, action):
     if not ad_request:
         return jsonify({'message': 'Ad request not found'}), 404
 
-    if ad_request.status != 'pending':
+    if ad_request.status not in ('pending', 'negotiation'):
         return jsonify({'message': f'Cannot {action} — request is already {ad_request.status}'}), 400
 
     # If already assigned to a different influencer, block
     if ad_request.influencer_id and ad_request.influencer_id != influencer.id:
         return jsonify({'message': 'Not authorized to modify this request'}), 403
 
-    status_map = {'accept': 'accepted', 'reject': 'rejected'}
-    ad_request.status = status_map[action]
-
-    # Assign this influencer if not already set
-    if action == 'accept' and not ad_request.influencer_id:
-        ad_request.influencer_id = influencer.id
+    if action == 'negotiate':
+        body = request.get_json(silent=True) or {}
+        counter_terms = body.get('counterTerms', '').strip()
+        if not counter_terms:
+            return jsonify({'message': 'counterTerms is required for negotiation'}), 400
+        ad_request.status = 'negotiation'
+        ad_request.proposed_terms = counter_terms
+        if not ad_request.influencer_id:
+            ad_request.influencer_id = influencer.id
+    else:
+        status_map = {'accept': 'accepted', 'reject': 'rejected'}
+        ad_request.status = status_map[action]
+        if action == 'accept' and not ad_request.influencer_id:
+            ad_request.influencer_id = influencer.id
 
     db.session.commit()
-    return jsonify({'message': f'Ad request {action}ed successfully'}), 200
+    return jsonify({'message': f'Ad request {action}d successfully', 'adRequest': ad_request.to_dict()}), 200

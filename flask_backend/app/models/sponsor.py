@@ -18,6 +18,7 @@ class Sponsor(db.Model):
     company_name = db.Column(db.String(255), nullable=False)
     industry = db.Column(db.String(255))
     budget = db.Column(db.Integer)
+    profile_image_url = db.Column(db.String(500))
 
     # ── Relationships ─────────────────────────────────────────────────────────
     user = db.relationship('User', back_populates='sponsor')
@@ -30,6 +31,7 @@ class Sponsor(db.Model):
             'companyName': self.company_name,
             'industry': self.industry,
             'budget': self.budget,
+            'profileImageUrl': self.profile_image_url,
         }
 
     def __repr__(self) -> str:

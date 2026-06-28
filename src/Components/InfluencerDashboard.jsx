@@ -24,17 +24,20 @@ export default function InfluencerDashboard() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
-  const [profile, setProfile]     = useState({});
-  const [user, setUser]           = useState({});
-  const [adRequests, setAds]      = useState([]);
-  const [campaigns, setCampaigns] = useState([]);
-  const [filters, setFilters]     = useState({ category: '', minBudget: '' });
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState('');
-  const [success, setSuccess]     = useState('');
-  const [editMode, setEditMode]   = useState(false);
-  const [editData, setEditData]   = useState({});
-  const [activeTab, setActiveTab] = useState('campaigns');
+  const [profile, setProfile]       = useState({});
+  const [user, setUser]             = useState({});
+  const [adRequests, setAds]        = useState([]);
+  const [campaigns, setCampaigns]   = useState([]);
+  const [filters, setFilters]       = useState({ category: '', minBudget: '' });
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState('');
+  const [success, setSuccess]       = useState('');
+  const [editMode, setEditMode]     = useState(false);
+  const [editData, setEditData]     = useState({});
+  const [activeTab, setActiveTab]   = useState('campaigns');
+  // Negotiation state
+  const [negotiatingId, setNegotiatingId]     = useState(null);
+  const [counterTerms, setCounterTerms]       = useState('');
 
   useEffect(() => {
     if (!localStorage.getItem('token')) { navigate('/login'); return; }
@@ -92,6 +95,18 @@ export default function InfluencerDashboard() {
       await api.post(`/api/influencer/ad-requests/${id}/${action}`, {});
       fetchAds();
     } catch (err) { setError(err.response?.data?.message || 'Action failed.'); }
+  };
+
+  const handleNegotiate = async (id) => {
+    if (!counterTerms.trim()) { setError('Please enter your counter-offer terms.'); return; }
+    setError('');
+    try {
+      await api.post(`/api/influencer/ad-requests/${id}/negotiate`, { counterTerms });
+      setNegotiatingId(null);
+      setCounterTerms('');
+      setSuccess('Counter-offer sent!');
+      fetchAds();
+    } catch (err) { setError(err.response?.data?.message || 'Failed to send counter-offer.'); }
   };
 
   const handleAcceptCampaign = async (campId) => {
@@ -391,15 +406,55 @@ export default function InfluencerDashboard() {
                             </p>
                           )}
                           {req.proposedTerms && (
-                            <div className="rounded-3 p-2" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
+                            <div className="rounded-3 p-2 mb-2" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
                               <span className="fw-700">Terms: </span>{req.proposedTerms}
                             </div>
                           )}
+
+                          {/* Inline negotiate form */}
+                          {negotiatingId === req.id && (
+                            <div className="mt-3 rounded-3 p-3" style={{ background: 'var(--bg-surface-2)', border: '1px solid var(--border-glass)' }}>
+                              <label className="is-label mb-2">Your Counter-Offer</label>
+                              <textarea
+                                className="is-input mb-2"
+                                rows={2}
+                                placeholder="Describe your revised terms, compensation, or deliverables…"
+                                value={counterTerms}
+                                onChange={e => setCounterTerms(e.target.value)}
+                                style={{ resize: 'vertical' }}
+                              />
+                              <div className="d-flex gap-2">
+                                <button
+                                  onClick={() => handleNegotiate(req.id)}
+                                  className="is-btn is-btn-brand"
+                                  style={{ padding: '7px 18px', fontSize: '0.8rem' }}
+                                >
+                                  <Check size={13} /> Send Counter-Offer
+                                </button>
+                                <button
+                                  onClick={() => { setNegotiatingId(null); setCounterTerms(''); }}
+                                  className="is-btn is-btn-ghost"
+                                  style={{ padding: '7px 14px', fontSize: '0.8rem' }}
+                                >
+                                  <X size={13} /> Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        {req.status === 'pending' && (
-                          <div className="d-flex gap-2 flex-shrink-0">
+
+                        {/* Action buttons — shown for pending or negotiation status */}
+                        {(req.status === 'pending' || req.status === 'negotiation') && negotiatingId !== req.id && (
+                          <div className="d-flex gap-2 flex-shrink-0 flex-wrap">
                             <button onClick={() => handleAdAction(req.id, 'accept')} className="is-btn is-btn-brand" style={{ padding: '8px 18px', fontSize: '0.82rem' }}>
                               <CheckCircle size={13} /> Accept
+                            </button>
+                            <button
+                              onClick={() => { setNegotiatingId(req.id); setCounterTerms(''); }}
+                              className="is-btn is-btn-ghost"
+                              style={{ padding: '8px 16px', fontSize: '0.82rem', color: 'var(--accent)' }}
+                            >
+                              <Pencil size={13} /> Negotiate
                             </button>
                             <button onClick={() => handleAdAction(req.id, 'reject')} className="is-btn is-btn-ghost" style={{ padding: '8px 16px', fontSize: '0.82rem', color: '#ef4444' }}>
                               <XCircle size={13} /> Decline

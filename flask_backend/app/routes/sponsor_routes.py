@@ -13,6 +13,7 @@ from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.utils.auth import sponsor_required
 from app.utils.schemas import validate_schema, SponsorProfileSchema
+from app.utils.files import save_profile_image
 
 sponsor_bp = Blueprint('sponsor', __name__)
 
@@ -85,3 +86,29 @@ def update_profile():
         'user': user.to_dict(),
         'sponsor': sponsor.to_dict()
     }), 200
+
+
+@sponsor_bp.route('/profile/image', methods=['POST'])
+@sponsor_required()
+def upload_profile_image():
+    """
+    Upload or replace sponsor profile image.
+    multipart/form-data with field name 'profileImage'.
+    Returns updated sponsor record.
+    """
+    user_id = int(get_jwt_identity())
+    sponsor = _get_sponsor(user_id)
+    if not sponsor:
+        return jsonify({'message': 'Sponsor profile not found'}), 404
+
+    if 'profileImage' not in request.files:
+        return jsonify({'message': 'profileImage file is required'}), 400
+
+    try:
+        filename = save_profile_image(request.files['profileImage'])
+    except ValueError as e:
+        return jsonify({'message': str(e)}), 400
+
+    sponsor.profile_image_url = filename
+    db.session.commit()
+    return jsonify({'message': 'Profile image updated', 'sponsor': sponsor.to_dict()}), 200
