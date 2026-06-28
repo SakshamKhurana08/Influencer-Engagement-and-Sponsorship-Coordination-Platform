@@ -3,6 +3,21 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useSignup } from '../SignUpContext';
 import { User, Mail, Lock, ChevronRight, Zap, Video, Briefcase } from 'lucide-react';
 
+/* Defined OUTSIDE the component so React doesn't remount on every keystroke */
+const InputRow = ({ id, name, type, placeholder, Icon, value, onChange, error }) => (
+  <div style={{ marginBottom: 12 }}>
+    <div className="position-relative">
+      <Icon size={14} strokeWidth={1.75}
+        style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
+      <input id={id} name={name} type={type}
+        className={`is-input${error ? ' is-input-error' : ''}`}
+        placeholder={placeholder} value={value} onChange={onChange}
+        style={{ paddingLeft:38, height:44, fontSize:'0.875rem' }} />
+    </div>
+    {error && <p className="is-error-msg">{error}</p>}
+  </div>
+);
+
 export default function SignUpStep1() {
   const { formData, updateFormData } = useSignup();
   const navigate = useNavigate();
@@ -14,7 +29,8 @@ export default function SignUpStep1() {
     if (!formData.name?.trim())  e.name     = 'Name is required';
     if (!formData.email?.trim() || !/\S+@\S+\.\S+/.test(formData.email))
                                   e.email    = 'Valid email required';
-    if (!formData.password)       e.password = 'Password is required';
+    if (!formData.password)                       e.password = 'Password is required';
+    else if (formData.password.length < 6)        e.password = 'Password must be at least 6 characters';
     if (!formData.role)           e.role     = 'Select a role to continue';
     if (!agreed)                  e.terms    = 'You must agree to continue';
     setErrors(e);
@@ -31,21 +47,6 @@ export default function SignUpStep1() {
     e.preventDefault();
     if (validate()) navigate('/signup/step2');
   };
-
-  /* Compact input row — tighter mb-3 instead of mb-4 */
-  const InputRow = ({ id, name, type, placeholder, Icon, value, error }) => (
-    <div style={{ marginBottom: 12 }}>
-      <div className="position-relative">
-        <Icon size={14} strokeWidth={1.75}
-          style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
-        <input id={id} name={name} type={type}
-          className={`is-input${error ? ' is-input-error' : ''}`}
-          placeholder={placeholder} value={value} onChange={handleChange}
-          style={{ paddingLeft:38, height:44, fontSize:'0.875rem' }} />
-      </div>
-      {error && <p className="is-error-msg">{error}</p>}
-    </div>
-  );
 
   return (
     <div>
@@ -70,15 +71,15 @@ export default function SignUpStep1() {
       <form onSubmit={handleNext}>
         {/* Name */}
         <label className="is-label" style={{ marginBottom:5 }}>Full Name</label>
-        <InputRow id="name" name="name" type="text" placeholder="Jane Smith" Icon={User} value={formData.name || ''} error={errors.name} />
+        <InputRow id="name" name="name" type="text" placeholder="Jane Smith" Icon={User} value={formData.name || ''} onChange={handleChange} error={errors.name} />
 
         {/* Email */}
         <label className="is-label" style={{ marginBottom:5, marginTop:4 }}>Email Address</label>
-        <InputRow id="email" name="email" type="email" placeholder="you@example.com" Icon={Mail} value={formData.email || ''} error={errors.email} />
+        <InputRow id="email" name="email" type="email" placeholder="you@example.com" Icon={Mail} value={formData.email || ''} onChange={handleChange} error={errors.email} />
 
         {/* Password */}
         <label className="is-label" style={{ marginBottom:5, marginTop:4 }}>Password</label>
-        <InputRow id="password" name="password" type="password" placeholder="Choose a secure password" Icon={Lock} value={formData.password || ''} error={errors.password} />
+        <InputRow id="password" name="password" type="password" placeholder="Min. 6 characters" Icon={Lock} value={formData.password || ''} onChange={handleChange} error={errors.password} />
 
         {/* Role selector */}
         <div style={{ marginTop:12, marginBottom:12 }}>

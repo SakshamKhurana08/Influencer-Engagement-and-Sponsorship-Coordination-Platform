@@ -246,13 +246,14 @@ Managed by SQLAlchemy + Flask-Migrate. PostgreSQL in production; SQLite auto-fal
 | updated_at  | TIMESTAMP                                   |                   |
 
 **sponsors**
-| Column       | Type             | Notes                  |
-|--------------|------------------|------------------------|
-| id           | INTEGER PK       |                        |
-| user_id      | FK → users.id    | CASCADE DELETE, UNIQUE |
-| company_name | VARCHAR(255)     |                        |
-| industry     | VARCHAR(255)     |                        |
-| budget       | INTEGER          |                        |
+| Column            | Type             | Notes                  |
+|-------------------|------------------|------------------------|
+| id                | INTEGER PK       |                        |
+| user_id           | FK → users.id    | CASCADE DELETE, UNIQUE |
+| company_name      | VARCHAR(255)     |                        |
+| industry          | VARCHAR(255)     |                        |
+| budget            | INTEGER          |                        |
+| profile_image_url | VARCHAR(500)     | stored filename only   |
 
 **influencers**
 | Column            | Type          | Notes                  |
@@ -400,6 +401,8 @@ Paginated list endpoints accept `?page=1&per_page=20` and return:
 | DELETE | `/remove`            | Delete user or campaign. Body: `{ type, id }` |
 | GET    | `/search?query=`     | Search users by name + campaigns by title |
 | GET    | `/stats`             | Platform counts (cached 60s). Returns `users, sponsors, influencers, campaigns, adRequests, flaggedUsers, flaggedCampaigns` |
+| GET    | `/export/campaigns`  | Download all campaigns as `campaigns.csv` |
+| GET    | `/export/users`      | Download all users as `users.csv` |
 
 ### Influencer — `/api/influencer` *(influencer only)*
 
@@ -410,7 +413,8 @@ Paginated list endpoints accept `?page=1&per_page=20` and return:
 | GET    | `/open-campaigns`             | Paginated public campaigns. Params: `category`, `minBudget`, `page`, `per_page`. Includes `isAcceptedByUser`. |
 | POST   | `/campaigns/<id>/accept`      | Accept a public campaign |
 | GET    | `/ad-requests`                | Ad requests for accepted campaigns |
-| POST   | `/ad-requests/<id>/<action>`  | `accept` or `reject` a pending ad request |
+| POST   | `/ad-requests/<id>/negotiate` | Counter-offer. Body: `{ counterTerms }`. Allowed on `pending` or `negotiation`. |
+| POST   | `/ad-requests/<id>/<action>`  | `accept` or `reject` a pending/negotiation ad request |
 
 ### Sponsor — `/api/sponsors` *(sponsor only)*
 
@@ -419,6 +423,7 @@ Paginated list endpoints accept `?page=1&per_page=20` and return:
 | GET    | `/details` | Raw Sponsor record |
 | GET    | `/profile` | Sponsor + User combined |
 | PUT    | `/profile` | Update name, companyName, industry, budget |
+| POST   | `/profile/image` | Upload/replace sponsor profile image. `multipart/form-data`, field `profileImage`. |
 
 ### Campaigns — `/api/campaign` *(sponsor only)*
 
@@ -454,7 +459,7 @@ Paginated list endpoints accept `?page=1&per_page=20` and return:
 
 ## What's Implemented
 
-### Backend (Phases 1–4 complete)
+### Backend (Phases 1–5 complete)
 - [x] Flask app factory, SQLAlchemy models, Flask-Migrate
 - [x] PostgreSQL + SQLite fallback
 - [x] Transactional registration (bcrypt + JWT)
@@ -463,30 +468,25 @@ Paginated list endpoints accept `?page=1&per_page=20` and return:
 - [x] Marshmallow input validation — 422 with field-level errors
 - [x] Pagination on campaign list, ad-request list, open-campaigns
 - [x] Flask-Caching on admin stats (60s TTL, invalidated on mutation)
-- [x] Flask-Executor integrated for Phase 5 email tasks
-- [x] Profile image upload (UUID filename, images only, 10MB limit)
+- [x] Flask-Executor integrated for async tasks
+- [x] Profile image upload for influencers (UUID filename, images only, 10MB limit)
+- [x] Profile image upload for sponsors (`POST /api/sponsors/profile/image`)
+- [x] Negotiation flow — `negotiate` action sets `status='negotiation'`, stores counter-offer in `proposed_terms`; re-negotiation allowed; blocked after accept/reject
+- [x] CSV exports — `GET /api/admin/export/campaigns` and `GET /api/admin/export/users`
 
-### Frontend (Phases 1–4 complete)
+### Frontend (Phases 1–5 complete)
 - [x] Animated landing page, About, multi-step signup
 - [x] JWT login with role-based redirect
 - [x] `ProtectedRoute` — wraps all three dashboards with role enforcement
 - [x] Shared `axiosInstance` — auto Bearer token + 401 → `/login` redirect
 - [x] Zero hardcoded `localhost` URLs — all API calls use Vite proxy
-- [x] Admin dashboard — stats charts (Bar + Doughnut), ongoing campaigns with progress bars, flagged entities, search with flag/remove buttons
-- [x] Influencer dashboard — profile edit, campaign filter (category + min budget), ad request accept/reject
-- [x] Sponsor dashboard — campaign CRUD, ad-request CRUD per campaign, accepted influencer list, settings
+- [x] Admin dashboard — stats charts (Bar + Doughnut), ongoing campaigns with progress bars, flagged entities, search with flag/remove buttons, CSV export download buttons
+- [x] Influencer dashboard — profile edit, campaign filter (category + min budget), ad request accept/reject/negotiate with inline counter-offer form
+- [x] Sponsor dashboard — campaign CRUD, ad-request CRUD per campaign, accepted influencer list, settings with company avatar upload
 
 ---
 
 ## What's Pending / TODO
-
-### Phase 5
-
-- [ ] **Negotiation flow** — `proposedTerms` and `negotiation` status exist on the model; no UI for counter-offers yet
-- [ ] **Email notifications** — async via Flask-Executor when ad request status changes
-- [ ] **CSV exports** — `GET /api/admin/export/campaigns` and `GET /api/admin/export/users`
-- [ ] **Scheduled digest cron** — daily email via external webhook trigger
-- [ ] **Sponsor profile image** — sponsors have no image upload (influencers do)
 
 ### Phase 6
 
@@ -494,6 +494,8 @@ Paginated list endpoints accept `?page=1&per_page=20` and return:
 - [ ] Integration test suite (pytest + Flask test client)
 - [ ] OpenAPI/Swagger documentation
 - [ ] `.env.production` template + deployment guide
+- [ ] Email notifications — async via Flask-Executor when ad request status changes
+- [ ] Scheduled daily digest cron via external webhook trigger
 
 ---
 

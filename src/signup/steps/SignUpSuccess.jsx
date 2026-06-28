@@ -44,23 +44,24 @@ export default function SignUpSuccess() {
           Your account has been created. Sign in to start discovering campaigns and building your creator portfolio.
         </p>
 
-        {/* Stats strip */}
+        {/* Feature promises — replaces fake stats */}
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
           marginBottom: 28,
         }}>
           {[
-            { val: '12K+', label: 'Creators', color: '#56E1E9' },
-            { val: '3.4K', label: 'Brands',   color: '#BB63FF' },
-            { val: '97%',  label: 'Success',  color: '#5B58EB' },
-          ].map(({ val, label, color }) => (
+            { icon: '🎯', label: 'Discover',  desc: 'Browse real brand campaigns' },
+            { icon: '🤝', label: 'Negotiate', desc: 'Counter-offer built-in'      },
+            { icon: '📊', label: 'Track',     desc: 'Live deal status updates'    },
+          ].map(({ icon, label, desc }) => (
             <div key={label} style={{
-              background: `${color}12`,
-              border: `1px solid ${color}25`,
+              background: 'var(--bg-surface-2)',
+              border: '1px solid var(--border-glass)',
               borderRadius: 11, padding: '10px 8px',
             }}>
-              <div style={{ fontSize: '1.15rem', fontWeight: 900, color, lineHeight: 1 }}>{val}</div>
-              <div style={{ fontSize: '0.62rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', marginTop: 3 }}>{label}</div>
+              <div style={{ fontSize: '1.3rem', lineHeight: 1, marginBottom: 4 }}>{icon}</div>
+              <div style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.2 }}>{label}</div>
+              <div style={{ fontSize: '0.60rem', fontWeight: 600, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.3 }}>{desc}</div>
             </div>
           ))}
         </div>

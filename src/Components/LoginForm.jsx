@@ -4,12 +4,13 @@ import { useNavigate, Link } from 'react-router-dom';
 import Lottie from 'lottie-react';
 import { useTheme } from '../theme/ThemeContext';
 import loginAnimation from '../login-animation.json';
-import { Sun, Moon, Eye, EyeOff, Zap, Mail, Lock, ArrowRight, Activity, Users, Award } from 'lucide-react';
+import { Sun, Moon, Eye, EyeOff, Zap, Mail, Lock, ArrowRight, Shield, Megaphone, BarChart2 } from 'lucide-react';
 
-const METRICS = [
-  { Icon: Activity, val: '+24%', label: 'Campaign Growth', color: '#56E1E9' },
-  { Icon: Users,    val: '12K+', label: 'Active Creators',  color: '#BB63FF' },
-  { Icon: Award,    val: '97%',  label: 'Success Rate',     color: '#56E1E9' },
+// Feature highlights — factual platform capabilities, no fake numbers
+const FEATURES = [
+  { Icon: Megaphone,  label: 'Discover Campaigns',    desc: 'Browse real brand campaigns across every niche',  color: '#56E1E9' },
+  { Icon: BarChart2,  label: 'Track Your Deals',       desc: 'Accept, negotiate, and manage ad requests live',  color: '#BB63FF' },
+  { Icon: Shield,     label: 'Secure by Design',       desc: 'JWT auth, RBAC, and end-to-end data protection',  color: '#56E1E9' },
 ];
 
 export default function LoginForm() {
@@ -76,9 +77,9 @@ export default function LoginForm() {
             </p>
           </div>
 
-          {/* Metric chips */}
+          {/* Feature chips */}
           <div className="d-flex flex-column gap-2" style={{ width:'100%' }}>
-            {METRICS.map(({ Icon, val, label, color }) => (
+            {FEATURES.map(({ Icon, label, desc, color }) => (
               <div key={label} style={{
                 background:'rgba(8,15,36,0.50)', backdropFilter:'blur(12px)',
                 border:`1px solid ${color}25`, borderRadius:12,
@@ -89,8 +90,8 @@ export default function LoginForm() {
                   <Icon size={15} color={color} strokeWidth={1.75} />
                 </div>
                 <div>
-                  <div style={{ fontSize:'1.05rem', fontWeight:900, color:'#fff', lineHeight:1 }}>{val}</div>
-                  <div style={{ fontSize:'0.62rem', fontWeight:700, color:'rgba(157,180,224,0.65)', textTransform:'uppercase', letterSpacing:'0.08em' }}>{label}</div>
+                  <div style={{ fontSize:'0.82rem', fontWeight:900, color:'#fff', lineHeight:1.2 }}>{label}</div>
+                  <div style={{ fontSize:'0.62rem', fontWeight:600, color:'rgba(157,180,224,0.65)', marginTop:2 }}>{desc}</div>
                 </div>
               </div>
             ))}
