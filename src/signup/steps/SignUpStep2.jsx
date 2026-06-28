@@ -3,6 +3,20 @@ import { useNavigate } from 'react-router-dom';
 import { useSignup } from '../SignUpContext';
 import { ChevronRight, ChevronLeft, Upload, Zap } from 'lucide-react';
 
+/* Defined OUTSIDE the component so React doesn't remount on every keystroke */
+const Field = ({ name, label, type = 'text', placeholder, value, onChange, error }) => (
+  <div style={{ marginBottom:12 }}>
+    <label className="is-label" style={{ marginBottom:5 }}>{label}</label>
+    <input name={name} type={type}
+      className={`is-input${error ? ' is-input-error' : ''}`}
+      placeholder={placeholder} value={value}
+      onChange={onChange}
+      min={type === 'number' ? 1 : undefined}
+      style={{ height:44, fontSize:'0.875rem' }} />
+    {error && <p className="is-error-msg">{error}</p>}
+  </div>
+);
+
 export default function SignUpStep2() {
   const { formData, updateFormData, profileImageFile, updateProfileImageFile } = useSignup();
   const navigate = useNavigate();
@@ -50,19 +64,7 @@ export default function SignUpStep2() {
     if (validate()) navigate('/signup/step3');
   };
 
-  /* Compact field — no extra wrapper card, tight spacing */
-  const Field = ({ name, label, type = 'text', placeholder }) => (
-    <div style={{ marginBottom:12 }}>
-      <label className="is-label" style={{ marginBottom:5 }}>{label}</label>
-      <input name={name} type={type}
-        className={`is-input${errors[name] ? ' is-input-error' : ''}`}
-        placeholder={placeholder} value={formData[name] || ''}
-        onChange={handleChange}
-        min={type === 'number' ? 1 : undefined}
-        style={{ height:44, fontSize:'0.875rem' }} />
-      {errors[name] && <p className="is-error-msg">{errors[name]}</p>}
-    </div>
-  );
+  /* Inline Field definition removed — now defined at module level above */
 
   return (
     <div>
@@ -88,9 +90,9 @@ export default function SignUpStep2() {
       <form onSubmit={handleNext}>
         {formData.role === 'influencer' ? (
           <>
-            <Field name="category" label="Content Category" placeholder="e.g. Fashion, Tech, Food" />
-            <Field name="niche"    label="Your Niche"       placeholder="e.g. Streetwear, AI Tools" />
-            <Field name="reach"    label="Total Reach (followers)" type="number" placeholder="50000" />
+            <Field name="category" label="Content Category" placeholder="e.g. Fashion, Tech, Food" value={formData.category || ''} onChange={handleChange} error={errors.category} />
+            <Field name="niche"    label="Your Niche"       placeholder="e.g. Streetwear, AI Tools"   value={formData.niche    || ''} onChange={handleChange} error={errors.niche} />
+            <Field name="reach"    label="Total Reach (followers)" type="number" placeholder="50000"  value={formData.reach    || ''} onChange={handleChange} error={errors.reach} />
 
             {/* Photo upload — compact */}
             <div style={{ marginBottom:14 }}>
@@ -121,9 +123,9 @@ export default function SignUpStep2() {
           </>
         ) : (
           <>
-            <Field name="company"  label="Company Name"         placeholder="Acme Corp." />
-            <Field name="industry" label="Industry"             placeholder="e.g. Retail, Software" />
-            <Field name="budget"   label="Campaign Budget (₹)"  type="number" placeholder="50000" />
+            <Field name="company"  label="Company Name"         placeholder="Acme Corp."          value={formData.company  || ''} onChange={handleChange} error={errors.company} />
+            <Field name="industry" label="Industry"             placeholder="e.g. Retail, Software" value={formData.industry || ''} onChange={handleChange} error={errors.industry} />
+            <Field name="budget"   label="Campaign Budget (₹)"  type="number" placeholder="50000"  value={formData.budget   || ''} onChange={handleChange} error={errors.budget} />
           </>
         )}
 
