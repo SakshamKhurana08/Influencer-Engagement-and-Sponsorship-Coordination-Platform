@@ -85,20 +85,20 @@ export default function Settings() {
           <div className="is-card p-4 text-center">
             <div className="position-relative d-inline-block mb-3">
               {imgPreview
-                ? <img src={imgPreview} alt="avatar" className="rounded-circle" style={{ width:88, height:88, objectFit:'cover', border:'2px solid #5B58EB', boxShadow:'0 0 20px rgba(91,88,235,0.40)' }} />
-                : <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto" style={{ width:88, height:88, background:'linear-gradient(135deg,#5B58EB,#BB63FF)', boxShadow:'0 0 20px rgba(91,88,235,0.40)' }}>
+                ? <img src={imgPreview} alt="avatar" className="rounded-circle" style={{ width:88, height:88, objectFit:'cover', border:'2px solid #6366F1', boxShadow:'0 0 20px rgba(99,102,241,0.40)' }} />
+                : <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto" style={{ width:88, height:88, background:'linear-gradient(135deg,#6366F1,#C084FC)', boxShadow:'0 0 20px rgba(99,102,241,0.40)' }}>
                     <Building2 size={34} color="#fff" strokeWidth={1.75} />
                   </div>
               }
               <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                style={{ position:'absolute', bottom:0, right:0, width:26, height:26, borderRadius:'50%', background:'#5B58EB', border:'2px solid var(--bg-app)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 0 10px rgba(91,88,235,0.55)' }}>
+                style={{ position:'absolute', bottom:0, right:0, width:26, height:26, borderRadius:'50%', background:'#6366F1', border:'2px solid var(--bg-app)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', boxShadow:'0 0 10px rgba(99,102,241,0.55)' }}>
                 <Upload size={11} color="#fff" strokeWidth={1.75} />
               </button>
             </div>
             <input ref={fileRef} type="file" accept="image/*" className="d-none" onChange={handleImage} />
             <h6 className="fw-800 mb-0" style={{ color:'var(--text-primary)', fontSize:'0.90rem' }}>{profile?.companyName}</h6>
             <p className="small mb-0" style={{ color:'var(--text-muted)' }}>{profile?.industry}</p>
-            {uploading && <p className="small mt-1" style={{ color:'#56E1E9' }}>Uploading…</p>}
+            {uploading && <p className="small mt-1" style={{ color:'#22D3EE' }}>Uploading…</p>}
           </div>
         </div>
 
@@ -125,15 +125,15 @@ export default function Settings() {
               <div className="d-flex align-items-center gap-2 py-2 px-3" style={{ background:'var(--bg-surface-2)', border:'1px solid var(--border-glass)', borderRadius:11 }}>
                 <Lock size={13} color="var(--text-muted)" strokeWidth={1.75} />
                 <span style={{ color:'var(--text-muted)', fontSize:'0.85rem', flexGrow:1 }}>{user?.email}</span>
-                <span style={{ padding:'1px 8px', borderRadius:999, background:'rgba(91,88,235,0.10)', color:'var(--text-muted)', fontSize:'0.58rem', fontWeight:800, letterSpacing:'0.08em', textTransform:'uppercase' }}>Read-only</span>
+                <span style={{ padding:'1px 8px', borderRadius:999, background:'rgba(99,102,241,0.10)', color:'var(--text-muted)', fontSize:'0.58rem', fontWeight:800, letterSpacing:'0.08em', textTransform:'uppercase' }}>Read-only</span>
               </div>
             </div>
 
             <form onSubmit={handleSave}>
-              <Field label="Full Name"    name="name"        value={formData.name        ?? ''} editing={editing} onChange={handleChange} Icon={User}      color="#5B58EB" />
-              <Field label="Company Name" name="companyName" value={formData.companyName ?? ''} editing={editing} onChange={handleChange} Icon={Building2} color="#BB63FF" />
-              <Field label="Industry"     name="industry"    value={formData.industry    ?? ''} editing={editing} onChange={handleChange} Icon={Tag}       color="#56E1E9" />
-              <Field label="Budget (₹)"  name="budget"      value={formData.budget      ?? ''} editing={editing} onChange={handleChange} Icon={Wallet}    color="#56E1E9" type="number" />
+              <Field label="Full Name"    name="name"        value={formData.name        ?? ''} editing={editing} onChange={handleChange} Icon={User}      color="#6366F1" />
+              <Field label="Company Name" name="companyName" value={formData.companyName ?? ''} editing={editing} onChange={handleChange} Icon={Building2} color="#C084FC" />
+              <Field label="Industry"     name="industry"    value={formData.industry    ?? ''} editing={editing} onChange={handleChange} Icon={Tag}       color="#22D3EE" />
+              <Field label="Budget (₹)"  name="budget"      value={formData.budget      ?? ''} editing={editing} onChange={handleChange} Icon={Wallet}    color="#22D3EE" type="number" />
               {editing && (
                 <button type="submit" className="is-btn is-btn-brand w-100 mt-2" style={{ padding:'12px' }}>
                   <Check size={14} strokeWidth={1.75} /> Save Changes

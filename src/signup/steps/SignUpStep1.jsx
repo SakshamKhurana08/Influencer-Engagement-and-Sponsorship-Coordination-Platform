@@ -52,7 +52,7 @@ export default function SignUpStep1() {
     <div>
       {/* Step badge */}
       <div className="d-flex align-items-center gap-2" style={{ marginBottom:14 }}>
-        <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 10px rgba(91,88,235,0.55)', flexShrink:0 }}>
+        <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#6366F1,#C084FC)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 10px rgba(99,102,241,0.55)', flexShrink:0 }}>
           <Zap size={11} color="#fff" fill="#fff" strokeWidth={1.75} />
         </div>
         <span style={{ fontSize:'0.60rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--text-muted)' }}>
@@ -65,7 +65,7 @@ export default function SignUpStep1() {
       </h2>
       <p style={{ color:'var(--text-muted)', fontSize:'0.82rem', marginBottom:16 }}>
         Already have one?{' '}
-        <Link to="/login" style={{ color:'#56E1E9', fontWeight:700, textDecoration:'none' }}>Sign in</Link>
+        <Link to="/login" style={{ color:'#22D3EE', fontWeight:700, textDecoration:'none' }}>Sign in</Link>
       </p>
 
       <form onSubmit={handleNext}>
@@ -93,13 +93,13 @@ export default function SignUpStep1() {
                 onClick={() => { updateFormData({ role }); if (errors.role) setErrors(p => ({ ...p, role:undefined })); }}
                 style={{
                   flex:1, padding:'10px 8px', borderRadius:11,
-                  border:`1.5px solid ${formData.role===role ? '#5B58EB' : 'var(--border-glass)'}`,
-                  background: formData.role===role ? 'rgba(91,88,235,0.13)' : 'var(--bg-input)',
-                  color: formData.role===role ? '#56E1E9' : 'var(--text-secondary)',
+                  border:`1.5px solid ${formData.role===role ? '#6366F1' : 'var(--border-glass)'}`,
+                  background: formData.role===role ? 'rgba(99,102,241,0.13)' : 'var(--bg-input)',
+                  color: formData.role===role ? '#22D3EE' : 'var(--text-secondary)',
                   transition:'var(--transition)', cursor:'pointer',
                   display:'flex', flexDirection:'column', alignItems:'center', gap:5,
                   fontWeight:700, fontSize:'0.82rem',
-                  boxShadow: formData.role===role ? '0 0 14px rgba(91,88,235,0.30)' : 'none',
+                  boxShadow: formData.role===role ? '0 0 14px rgba(99,102,241,0.30)' : 'none',
                 }}>
                 <Icon size={18} strokeWidth={1.75} />
                 {label}
@@ -113,11 +113,11 @@ export default function SignUpStep1() {
         <div className="d-flex align-items-start gap-2" style={{ marginBottom:14 }}>
           <input type="checkbox" id="terms" checked={agreed}
             onChange={e => { setAgreed(e.target.checked); if (errors.terms) setErrors(p => ({ ...p, terms:undefined })); }}
-            style={{ accentColor:'#5B58EB', width:15, height:15, marginTop:2, flexShrink:0 }} />
+            style={{ accentColor:'#6366F1', width:15, height:15, marginTop:2, flexShrink:0 }} />
           <label htmlFor="terms" style={{ color:'var(--text-secondary)', fontSize:'0.80rem', lineHeight:1.5 }}>
             I agree to the{' '}
-            <a href="/terms" style={{ color:'#5B58EB', fontWeight:600, textDecoration:'none' }}>Terms</a>{' '}and{' '}
-            <a href="/privacy" style={{ color:'#5B58EB', fontWeight:600, textDecoration:'none' }}>Privacy Policy</a>
+            <a href="/terms" style={{ color:'#6366F1', fontWeight:600, textDecoration:'none' }}>Terms</a>{' '}and{' '}
+            <a href="/privacy" style={{ color:'#6366F1', fontWeight:600, textDecoration:'none' }}>Privacy Policy</a>
           </label>
         </div>
         {errors.terms && <p className="is-error-msg" style={{ marginBottom:8 }}>{errors.terms}</p>}

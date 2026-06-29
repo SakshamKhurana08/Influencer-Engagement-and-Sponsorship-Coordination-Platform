@@ -8,30 +8,30 @@ import {
 import Navbar from './Navbar';
 
 const PILLARS = [
-  { Icon: Link2,         title: 'Smart Matchmaking',   desc: 'AI-powered pairing between brands and creators based on niche, audience, and campaign goals.',       grad: 'linear-gradient(135deg,#5B58EB,#BB63FF)', glow: 'rgba(91,88,235,0.40)' },
-  { Icon: BarChart2,     title: 'Real-time Analytics', desc: 'Track campaign ROI, reach, and engagement from a single unified dashboard — updated live.',           grad: 'linear-gradient(135deg,#BB63FF,#56E1E9)', glow: 'rgba(187,99,255,0.40)' },
-  { Icon: Shield,        title: 'Secure & Scalable',   desc: 'JWT auth, role-based access, and PostgreSQL infrastructure designed for enterprise scale.',            grad: 'linear-gradient(135deg,#56E1E9,#5B58EB)', glow: 'rgba(86,225,233,0.40)' },
-  { Icon: MessageSquare, title: 'Negotiation Tools',   desc: 'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.',       grad: 'linear-gradient(135deg,#5B58EB,#56E1E9)', glow: 'rgba(91,88,235,0.40)' },
+  { Icon: Link2,         title: 'Smart Matchmaking',   desc: 'AI-powered pairing between brands and creators based on niche, audience, and campaign goals.',       grad: 'linear-gradient(135deg,#6366F1,#C084FC)', glow: 'rgba(99,102,241,0.40)' },
+  { Icon: BarChart2,     title: 'Real-time Analytics', desc: 'Track campaign ROI, reach, and engagement from a single unified dashboard — updated live.',           grad: 'linear-gradient(135deg,#C084FC,#22D3EE)', glow: 'rgba(192,132,252,0.40)' },
+  { Icon: Shield,        title: 'Secure & Scalable',   desc: 'JWT auth, role-based access, and PostgreSQL infrastructure designed for enterprise scale.',            grad: 'linear-gradient(135deg,#22D3EE,#6366F1)', glow: 'rgba(34,211,238,0.40)' },
+  { Icon: MessageSquare, title: 'Negotiation Tools',   desc: 'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.',       grad: 'linear-gradient(135deg,#6366F1,#22D3EE)', glow: 'rgba(99,102,241,0.40)' },
 ];
 
 const TIMELINE = [
-  { year: '2023', Icon: Zap,            title: 'Platform Founded',       desc: 'InSync was born from a single idea: influencer marketing deserved a modern, transparent home.',      color: '#5B58EB' },
-  { year: '2024', Icon: Target,         title: '10,000 Creators Joined', desc: 'Rapid adoption across fashion, tech, and lifestyle verticals with 10K verified creator profiles.',    color: '#BB63FF' },
-  { year: '2025', Icon: Rocket,         title: 'Enterprise Launch',      desc: 'Full sponsor portal, campaign analytics dashboard, and negotiation suite released to the public.',     color: '#56E1E9' },
-  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',         desc: 'Full counter-offer and negotiation flow launched — sponsors and creators close deals entirely within InSync.',  color: '#BB63FF' },
+  { year: '2023', Icon: Zap,            title: 'Platform Founded',       desc: 'InSync was born from a single idea: influencer marketing deserved a modern, transparent home.',      color: '#6366F1' },
+  { year: '2024', Icon: Target,         title: '10,000 Creators Joined', desc: 'Rapid adoption across fashion, tech, and lifestyle verticals with 10K verified creator profiles.',    color: '#C084FC' },
+  { year: '2025', Icon: Rocket,         title: 'Enterprise Launch',      desc: 'Full sponsor portal, campaign analytics dashboard, and negotiation suite released to the public.',     color: '#22D3EE' },
+  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',         desc: 'Full counter-offer and negotiation flow launched — sponsors and creators close deals entirely within InSync.',  color: '#C084FC' },
 ];
 
 const STATS = [
-  { value: 'Free',  label: 'To Get Started',    Icon: Users,      color: '#56E1E9' },
-  { value: 'RBAC',  label: 'Role-Based Access',  Icon: Building2,  color: '#BB63FF' },
-  { value: 'Live',  label: 'Real-time Deals',    Icon: TrendingUp, color: '#5B58EB' },
-  { value: 'Open',  label: 'Negotiation Flow',   Icon: Award,      color: '#56E1E9' },
+  { value: 'Free',  label: 'To Get Started',    Icon: Users,      color: '#22D3EE' },
+  { value: 'RBAC',  label: 'Role-Based Access',  Icon: Building2,  color: '#C084FC' },
+  { value: 'Live',  label: 'Real-time Deals',    Icon: TrendingUp, color: '#6366F1' },
+  { value: 'Open',  label: 'Negotiation Flow',   Icon: Award,      color: '#22D3EE' },
 ];
 
 const CONTACT = [
-  { Icon: Mail,   text: 'customer-care@insync.org',       color: '#56E1E9' },
-  { Icon: Phone,  text: '+91 44 3993 XXXX',               color: '#BB63FF' },
-  { Icon: MapPin, text: 'New Delhi', color: '#5B58EB' },
+  { Icon: Mail,   text: 'customer-care@insync.org',       color: '#22D3EE' },
+  { Icon: Phone,  text: '+91 44 3993 XXXX',               color: '#C084FC' },
+  { Icon: MapPin, text: 'New Delhi', color: '#6366F1' },
 ];
 
 export default function About() {

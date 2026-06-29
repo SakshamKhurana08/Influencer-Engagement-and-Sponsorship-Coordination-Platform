@@ -11,7 +11,7 @@ export default function SignUpSuccess() {
         width: '100%', maxWidth: 440,
         background: 'var(--bg-surface)',
         backdropFilter: 'blur(24px)',
-        border: '1px solid rgba(91,88,235,0.28)',
+        border: '1px solid rgba(99,102,241,0.28)',
         borderRadius: 20,
         padding: '40px 32px',
         boxShadow: 'var(--shadow-lg)',
@@ -21,17 +21,17 @@ export default function SignUpSuccess() {
         {/* Animated check icon — pure CSS, no Lottie, instant render */}
         <div style={{
           width: 72, height: 72, borderRadius: '50%',
-          background: 'linear-gradient(135deg,#5B58EB,#BB63FF)',
+          background: 'linear-gradient(135deg,#6366F1,#C084FC)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           margin: '0 auto 22px',
-          boxShadow: '0 0 32px rgba(91,88,235,0.55)',
+          boxShadow: '0 0 32px rgba(99,102,241,0.55)',
         }}>
           <CheckCircle size={36} color="#fff" strokeWidth={1.75} />
         </div>
 
         {/* Brand */}
         <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
-          <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#5B58EB,#BB63FF)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 12px rgba(91,88,235,0.55)' }}>
+          <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#C084FC)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 12px rgba(99,102,241,0.55)' }}>
             <Zap size={13} color="#fff" fill="#fff" strokeWidth={1.75} />
           </div>
           <span className="display-brand is-gradient-text" style={{ fontSize: '1.25rem' }}>InSync</span>

@@ -17,7 +17,7 @@ const TABS = [
 ];
 
 /* Deep Space chart defaults */
-const CHART_COLORS = ['#5B58EB','#BB63FF','#56E1E9','#3dd5de','#7c75f5'];
+const CHART_COLORS = ['#6366F1','#C084FC','#22D3EE','#06b6d4','#818cf8'];
 
 function StatCard({ Icon, label, value, color, sub }) {
   return (
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
     labels:['Sponsors','Influencers','Admins'],
     datasets:[{
       data:[stats.sponsors,stats.influencers,Math.max(0,stats.users-stats.sponsors-stats.influencers)],
-      backgroundColor:['#5B58EB','#BB63FF','#56E1E9'],
+      backgroundColor:['#6366F1','#C084FC','#22D3EE'],
       borderWidth:0, hoverOffset:8,
     }],
   } : null;
@@ -107,12 +107,12 @@ export default function AdminDashboard() {
   const chartOpts = variant => ({
     responsive:true, maintainAspectRatio:false,
     plugins:{
-      legend:{ labels:{ color:'#9DB4E0', font:{ size:11 } } },
-      tooltip:{ backgroundColor:'#112C70', titleColor:'#E8EFFF', bodyColor:'#9DB4E0', borderColor:'rgba(91,88,235,0.30)', borderWidth:1 },
+      legend:{ labels:{ color:'#9CA3AF', font:{ size:11 } } },
+      tooltip:{ backgroundColor:'#0E1929', titleColor:'#E8EFFF', bodyColor:'#9CA3AF', borderColor:'rgba(99,102,241,0.30)', borderWidth:1 },
     },
     scales: variant==='bar' ? {
-      x:{ ticks:{ color:'#4A6494' }, grid:{ color:'rgba(91,88,235,0.08)' } },
-      y:{ ticks:{ color:'#4A6494' }, grid:{ color:'rgba(91,88,235,0.08)' } },
+      x:{ ticks:{ color:'#6B7280' }, grid:{ color:'rgba(99,102,241,0.08)' } },
+      y:{ ticks:{ color:'#6B7280' }, grid:{ color:'rgba(99,102,241,0.08)' } },
     } : undefined,
   });
 
@@ -156,11 +156,11 @@ export default function AdminDashboard() {
 
               <div className="row g-3 mb-4">
                 {[
-                  { Icon:Users,         label:'Total Users',   value:stats?.users,       color:'#5B58EB', sub:`${stats?.flaggedUsers||0} flagged` },
-                  { Icon:Building2,     label:'Sponsors',      value:stats?.sponsors,    color:'#BB63FF' },
-                  { Icon:Megaphone,     label:'Campaigns',     value:stats?.campaigns,   color:'#56E1E9', sub:`${stats?.flaggedCampaigns||0} flagged` },
-                  { Icon:FileText,      label:'Ad Requests',   value:stats?.adRequests,  color:'#5B58EB' },
-                  { Icon:AlertTriangle, label:'Influencers',   value:stats?.influencers, color:'#BB63FF' },
+                  { Icon:Users,         label:'Total Users',   value:stats?.users,       color:'#6366F1', sub:`${stats?.flaggedUsers||0} flagged` },
+                  { Icon:Building2,     label:'Sponsors',      value:stats?.sponsors,    color:'#C084FC' },
+                  { Icon:Megaphone,     label:'Campaigns',     value:stats?.campaigns,   color:'#22D3EE', sub:`${stats?.flaggedCampaigns||0} flagged` },
+                  { Icon:FileText,      label:'Ad Requests',   value:stats?.adRequests,  color:'#6366F1' },
+                  { Icon:AlertTriangle, label:'Influencers',   value:stats?.influencers, color:'#C084FC' },
                 ].map(p => <div key={p.label} className="col-6 col-md-4 col-xl"><StatCard {...p} /></div>)}
               </div>
 
@@ -215,7 +215,7 @@ export default function AdminDashboard() {
               <h2 className="is-section-title">Flagged Content</h2>
               {flagged.length===0
                 ? <div className="is-card p-5 is-empty">
-                    <div style={{ width:56, height:56, borderRadius:16, background:'linear-gradient(135deg,#56E1E9,#5B58EB)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px', boxShadow:'0 6px 20px rgba(86,225,233,0.30)' }}>
+                    <div style={{ width:56, height:56, borderRadius:16, background:'linear-gradient(135deg,#22D3EE,#6366F1)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 14px', boxShadow:'0 6px 20px rgba(34,211,238,0.30)' }}>
                       <Shield size={26} color="#fff" strokeWidth={1.75} />
                     </div>
                     <p style={{ color:'var(--text-muted)' }}>Nothing flagged. All clear.</p>
@@ -262,14 +262,14 @@ export default function AdminDashboard() {
                         {results.users.map(u => (
                           <div key={u.id} className="is-card p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div className="d-flex align-items-center gap-3">
-                              <div style={{ width:34, height:34, borderRadius:'50%', background:'rgba(91,88,235,0.15)', border:'1px solid rgba(91,88,235,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                                <Users size={14} color="#5B58EB" strokeWidth={1.75} />
+                              <div style={{ width:34, height:34, borderRadius:'50%', background:'rgba(99,102,241,0.15)', border:'1px solid rgba(99,102,241,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                                <Users size={14} color="#6366F1" strokeWidth={1.75} />
                               </div>
                               <div>
                                 <p className="fw-600 mb-0" style={{ color:'var(--text-primary)', fontSize:'0.87rem' }}>{u.name}</p>
                                 <p className="mb-0" style={{ color:'var(--text-muted)', fontSize:'0.76rem' }}>{u.email}</p>
                               </div>
-                              <span className="is-pill" style={{ background:'rgba(91,88,235,0.12)', color:'#BB63FF' }}>{u.role}</span>
+                              <span className="is-pill" style={{ background:'rgba(99,102,241,0.12)', color:'#C084FC' }}>{u.role}</span>
                             </div>
                             <div className="d-flex gap-2">
                               <button onClick={() => handleFlag('user',u.id)} className="is-btn is-btn-ghost" style={{ padding:'5px 11px', fontSize:'0.77rem' }}><ShieldOff size={11} strokeWidth={1.75} /> Flag</button>
@@ -287,12 +287,12 @@ export default function AdminDashboard() {
                         {results.campaigns.map(c => (
                           <div key={c.id} className="is-card p-3 d-flex align-items-center justify-content-between flex-wrap gap-3">
                             <div className="d-flex align-items-center gap-3">
-                              <div style={{ width:34, height:34, borderRadius:'50%', background:'rgba(86,225,233,0.12)', border:'1px solid rgba(86,225,233,0.22)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                                <Megaphone size={14} color="#56E1E9" strokeWidth={1.75} />
+                              <div style={{ width:34, height:34, borderRadius:'50%', background:'rgba(34,211,238,0.12)', border:'1px solid rgba(34,211,238,0.22)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                                <Megaphone size={14} color="#22D3EE" strokeWidth={1.75} />
                               </div>
                               <div>
                                 <p className="fw-600 mb-0" style={{ color:'var(--text-primary)', fontSize:'0.87rem' }}>{c.title}</p>
-                                {c.category && <span className="is-pill" style={{ background:'rgba(187,99,255,0.12)', color:'#BB63FF', fontSize:'0.62rem' }}>{c.category}</span>}
+                                {c.category && <span className="is-pill" style={{ background:'rgba(192,132,252,0.12)', color:'#C084FC', fontSize:'0.62rem' }}>{c.category}</span>}
                               </div>
                             </div>
                             <div className="d-flex gap-2">

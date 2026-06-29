@@ -18,15 +18,15 @@ export default function SponsorHome() {
   if (error)   return <div className="is-spinner-wrap"><p style={{ color:'#f87171', fontWeight:700 }}>{error}</p></div>;
 
   const INFO_CARDS = [
-    { Icon: Building2,  label: 'Company',        value: sponsor?.companyName || '—',                    color: '#5B58EB' },
-    { Icon: Tag,        label: 'Industry',        value: sponsor?.industry || '—',                       color: '#BB63FF' },
-    { Icon: Wallet,     label: 'Campaign Budget', value: `₹${(sponsor?.budget || 0).toLocaleString()}`, color: '#56E1E9' },
+    { Icon: Building2,  label: 'Company',        value: sponsor?.companyName || '—',                    color: '#6366F1' },
+    { Icon: Tag,        label: 'Industry',        value: sponsor?.industry || '—',                       color: '#C084FC' },
+    { Icon: Wallet,     label: 'Campaign Budget', value: `₹${(sponsor?.budget || 0).toLocaleString()}`, color: '#22D3EE' },
   ];
 
   const ACTIONS = [
-    { Icon: Megaphone, title: 'Manage Campaigns', desc: 'Create, edit, and send ad requests to influencers across every category.',          to: '/sponsor-dashboard/campaign', color: '#5B58EB' },
-    { Icon: BarChart3,  title: 'View Performance', desc: 'Track how your active campaigns are performing with live analytics.',              to: '/sponsor-dashboard/campaign', color: '#BB63FF' },
-    { Icon: Settings,   title: 'Account Settings', desc: 'Update your company profile, industry, and campaign budget preferences.',         to: '/sponsor-dashboard/settings', color: '#56E1E9' },
+    { Icon: Megaphone, title: 'Manage Campaigns', desc: 'Create, edit, and send ad requests to influencers across every category.',          to: '/sponsor-dashboard/campaign', color: '#6366F1' },
+    { Icon: BarChart3,  title: 'View Performance', desc: 'Track how your active campaigns are performing with live analytics.',              to: '/sponsor-dashboard/campaign', color: '#C084FC' },
+    { Icon: Settings,   title: 'Account Settings', desc: 'Update your company profile, industry, and campaign budget preferences.',         to: '/sponsor-dashboard/settings', color: '#22D3EE' },
   ];
 
   return (
@@ -35,7 +35,7 @@ export default function SponsorHome() {
       {/* Header */}
       <div className="mb-4">
         <div className="d-flex align-items-center gap-2 mb-1">
-          <Zap size={12} color="#56E1E9" strokeWidth={1.75} />
+          <Zap size={12} color="#22D3EE" strokeWidth={1.75} />
           <p className="mb-0" style={{ fontSize:'0.64rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--text-muted)' }}>
             Sponsor Dashboard
           </p>
@@ -72,7 +72,7 @@ export default function SponsorHome() {
               </div>
               <h6 className="fw-800 mb-1" style={{ color:'var(--text-primary)', fontSize:'0.90rem' }}>{title}</h6>
               <p className="mb-0" style={{ color:'var(--text-muted)', fontSize:'0.81rem', lineHeight:1.6, flexGrow:1 }}>{desc}</p>
-              <div className="d-flex align-items-center gap-1 mt-3" style={{ color:'#56E1E9', fontSize:'0.77rem', fontWeight:700 }}>
+              <div className="d-flex align-items-center gap-1 mt-3" style={{ color:'#22D3EE', fontSize:'0.77rem', fontWeight:700 }}>
                 Open <ArrowRight size={12} strokeWidth={1.75} />
               </div>
             </Link>

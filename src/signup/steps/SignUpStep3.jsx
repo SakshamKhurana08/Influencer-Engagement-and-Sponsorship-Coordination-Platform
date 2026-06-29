@@ -16,8 +16,16 @@ const Row = ({ label, value }) => {
 };
 
 const SectionBox = ({ title, children }) => (
-  <div style={{ background:'rgba(13,31,74,0.50)', border:'1px solid var(--border-glass)', borderRadius:12, padding:'12px 14px', marginBottom:10 }}>
-    <p className="fw-800" style={{ fontSize:'0.60rem', textTransform:'uppercase', letterSpacing:'0.10em', color:'var(--text-muted)', marginBottom:8 }}>
+  <div style={{
+    /* Dark mode: semi-transparent dark navy. Light mode: solid white with border */
+    background:'var(--bg-panel)',
+    border:'1px solid var(--border-glass)',
+    borderRadius:12, padding:'12px 14px', marginBottom:10,
+  }}>
+    <p className="fw-800" style={{
+      fontSize:'0.60rem', textTransform:'uppercase', letterSpacing:'0.10em',
+      color:'var(--text-muted)', marginBottom:8,
+    }}>
       {title}
     </p>
     {children}
@@ -60,7 +68,7 @@ export default function SignUpStep3() {
     <div>
       {/* Step badge */}
       <div className="d-flex align-items-center gap-2" style={{ marginBottom:14 }}>
-        <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 10px rgba(91,88,235,0.55)', flexShrink:0 }}>
+        <div style={{ width:22, height:22, borderRadius:'50%', background:'linear-gradient(135deg,#6366F1,#C084FC)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 0 10px rgba(99,102,241,0.55)', flexShrink:0 }}>
           <Zap size={11} color="#fff" fill="#fff" strokeWidth={1.75} />
         </div>
         <span style={{ fontSize:'0.60rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--text-muted)' }}>
@@ -89,7 +97,7 @@ export default function SignUpStep3() {
         {imgPreview && (
           <div className="d-flex align-items-center gap-2" style={{ marginBottom:8 }}>
             <img src={imgPreview} alt="profile"
-              style={{ width:38, height:38, borderRadius:'50%', objectFit:'cover', border:'2px solid #5B58EB', flexShrink:0 }} />
+              style={{ width:38, height:38, borderRadius:'50%', objectFit:'cover', border:'2px solid #6366F1', flexShrink:0 }} />
             <span className="fw-700" style={{ color:'var(--text-primary)', fontSize:'0.84rem' }}>{formData.name}</span>
           </div>
         )}

@@ -32,6 +32,10 @@ flask_backend/*.pyc
 flask_backend/**/*.pyc
 flask_backend/.env
 flask_backend/influencer_dev.db
+flask_backend/instance/influencer_dev.db
+flask_backend/instance/*.db
+flask_backend/instance/*.db-shm
+flask_backend/instance/*.db-wal
 flask_backend/migrations/
 
 # ─── Uploads ──────────────────────────────────────────────────

@@ -44,13 +44,13 @@ export default function Sidebar() {
   return (
     <aside className="is-sidebar">
       {/* Brand */}
-      <div style={{ paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid rgba(91,88,235,0.20)' }}>
+      <div style={{ paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid rgba(99,102,241,0.20)' }}>
         <div className="d-flex align-items-center gap-2 mb-2">
           <div style={{
             width: 32, height: 32, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#5B58EB,#BB63FF)',
+            background: 'linear-gradient(135deg,#6366F1,#C084FC)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(91,88,235,0.60)', flexShrink: 0,
+            boxShadow: '0 0 16px rgba(99,102,241,0.60)', flexShrink: 0,
           }}>
             <Zap size={15} color="#fff" fill="#fff" strokeWidth={1.75} />
           </div>
@@ -58,7 +58,7 @@ export default function Sidebar() {
         </div>
         <span style={{
           display: 'inline-block', padding: '2px 10px', borderRadius: 999,
-          background: 'rgba(86,225,233,0.12)', color: '#56E1E9',
+          background: 'rgba(34,211,238,0.12)', color: '#22D3EE',
           fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
         }}>
           {ROLE_LABEL[role] || 'Portal'}
@@ -78,7 +78,7 @@ export default function Sidebar() {
       </nav>
 
       {/* Footer */}
-      <div style={{ borderTop: '1px solid rgba(91,88,235,0.18)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 2 }}>
+      <div style={{ borderTop: '1px solid rgba(99,102,241,0.18)', paddingTop: 14, display: 'flex', flexDirection: 'column', gap: 2 }}>
         <button onClick={toggleTheme} className="is-sidebar-link">
           {theme === 'light' ? <Moon size={15} strokeWidth={1.75} /> : <Sun size={15} strokeWidth={1.75} />}
           <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
