@@ -248,3 +248,19 @@ def delete_ad_request(ad_request_id):
     db.session.delete(ar)
     db.session.commit()
     return jsonify({'message': 'Ad request deleted successfully'}), 200
+
+
+# ── Public endpoint — no auth required ───────────────────────────────────────
+
+@campaign_bp.route('/public', methods=['GET'])
+def public_campaigns():
+    """Return top N public campaigns for the landing page (no auth required)."""
+    limit = min(request.args.get('limit', 8, type=int), 20)
+    campaigns = (
+        Campaign.query
+        .filter_by(is_public=True)
+        .order_by(Campaign.created_at.desc())
+        .limit(limit)
+        .all()
+    )
+    return jsonify([c.to_dict() for c in campaigns]), 200

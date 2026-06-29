@@ -112,15 +112,15 @@ export default function InfluencerDashboard() {
               <div className="is-card p-4 mb-3">
                 <div className="text-center mb-3">
                   {av
-                    ? <img src={av} alt="profile" className="rounded-circle mb-3" style={{ width:80, height:80, objectFit:'cover', border:'2px solid #5B58EB', boxShadow:'0 0 20px rgba(91,88,235,0.40)' }} />
-                    : <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width:80, height:80, background:'linear-gradient(135deg,#5B58EB,#BB63FF)', boxShadow:'0 0 20px rgba(91,88,235,0.40)' }}>
+                    ? <img src={av} alt="profile" className="rounded-circle mb-3" style={{ width:80, height:80, objectFit:'cover', border:'2px solid #6366F1', boxShadow:'0 0 20px rgba(99,102,241,0.40)' }} />
+                    : <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width:80, height:80, background:'linear-gradient(135deg,#6366F1,#C084FC)', boxShadow:'0 0 20px rgba(99,102,241,0.40)' }}>
                         <User size={32} color="#fff" strokeWidth={1.75} />
                       </div>
                   }
                   {!editMode && (
                     <>
                       <h6 className="fw-800 mb-1" style={{ color:'var(--text-primary)', fontSize:'0.94rem' }}>{user.name}</h6>
-                      <span style={{ padding:'2px 10px', borderRadius:999, background:'rgba(86,225,233,0.12)', color:'#56E1E9', fontSize:'0.64rem', fontWeight:800, letterSpacing:'0.07em', textTransform:'uppercase' }}>
+                      <span style={{ padding:'2px 10px', borderRadius:999, background:'rgba(34,211,238,0.12)', color:'#22D3EE', fontSize:'0.64rem', fontWeight:800, letterSpacing:'0.07em', textTransform:'uppercase' }}>
                         {profile.category}
                       </span>
                     </>
@@ -145,7 +145,7 @@ export default function InfluencerDashboard() {
                   </div>
                 ) : (
                   <div>
-                    {[{I:Hash,l:'Niche',v:profile.niche,c:'#BB63FF'},{I:Users,l:'Reach',v:profile.reach?Number(profile.reach).toLocaleString():'—',c:'#56E1E9'}].map(({I,l,v,c})=>(
+                    {[{I:Hash,l:'Niche',v:profile.niche,c:'#C084FC'},{I:Users,l:'Reach',v:profile.reach?Number(profile.reach).toLocaleString():'—',c:'#22D3EE'}].map(({I,l,v,c})=>(
                       <div key={l} className="d-flex align-items-center gap-2 mb-3">
                         <I size={13} color={c} strokeWidth={1.75} />
                         <div>
@@ -164,8 +164,8 @@ export default function InfluencerDashboard() {
               {/* Mini stats */}
               <div className="is-stat-card mb-3">
                 <div className="d-flex align-items-center gap-3">
-                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(91,88,235,0.18)', border:'1px solid rgba(91,88,235,0.28)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <Megaphone size={15} color="#5B58EB" strokeWidth={1.75} />
+                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(99,102,241,0.18)', border:'1px solid rgba(99,102,241,0.28)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Megaphone size={15} color="#6366F1" strokeWidth={1.75} />
                   </div>
                   <div>
                     <div className="is-stat-value" style={{ fontSize:'1.45rem' }}>{campaigns.filter(c=>c.isAcceptedByUser).length}</div>
@@ -175,8 +175,8 @@ export default function InfluencerDashboard() {
               </div>
               <div className="is-stat-card">
                 <div className="d-flex align-items-center gap-3">
-                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(86,225,233,0.15)', border:'1px solid rgba(86,225,233,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                    <Check size={15} color="#56E1E9" strokeWidth={2} />
+                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(34,211,238,0.15)', border:'1px solid rgba(34,211,238,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Check size={15} color="#22D3EE" strokeWidth={2} />
                   </div>
                   <div>
                     <div className="is-stat-value" style={{ fontSize:'1.45rem' }}>{adRequests.filter(a=>a.status==='accepted').length}</div>
@@ -195,7 +195,7 @@ export default function InfluencerDashboard() {
                 ].map(({ key,l,I,n }) => (
                   <button key={key} onClick={()=>setActiveTab(key)} className={`is-tab${activeTab===key?' active':''}`}>
                     <I size={13} strokeWidth={1.75} /> {l}
-                    <span style={{ marginLeft:5, padding:'1px 7px', borderRadius:999, fontSize:'0.64rem', background: activeTab===key?'rgba(255,255,255,0.18)':'rgba(91,88,235,0.12)', color: activeTab===key?'#fff':'var(--text-muted)' }}>{n}</span>
+                    <span style={{ marginLeft:5, padding:'1px 7px', borderRadius:999, fontSize:'0.64rem', background: activeTab===key?'rgba(255,255,255,0.18)':'rgba(99,102,241,0.12)', color: activeTab===key?'#fff':'var(--text-muted)' }}>{n}</span>
                   </button>
                 ))}
               </div>
@@ -222,7 +222,7 @@ export default function InfluencerDashboard() {
 
                   {campaigns.length===0
                     ? <div className="is-card p-5 is-empty">
-                        <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#5B58EB,#BB63FF)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 6px 20px rgba(91,88,235,0.40)' }}>
+                        <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#6366F1,#C084FC)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 6px 20px rgba(99,102,241,0.40)' }}>
                           <Megaphone size={24} color="#fff" strokeWidth={1.75} />
                         </div>
                         <p style={{ color:'var(--text-muted)', fontWeight:600 }}>No campaigns found. Try clearing filters.</p>
@@ -231,14 +231,14 @@ export default function InfluencerDashboard() {
                         {campaigns.map(c => (
                           <div key={c.id} className="is-camp-card">
                             <div className="is-camp-card-header" style={{ background:'linear-gradient(145deg,#091e48,#1a2e80)' }}>
-                              <div style={{ position:'absolute', width:120, height:120, borderRadius:'50%', background:'rgba(91,88,235,0.25)', filter:'blur(30px)', top:'50%', left:'50%', transform:'translate(-50%,-50%)' }} />
-                              <Megaphone size={30} color="rgba(86,225,233,0.90)" strokeWidth={1.5} style={{ position:'relative', zIndex:1 }} />
+                              <div style={{ position:'absolute', width:120, height:120, borderRadius:'50%', background:'rgba(99,102,241,0.25)', filter:'blur(30px)', top:'50%', left:'50%', transform:'translate(-50%,-50%)' }} />
+                              <Megaphone size={30} color="rgba(34,211,238,0.90)" strokeWidth={1.5} style={{ position:'relative', zIndex:1 }} />
                             </div>
                             <div className="is-camp-card-body">
-                              {c.category && <span className="is-pill mb-1 d-inline-flex" style={{ background:'rgba(187,99,255,0.14)', color:'#BB63FF' }}>{c.category}</span>}
+                              {c.category && <span className="is-pill mb-1 d-inline-flex" style={{ background:'rgba(192,132,252,0.14)', color:'#C084FC' }}>{c.category}</span>}
                               <h6 className="fw-800 mt-1 mb-1" style={{ color:'var(--text-primary)', fontSize:'0.90rem' }}>{c.title}</h6>
                               {c.description && <p className="mb-1" style={{ color:'var(--text-secondary)', fontSize:'0.77rem', lineHeight:1.5 }}>{c.description.length>65?c.description.slice(0,65)+'…':c.description}</p>}
-                              {c.budget && <p className="mb-1 fw-800" style={{ color:'#56E1E9', fontSize:'0.82rem' }}><Wallet size={11} strokeWidth={1.75} style={{ marginRight:3, verticalAlign:'middle' }} />₹{Number(c.budget).toLocaleString()}</p>}
+                              {c.budget && <p className="mb-1 fw-800" style={{ color:'#22D3EE', fontSize:'0.82rem' }}><Wallet size={11} strokeWidth={1.75} style={{ marginRight:3, verticalAlign:'middle' }} />₹{Number(c.budget).toLocaleString()}</p>}
                               {c.Sponsor?.companyName && <p className="mb-2" style={{ color:'var(--text-muted)', fontSize:'0.75rem' }}>by {c.Sponsor.companyName}</p>}
                               {c.isAcceptedByUser
                                 ? <div className="is-pill is-pill-accepted w-100 justify-content-center" style={{ padding:'7px', marginTop:'auto' }}><CheckCircle size={11} strokeWidth={1.75} /> Joined</div>
@@ -257,7 +257,7 @@ export default function InfluencerDashboard() {
                 <div className="d-flex flex-column gap-3">
                   {adRequests.length===0
                     ? <div className="is-card p-5 is-empty">
-                        <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#BB63FF,#5B58EB)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 6px 20px rgba(187,99,255,0.40)' }}>
+                        <div style={{ width:52, height:52, borderRadius:15, background:'linear-gradient(135deg,#C084FC,#6366F1)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 12px', boxShadow:'0 6px 20px rgba(192,132,252,0.40)' }}>
                           <FileText size={24} color="#fff" strokeWidth={1.75} />
                         </div>
                         <p style={{ color:'var(--text-muted)', fontWeight:600 }}>No ad requests yet.</p>
@@ -275,7 +275,7 @@ export default function InfluencerDashboard() {
                               {req.message && <p className="mb-2" style={{ color:'var(--text-secondary)', lineHeight:1.55, fontSize:'0.85rem' }}>{req.message}</p>}
                               {req.proposedTerms && (
                                 <div className="rounded-3 p-2 mb-2" style={{ background:'var(--bg-surface-2)', border:'1px solid var(--border-glass)', fontSize:'0.80rem', color:'var(--text-secondary)' }}>
-                                  <span className="fw-700" style={{ color:'#56E1E9' }}>Terms: </span>{req.proposedTerms}
+                                  <span className="fw-700" style={{ color:'#22D3EE' }}>Terms: </span>{req.proposedTerms}
                                 </div>
                               )}
                               {negotiatingId===req.id && (
@@ -295,7 +295,7 @@ export default function InfluencerDashboard() {
                                 <button onClick={()=>handleAdAction(req.id,'accept')} className="is-btn is-btn-brand" style={{ padding:'7px 14px', fontSize:'0.80rem' }}>
                                   <CheckCircle size={12} strokeWidth={1.75} /> Accept
                                 </button>
-                                <button onClick={()=>{setNegotiatingId(req.id);setCounterTerms('');}} className="is-btn is-btn-ghost" style={{ padding:'7px 13px', fontSize:'0.80rem', color:'#BB63FF' }}>
+                                <button onClick={()=>{setNegotiatingId(req.id);setCounterTerms('');}} className="is-btn is-btn-ghost" style={{ padding:'7px 13px', fontSize:'0.80rem', color:'#C084FC' }}>
                                   <Pencil size={12} strokeWidth={1.75} /> Negotiate
                                 </button>
                                 <button onClick={()=>handleAdAction(req.id,'reject')} className="is-btn is-btn-ghost" style={{ padding:'7px 13px', fontSize:'0.80rem', color:'#f87171' }}>

@@ -19,13 +19,13 @@ export default function Navbar() {
         <Link to="/" className="text-decoration-none d-flex align-items-center gap-2" style={{ flexShrink: 0 }}>
           <div style={{
             width: 30, height: 30, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#5B58EB,#BB63FF)',
+            background: 'linear-gradient(135deg,#6366F1,#C084FC)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(91,88,235,0.55)',
+            boxShadow: '0 0 16px rgba(99,102,241,0.55)',
           }}>
             <Zap size={14} color="#fff" fill="#fff" strokeWidth={1.75} />
           </div>
-          <span className="display-brand" style={{ fontSize: '1.2rem', color: '#5B58EB', letterSpacing: '-0.01em' }}>
+          <span className="display-brand" style={{ fontSize: '1.2rem', color: '#6366F1', letterSpacing: '-0.01em' }}>
             InSync
           </span>
         </Link>
@@ -34,7 +34,7 @@ export default function Navbar() {
           {LINKS.map(l => (
             <NavLink key={l.to} to={l.to} className="text-decoration-none" style={({ isActive }) => ({
               padding: '7px 16px', borderRadius: 999, fontSize: '0.85rem', fontWeight: 600,
-              color: isActive ? '#56E1E9' : 'var(--text-secondary)',
+              color: isActive ? '#22D3EE' : 'var(--text-secondary)',
               background: isActive ? 'rgba(86,225,233,0.10)' : 'transparent',
               transition: 'var(--transition)',
             })}>
@@ -58,8 +58,8 @@ export default function Navbar() {
       {/* Mobile bar */}
       <nav className="is-navbar d-md-none" style={{ padding: '0 1.25rem', justifyContent: 'space-between' }}>
         <Link to="/" className="text-decoration-none d-flex align-items-center gap-2">
-          <Zap size={16} color="#5B58EB" strokeWidth={1.75} />
-          <span className="display-brand" style={{ fontSize: '1.1rem', color: '#5B58EB' }}>InSync</span>
+          <Zap size={16} color="#6366F1" strokeWidth={1.75} />
+          <span className="display-brand" style={{ fontSize: '1.1rem', color: '#6366F1' }}>InSync</span>
         </Link>
         <div className="d-flex gap-2">
           <button onClick={toggleTheme} className="is-btn is-btn-ghost" style={{ width: 34, height: 34, padding: 0, borderRadius: '50%' }}>
@@ -73,7 +73,7 @@ export default function Navbar() {
           <div style={{
             position: 'absolute', top: 'var(--navbar-h)', left: 0, right: 0, zIndex: 999,
             background: 'rgba(9,20,50,0.97)', backdropFilter: 'blur(20px)',
-            borderBottom: '1px solid rgba(91,88,235,0.20)',
+            borderBottom: '1px solid rgba(99,102,241,0.20)',
             padding: '12px 1.25rem 16px', display: 'flex', flexDirection: 'column', gap: 3,
           }}>
             {[...LINKS, { to: '/login', label: 'Sign In' }].map(l => (
