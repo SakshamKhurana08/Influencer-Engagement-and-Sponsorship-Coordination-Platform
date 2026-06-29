@@ -40,7 +40,7 @@ export default function Settings() {
     api.get('/api/sponsors/profile').then(r => {
       setUser(r.data.user); setProfile(r.data.sponsor);
       setFormData({ name: r.data.user.name, companyName: r.data.sponsor.companyName, industry: r.data.sponsor.industry, budget: r.data.sponsor.budget });
-      if (r.data.sponsor.profileImageUrl) setImgPreview(`/uploads/influencer_photos/${r.data.sponsor.profileImageUrl}`);
+      if (r.data.sponsor.profileImageUrl) setImgPreview(r.data.sponsor.profileImageUrl);
       setLoading(false);
     }).catch(err => { if (err.response?.status === 401) navigate('/login'); setLoading(false); });
   }, [navigate]);

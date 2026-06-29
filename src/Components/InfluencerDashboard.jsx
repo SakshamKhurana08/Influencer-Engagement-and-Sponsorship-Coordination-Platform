@@ -84,7 +84,8 @@ export default function InfluencerDashboard() {
 
   const applyFilters = () => fetchCampaigns(filters);
   const clearFilters = () => { setFilters({category:'',minBudget:''}); fetchCampaigns({category:'',minBudget:''}); };
-  const avatarUrl = () => { const r=profile.profileImageUrl; return r?`/uploads/influencer_photos/${r.split(/[\\/]/).pop()}`:null; };
+  // profileImageUrl is now a base64 data URI — use it directly as <img src>
+  const avatarUrl = () => profile.profileImageUrl || null;
 
   if (loading) return (
     <div style={{ minHeight:'100vh' }}>

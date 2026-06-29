@@ -18,7 +18,7 @@ class Sponsor(db.Model):
     company_name = db.Column(db.String(255), nullable=False)
     industry = db.Column(db.String(255))
     budget = db.Column(db.Integer)
-    profile_image_url = db.Column(db.String(500))
+    profile_image_url = db.Column(db.Text)  # stores base64 data URI
 
     # ── Relationships ─────────────────────────────────────────────────────────
     user = db.relationship('User', back_populates='sponsor')
