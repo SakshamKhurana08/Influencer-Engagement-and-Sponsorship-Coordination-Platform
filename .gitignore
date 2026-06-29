@@ -46,3 +46,9 @@ vite.log
 .flask.pid
 .vite.pid
 flask_backend/venv/.deps_installed
+
+# Local audit / notes files — never push these
+FAKE_DATA_AUDIT.md
+*.audit.md
+NOTES.md
+TODO_LOCAL.md

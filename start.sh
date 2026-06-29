@@ -20,7 +20,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$SCRIPT_DIR"
 BACKEND_DIR="$PROJECT_ROOT/flask_backend"
 
-FLASK_PORT=5000
+FLASK_PORT=5001
 VITE_PORT=5173
 FRONTEND_URL="http://localhost:${VITE_PORT}"
 
