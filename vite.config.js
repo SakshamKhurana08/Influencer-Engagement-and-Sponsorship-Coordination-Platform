@@ -5,9 +5,18 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/tests/setup.js',
+    css: false,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'lcov'],
+    },
+  },
   server: {
     watch: {
-      // Prevent Vite from reloading when the SQLite DB file changes
       ignored: ['**/flask_backend/**', '**/*.db', '**/*.db-shm', '**/*.db-wal'],
     },
     proxy: {
