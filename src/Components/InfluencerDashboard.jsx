@@ -163,9 +163,9 @@ export default function InfluencerDashboard() {
               </div>
 
               {/* Mini stats */}
-              <div className="is-stat-card mb-3">
+              <div className="is-stat-card mb-3" style={{ height:'auto' }}>
                 <div className="d-flex align-items-center gap-3">
-                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(99,102,241,0.18)', border:'1px solid rgba(99,102,241,0.28)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(99,102,241,0.18)', border:'1px solid rgba(99,102,241,0.28)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                     <Megaphone size={15} color="#6366F1" strokeWidth={1.75} />
                   </div>
                   <div>
@@ -174,9 +174,9 @@ export default function InfluencerDashboard() {
                   </div>
                 </div>
               </div>
-              <div className="is-stat-card">
+              <div className="is-stat-card" style={{ height:'auto' }}>
                 <div className="d-flex align-items-center gap-3">
-                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(34,211,238,0.15)', border:'1px solid rgba(34,211,238,0.25)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <div style={{ width:34, height:34, borderRadius:10, background:'rgba(34,211,238,0.15)', border:'1px solid rgba(34,211,238,0.25)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                     <Check size={15} color="#22D3EE" strokeWidth={2} />
                   </div>
                   <div>

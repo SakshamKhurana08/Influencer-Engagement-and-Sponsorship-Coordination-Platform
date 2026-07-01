@@ -2,39 +2,21 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import api from '../api/axiosInstance';
 import Navbar from './Navbar';
+import { useTheme } from '../theme/ThemeContext';
 import {
-  Sparkles, Cpu, Dumbbell, Coffee, Globe, Shirt, Leaf, Camera,
-  TrendingUp, Award, Megaphone, Zap, ArrowRight, Building2,
-  Star, Radio, ShoppingBag, Tv, Music, BookOpen, Briefcase, Wallet,
-  Link2, BarChart2, Shield, MessageSquare, Activity, Layers, Users,
+  Sparkles, Megaphone, Zap, ArrowRight,
+  Link2, BarChart2, Shield, MessageSquare,
+  TrendingUp, Award, Wallet,
 } from 'lucide-react';
 
-/* ── Ticker brands ── */
-const BRANDS = [
-  { Icon: Building2, name: 'TechCorp' },
-  { Icon: ShoppingBag, name: 'ShopStyle' },
-  { Icon: Tv,          name: 'StreamVia' },
-  { Icon: Music,       name: 'BeatLabs' },
-  { Icon: BookOpen,    name: 'LearnHub' },
-  { Icon: Briefcase,   name: 'WorkForce' },
-  { Icon: Star,        name: 'LuxBrand' },
-  { Icon: Radio,       name: 'MediaWave' },
-  { Icon: Globe,       name: 'WorldCo' },
-  { Icon: Zap,         name: 'FlashNet' },
-];
-
-const TICKER = [...BRANDS, ...BRANDS];
-
-/* ── Fallback static campaigns (shown while loading or if DB empty) ── */
-const FALLBACK = [
-  { id:'f1', title:'Summer Glow',   Sponsor:{companyName:'Luminary Beauty'}, category:'Beauty',      budget:120000, _bg:'linear-gradient(145deg,#1a0533,#3d1060)', _Icon:Sparkles },
-  { id:'f2', title:'TechDrop 2025', Sponsor:{companyName:'NexaGadgets'},     category:'Tech',         budget:350000, _bg:'linear-gradient(145deg,#091e48,#1a3a8a)', _Icon:Cpu },
-  { id:'f3', title:'Fit & Fresh',   Sponsor:{companyName:'AthleteCore'},     category:'Fitness',      budget:80000,  _bg:'linear-gradient(145deg,#0a2353,#0e3a6e)', _Icon:Dumbbell },
-  { id:'f4', title:'Urban Grind',   Sponsor:{companyName:'StreetBrew Co.'},  category:'Food',         budget:60000,  _bg:'linear-gradient(145deg,#112C70,#1e4494)', _Icon:Coffee },
-  { id:'f5', title:'Wanderlust',    Sponsor:{companyName:'SkyTrail Tours'},  category:'Travel',       budget:200000, _bg:'linear-gradient(145deg,#0d1a40,#1a2e6e)', _Icon:Globe },
-  { id:'f6', title:'StyleScript',   Sponsor:{companyName:'ClosetEdit'},      category:'Fashion',      budget:140000, _bg:'linear-gradient(145deg,#1a0a40,#2d1270)', _Icon:Shirt },
-  { id:'f7', title:'Clean Home',    Sponsor:{companyName:'EcoNest'},         category:'Lifestyle',    budget:55000,  _bg:'linear-gradient(145deg,#091e48,#0d2e70)', _Icon:Leaf },
-  { id:'f8', title:'Pixel Story',   Sponsor:{companyName:'VisionCraft'},     category:'Photography',  budget:95000,  _bg:'linear-gradient(145deg,#0f1a50,#1a2e80)', _Icon:Camera },
+/* ── Campaign category tags — no fake brand names ── */
+const CATEGORIES = [
+  'Beauty', 'Tech', 'Fitness', 'Food', 'Travel',
+  'Fashion', 'Lifestyle', 'Photography', 'Gaming',
+  'Finance', 'Education', 'Health', 'Music', 'Sports',
+  'Beauty', 'Tech', 'Fitness', 'Food', 'Travel',
+  'Fashion', 'Lifestyle', 'Photography', 'Gaming',
+  'Finance', 'Education', 'Health', 'Music', 'Sports',
 ];
 
 const BG_POOL = [
@@ -56,25 +38,26 @@ const STATS = [
 ];
 
 const PILLARS = [
-  { Icon:Link2,         title:'Smart Matchmaking',   desc:'AI-powered pairing between brands and creators based on niche, audience, and campaign goals.',    grad:'linear-gradient(135deg,#6366F1,#C084FC)', glow:'rgba(99,102,241,0.35)' },
-  { Icon:BarChart2,     title:'Real-time Analytics', desc:'Track campaign ROI, reach, and engagement from a single unified dashboard — updated live.',        grad:'linear-gradient(135deg,#C084FC,#22D3EE)', glow:'rgba(192,132,252,0.35)' },
-  { Icon:Shield,        title:'Secure & Scalable',   desc:'JWT auth, role-based access, and a PostgreSQL-backed infrastructure designed for enterprise scale.', grad:'linear-gradient(135deg,#22D3EE,#6366F1)', glow:'rgba(34,211,238,0.35)' },
-  { Icon:MessageSquare, title:'Negotiation Tools',   desc:'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.',     grad:'linear-gradient(135deg,#6366F1,#22D3EE)', glow:'rgba(99,102,241,0.35)' },
+  { Icon:Link2,         title:'Smart Matchmaking',   desc:'Connect brands with the right creators based on niche, audience, and campaign goals.',           grad:'linear-gradient(135deg,#6366F1,#C084FC)', glow:'rgba(99,102,241,0.35)' },
+  { Icon:BarChart2,     title:'Real-time Analytics', desc:'Track campaign status, ad requests, and deal progress from a single unified dashboard.',         grad:'linear-gradient(135deg,#C084FC,#22D3EE)', glow:'rgba(192,132,252,0.35)' },
+  { Icon:Shield,        title:'Secure & Scalable',   desc:'JWT authentication, role-based access control, and a SQLite-backed REST API.',                   grad:'linear-gradient(135deg,#22D3EE,#6366F1)', glow:'rgba(34,211,238,0.35)' },
+  { Icon:MessageSquare, title:'Negotiation Tools',   desc:'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.',  grad:'linear-gradient(135deg,#6366F1,#22D3EE)', glow:'rgba(99,102,241,0.35)' },
 ];
 
 export default function DeviceDisplay() {
-  const [campaigns, setCampaigns] = useState(FALLBACK);
+  const { theme } = useTheme();
+  const isLight = theme === 'light';
+  const [campaigns, setCampaigns] = useState([]);
   const [loadingCamps, setLoadingCamps] = useState(true);
 
-  /* Fetch top 8 public campaigns from DB — no auth required */
   useEffect(() => {
     api.get('/api/campaign/public', { params: { limit: 8 } })
       .then(r => {
         const data = r.data;
         const list = Array.isArray(data) ? data : (data.items || []);
-        if (list.length > 0) setCampaigns(list.slice(0, 8));
+        setCampaigns(list.slice(0, 8));
       })
-      .catch(() => { /* silently use fallback */ })
+      .catch(() => { /* no fallback — show empty state */ })
       .finally(() => setLoadingCamps(false));
   }, []);
 
@@ -86,7 +69,9 @@ export default function DeviceDisplay() {
       {/* ═══ HERO — high contrast, clean obsidian card ═══ */}
       <div style={{ padding:'0 var(--section-px)', paddingTop:'90px' }}>
         <div style={{
-          background: 'linear-gradient(145deg, #0A0F1E 0%, #0E1929 60%, #111D38 100%)',
+          background: isLight
+            ? 'linear-gradient(145deg, #1a1060 0%, #0E1929 60%, #111D38 100%)'
+            : 'linear-gradient(145deg, #0A0F1E 0%, #0E1929 60%, #111D38 100%)',
           border: '1px solid rgba(99,102,241,0.22)',
           borderRadius: 24,
           padding: 'clamp(36px,5vh,52px) clamp(28px,5vw,52px)',
@@ -129,7 +114,7 @@ export default function DeviceDisplay() {
             </h1>
 
             {/* Subtitle — concise */}
-            <p style={{ fontSize:'1.05rem', color:'#9CA3AF', maxWidth:500, marginInline:'auto', lineHeight:1.65, marginBottom:28 }}>
+            <p style={{ fontSize:'1.05rem', color:'rgba(209,213,219,0.85)', maxWidth:500, marginInline:'auto', lineHeight:1.65, marginBottom:28 }}>
               One workspace to discover campaigns, negotiate deals, and track every collaboration — built for the modern creator economy.
             </p>
 
@@ -144,8 +129,8 @@ export default function DeviceDisplay() {
                 <Sparkles size={15} strokeWidth={1.75} /> Start for Free
               </Link>
               <Link to="/login" className="is-btn text-decoration-none" style={{
-                background:'rgba(255,255,255,0.07)', backdropFilter:'blur(12px)',
-                border:'1.5px solid rgba(255,255,255,0.16)', color:'#E5E7EB',
+                background:'rgba(255,255,255,0.10)', backdropFilter:'blur(12px)',
+                border:'1.5px solid rgba(255,255,255,0.28)', color:'#F9FAFB',
                 padding:'13px 32px', fontSize:'0.92rem', borderRadius:999,
               }}>
                 Sign In <ArrowRight size={14} strokeWidth={1.75} />
@@ -155,16 +140,16 @@ export default function DeviceDisplay() {
         </div>
       </div>
 
-      {/* ═══ TICKER ═══ */}
+      {/* ═══ TICKER — campaign categories, not fake brand names ═══ */}
       <div style={{ padding:'16px var(--section-px) 14px' }}>
-        <p style={{ textAlign:'center', fontSize:'0.62rem', fontWeight:800, letterSpacing:'0.18em', textTransform:'uppercase', color:'var(--text-muted)', marginBottom:12 }}>
-          Explore campaigns across every category
+        <p style={{ textAlign:'center', fontSize:'0.62rem', fontWeight:800, letterSpacing:'0.18em', textTransform:'uppercase', color:'var(--text-secondary)', marginBottom:12 }}>
+          Campaigns across every category
         </p>
         <div className="is-ticker">
           <div className="is-ticker-track">
-            {TICKER.map(({ Icon, name }, i) => (
+            {CATEGORIES.map((name, i) => (
               <div key={i} className="is-ticker-item">
-                <Icon size={13} strokeWidth={1.75} /> {name}
+                <Sparkles size={11} strokeWidth={1.75} /> {name}
               </div>
             ))}
           </div>
@@ -206,12 +191,12 @@ export default function DeviceDisplay() {
         </div>
       </div>
 
-      {/* ═══ TRENDING CAMPAIGNS — dynamic DB fetch, top 8 ═══ */}
+      {/* ═══ TRENDING CAMPAIGNS — live DB fetch only ═══ */}
       <div style={{ padding:'0 var(--section-px) 1.5rem' }}>
         <div className="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-3">
-          <h2 className="is-section-title mb-0"><span>Trending</span> Campaigns</h2>
+          <h2 className="is-section-title mb-0"><span>Active</span> Campaigns</h2>
           <Link to="/signup" className="is-btn is-btn-ghost text-decoration-none" style={{ fontSize:'0.81rem' }}>
-            View All <ArrowRight size={13} strokeWidth={1.75} />
+            Browse All <ArrowRight size={13} strokeWidth={1.75} />
           </Link>
         </div>
 
@@ -219,22 +204,40 @@ export default function DeviceDisplay() {
           <div className="d-flex justify-content-center py-4">
             <div className="is-spinner" role="status" aria-label="Loading campaigns" />
           </div>
+        ) : campaigns.length === 0 ? (
+          <div className="is-card p-5 text-center is-empty">
+            <div style={{
+              width:56, height:56, borderRadius:16, margin:'0 auto 16px',
+              background:'linear-gradient(135deg,#6366F1,#C084FC)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              boxShadow:'0 6px 24px rgba(99,102,241,0.40)',
+            }}>
+              <Megaphone size={26} color="#fff" strokeWidth={1.75} />
+            </div>
+            <h6 className="fw-800 mb-2" style={{ color:'var(--text-primary)', fontSize:'0.97rem' }}>
+              No campaigns yet
+            </h6>
+            <p style={{ color:'var(--text-muted)', fontSize:'0.84rem', maxWidth:320, marginInline:'auto', lineHeight:1.6 }}>
+              Be the first sponsor to create a campaign and connect with creators on InSync.
+            </p>
+            <Link to="/signup" className="is-btn is-btn-brand text-decoration-none mt-3 d-inline-flex">
+              <Sparkles size={14} strokeWidth={1.75} /> Create a Campaign
+            </Link>
+          </div>
         ) : (
           <div className="is-camp-grid">
             {campaigns.map((c, idx) => {
-              /* Support both DB records and fallback static objects */
               const title    = c.title;
-              const brand    = c.Sponsor?.companyName || c.brand || '';
+              const brand    = c.Sponsor?.companyName || '';
               const cat      = c.category || '';
-              const budget   = c.budget ? `₹${Number(c.budget).toLocaleString()}` : (c._budget || '');
-              const bg       = c._bg || BG_POOL[idx % BG_POOL.length];
-              const IconComp = c._Icon || Megaphone;
+              const budget   = c.budget ? `₹${Number(c.budget).toLocaleString()}` : '';
+              const bg       = BG_POOL[idx % BG_POOL.length];
 
               return (
                 <div key={c.id || idx} className="is-camp-card">
                   <div className="is-camp-card-header" style={{ background: bg }}>
                     <div style={{ position:'absolute', width:140, height:140, borderRadius:'50%', background:'rgba(99,102,241,0.25)', filter:'blur(40px)', top:'50%', left:'50%', transform:'translate(-50%,-50%)' }} />
-                    <IconComp size={34} color="rgba(255,255,255,0.90)" strokeWidth={1.5} style={{ position:'relative', zIndex:1 }} />
+                    <Megaphone size={34} color="rgba(255,255,255,0.90)" strokeWidth={1.5} style={{ position:'relative', zIndex:1 }} />
                   </div>
                   <div className="is-camp-card-body">
                     {cat && <span className="is-pill mb-2 d-inline-flex" style={{ background:'rgba(99,102,241,0.15)', color:'#C084FC' }}>{cat}</span>}
@@ -264,10 +267,10 @@ export default function DeviceDisplay() {
           <div style={{ position:'absolute', inset:0, zIndex:0, background:'radial-gradient(ellipse at 80% 20%, rgba(34,211,238,0.22) 0%, transparent 50%), radial-gradient(ellipse at 20% 80%, rgba(255,255,255,0.08) 0%, transparent 50%)', pointerEvents:'none' }} />
           <div style={{ position:'relative', zIndex:1 }}>
             <h2 className="display-brand mb-3" style={{ fontSize:'clamp(1.6rem,3.8vw,2.6rem)', fontWeight:900 }}>
-              Ready to grow your brand?
+              Ready to get started?
             </h2>
-            <p style={{ color:'rgba(255,255,255,0.82)', marginBottom:26, maxWidth:440, marginInline:'auto', fontSize:'0.97rem' }}>
-              Join thousands of sponsors and creators already building the future of digital marketing on InSync.
+            <p style={{ color:'rgba(255,255,255,0.82)', marginBottom:26, maxWidth:420, marginInline:'auto', fontSize:'0.97rem' }}>
+              Create a free account and start connecting brands with creators through campaigns, ad requests, and built-in negotiation.
             </p>
             <Link to="/signup" className="is-btn text-decoration-none"
               style={{ background:'#fff', color:'#060B13', padding:'12px 38px', fontSize:'0.92rem', fontWeight:800, boxShadow:'0 8px 28px rgba(0,0,0,0.22)' }}>

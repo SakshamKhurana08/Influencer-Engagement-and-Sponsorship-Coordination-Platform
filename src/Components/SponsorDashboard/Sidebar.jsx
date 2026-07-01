@@ -20,10 +20,10 @@ const NAV = {
     { to: '/influencer/dashboard', Icon: LayoutDashboard, label: 'Dashboard' },
   ],
   admin: [
-    { to: '/admin-dashboard', Icon: BarChart2,   label: 'Overview'  },
-    { to: '/admin-dashboard', Icon: Megaphone,   label: 'Campaigns' },
-    { to: '/admin-dashboard', Icon: Flag,        label: 'Flagged'   },
-    { to: '/admin-dashboard', Icon: Search,      label: 'Search'    },
+    { to: '/admin-dashboard?tab=overview',  Icon: BarChart2, label: 'Overview'  },
+    { to: '/admin-dashboard?tab=campaigns', Icon: Megaphone, label: 'Campaigns' },
+    { to: '/admin-dashboard?tab=flagged',   Icon: Flag,      label: 'Flagged'   },
+    { to: '/admin-dashboard?tab=search',    Icon: Search,    label: 'Search'    },
   ],
 };
 
@@ -68,13 +68,27 @@ export default function Sidebar() {
       {/* Nav */}
       <nav style={{ flex: 1 }}>
         <p className="is-sidebar-section">Navigation</p>
-        {links.map(({ to, Icon, label }) => (
-          <NavLink key={label} to={to}
-            className={({ isActive }) => `is-sidebar-link${isActive ? ' active' : ''}`}>
-            <Icon size={15} strokeWidth={1.75} />
-            {label}
-          </NavLink>
-        ))}
+        {links.map(({ to, Icon, label }) => {
+          const [path, qs] = to.split('?');
+          const param = qs ? new URLSearchParams(qs) : null;
+          return (
+            <NavLink
+              key={label}
+              to={to}
+              end
+              className={({ isActive }) => {
+                if (!param) return `is-sidebar-link${isActive ? ' active' : ''}`;
+                const currentTab = new URLSearchParams(window.location.search).get('tab') || 'overview';
+                const linkTab    = param.get('tab');
+                const onPath     = window.location.pathname === path;
+                return `is-sidebar-link${onPath && currentTab === linkTab ? ' active' : ''}`;
+              }}
+            >
+              <Icon size={15} strokeWidth={1.75} />
+              {label}
+            </NavLink>
+          );
+        })}
       </nav>
 
       {/* Footer */}

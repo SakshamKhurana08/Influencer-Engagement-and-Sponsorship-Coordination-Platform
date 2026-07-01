@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import {
-  Mail, Phone, MapPin, ArrowLeft,
+  Mail, MapPin, ArrowLeft,
   Link2, BarChart2, Shield, MessageSquare,
   Zap, Target, Rocket, HeartHandshake,
   Users, Building2, TrendingUp, Award,
@@ -8,17 +8,17 @@ import {
 import Navbar from './Navbar';
 
 const PILLARS = [
-  { Icon: Link2,         title: 'Smart Matchmaking',   desc: 'AI-powered pairing between brands and creators based on niche, audience, and campaign goals.',       grad: 'linear-gradient(135deg,#6366F1,#C084FC)', glow: 'rgba(99,102,241,0.40)' },
-  { Icon: BarChart2,     title: 'Real-time Analytics', desc: 'Track campaign ROI, reach, and engagement from a single unified dashboard — updated live.',           grad: 'linear-gradient(135deg,#C084FC,#22D3EE)', glow: 'rgba(192,132,252,0.40)' },
-  { Icon: Shield,        title: 'Secure & Scalable',   desc: 'JWT auth, role-based access, and PostgreSQL infrastructure designed for enterprise scale.',            grad: 'linear-gradient(135deg,#22D3EE,#6366F1)', glow: 'rgba(34,211,238,0.40)' },
-  { Icon: MessageSquare, title: 'Negotiation Tools',   desc: 'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.',       grad: 'linear-gradient(135deg,#6366F1,#22D3EE)', glow: 'rgba(99,102,241,0.40)' },
+  { Icon: Link2,         title: 'Smart Matchmaking',   desc: 'Connect brands with the right creators based on niche, audience, and campaign goals.',       grad: 'linear-gradient(135deg,#6366F1,#C084FC)', glow: 'rgba(99,102,241,0.40)' },
+  { Icon: BarChart2,     title: 'Real-time Analytics', desc: 'Track campaign status, ad requests, and deal progress from a single unified dashboard.',      grad: 'linear-gradient(135deg,#C084FC,#22D3EE)', glow: 'rgba(192,132,252,0.40)' },
+  { Icon: Shield,        title: 'Secure & Scalable',   desc: 'JWT authentication, role-based access control, and a REST API built on SQLite.',              grad: 'linear-gradient(135deg,#22D3EE,#6366F1)', glow: 'rgba(34,211,238,0.40)' },
+  { Icon: MessageSquare, title: 'Negotiation Tools',   desc: 'Propose terms, counter-offer, and close deals entirely within the platform — no email chains.', grad: 'linear-gradient(135deg,#6366F1,#22D3EE)', glow: 'rgba(99,102,241,0.40)' },
 ];
 
 const TIMELINE = [
-  { year: '2023', Icon: Zap,            title: 'Platform Founded',       desc: 'InSync was born from a single idea: influencer marketing deserved a modern, transparent home.',      color: '#6366F1' },
-  { year: '2024', Icon: Target,         title: '10,000 Creators Joined', desc: 'Rapid adoption across fashion, tech, and lifestyle verticals with 10K verified creator profiles.',    color: '#C084FC' },
-  { year: '2025', Icon: Rocket,         title: 'Enterprise Launch',      desc: 'Full sponsor portal, campaign analytics dashboard, and negotiation suite released to the public.',     color: '#22D3EE' },
-  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',         desc: 'Full counter-offer and negotiation flow launched — sponsors and creators close deals entirely within InSync.',  color: '#C084FC' },
+  { year: '2025', Icon: Zap,            title: 'Platform Built',         desc: 'InSync was developed as a full-stack influencer engagement platform connecting sponsors and creators.',  color: '#6366F1' },
+  { year: '2025', Icon: Rocket,         title: 'Public Launch',          desc: 'Sponsor portal, influencer dashboard, campaign management, and negotiation suite launched.',            color: '#C084FC' },
+  { year: '2025', Icon: Target,         title: 'Role-Based Access',      desc: 'Admin, sponsor, and influencer roles with dedicated dashboards and scoped API access.',                  color: '#22D3EE' },
+  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',      desc: 'Full counter-offer and negotiation flow — sponsors and creators close deals entirely within InSync.',   color: '#C084FC' },
 ];
 
 const STATS = [
@@ -29,9 +29,8 @@ const STATS = [
 ];
 
 const CONTACT = [
-  { Icon: Mail,   text: 'customer-care@insync.org',       color: '#22D3EE' },
-  { Icon: Phone,  text: '+91 44 3993 XXXX',               color: '#C084FC' },
-  { Icon: MapPin, text: 'New Delhi', color: '#6366F1' },
+  { Icon: Mail,   text: 'support@insync.dev',  color: '#22D3EE' },
+  { Icon: MapPin, text: 'New Delhi, India',    color: '#6366F1' },
 ];
 
 export default function About() {
@@ -104,7 +103,7 @@ export default function About() {
               }}>
                 <div>
                   <p style={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.68rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.10em', marginBottom: 4 }}>Platform Status</p>
-                  <p style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 800, margin: 0 }}>Live & Growing</p>
+                  <p style={{ color: '#fff', fontSize: '0.95rem', fontWeight: 800, margin: 0 }}>Now Live</p>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
                   {['Fashion', 'Tech', 'Travel', 'Food'].map(tag => (

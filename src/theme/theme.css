@@ -530,7 +530,7 @@ html, body, #root {
 .is-stat-card:hover { box-shadow: var(--shadow-md), var(--brand-glow); transform: translateY(-3px); }
 .is-stat-card:hover::after { transform: scaleX(1); }
 .is-stat-value { font-size: 2rem; font-weight: 900; color: var(--text-primary); line-height: 1; letter-spacing: -0.03em; }
-.is-stat-label { font-size: 0.66rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.10em; margin-top: 6px; }
+.is-stat-label { font-size: 0.66rem; font-weight: 800; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.10em; margin-top: 6px; }
 
 /* ──────────────────────────────────────────────────────────────────────
    ICON BOX
@@ -591,10 +591,11 @@ html, body, #root {
 .is-ticker-item {
   display: flex; align-items: center; gap: 8px;
   font-size: 0.76rem; font-weight: 700; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--text-muted); white-space: nowrap;
+  text-transform: uppercase; color: var(--text-secondary); white-space: nowrap;
   transition: var(--transition-fast);
 }
 .is-ticker-item:hover { color: var(--brand-3); }
+[data-theme="light"] .is-ticker-item { color: var(--text-primary); }
 
 /* ──────────────────────────────────────────────────────────────────────
    CAMPAIGN GRID — strict equal heights
@@ -711,19 +712,18 @@ html, body, #root {
 }
 
 .is-auth-left {
-  width: 50%;
+  width: 42%;
   flex-shrink: 0;
-  background: linear-gradient(170deg, #03060D 0%, #080E1A 45%, #0E1929 100%);
+  background: linear-gradient(170deg, #03060D 0%, #080E1A 50%, #0E1929 100%);
   position: relative;
   overflow: hidden;
-  /* Layout is fully controlled by inline styles in AuthLeftPanel */
 }
 .is-auth-left::before {
   content: '';
   position: absolute; inset: 0; z-index: 0;
   background:
-    radial-gradient(ellipse 80% 60% at 70% 20%, rgba(99,102,241,0.22) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 20% 80%, rgba(192,132,252,0.14) 0%, transparent 55%);
+    radial-gradient(ellipse 90% 65% at 75% 18%, rgba(99,102,241,0.20) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 18% 82%, rgba(192,132,252,0.12) 0%, transparent 55%);
   pointer-events: none;
 }
 .is-auth-left > * { position: relative; z-index: 1; }

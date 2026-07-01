@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Zap, ArrowRight, Home, CheckCircle } from 'lucide-react';
+import { Zap, ArrowRight, Home, CheckCircle, Search, MessageSquare, BarChart2 } from 'lucide-react';
 
 export default function SignUpSuccess() {
   return (
@@ -44,24 +44,27 @@ export default function SignUpSuccess() {
           Your account has been created. Sign in to start discovering campaigns and building your creator portfolio.
         </p>
 
-        {/* Feature promises — replaces fake stats */}
+        {/* Feature tiles — Lucide icons, no emojis */}
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
           marginBottom: 28,
         }}>
           {[
-            { icon: '🎯', label: 'Discover',  desc: 'Browse real brand campaigns' },
-            { icon: '🤝', label: 'Negotiate', desc: 'Counter-offer built-in'      },
-            { icon: '📊', label: 'Track',     desc: 'Live deal status updates'    },
-          ].map(({ icon, label, desc }) => (
+            { Icon: Search,       color: '#22D3EE', label: 'Discover',  desc: 'Browse live brand campaigns'  },
+            { Icon: MessageSquare,color: '#C084FC', label: 'Negotiate', desc: 'Counter-offer built in'       },
+            { Icon: BarChart2,    color: '#6366F1', label: 'Track',     desc: 'Live deal status updates'     },
+          ].map(({ Icon, color, label, desc }) => (
             <div key={label} style={{
               background: 'var(--bg-surface-2)',
               border: '1px solid var(--border-glass)',
-              borderRadius: 11, padding: '10px 8px',
+              borderRadius: 11, padding: '12px 8px',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
             }}>
-              <div style={{ fontSize: '1.3rem', lineHeight: 1, marginBottom: 4 }}>{icon}</div>
+              <div style={{ width: 32, height: 32, borderRadius: 9, background: `${color}18`, border: `1px solid ${color}28`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Icon size={15} color={color} strokeWidth={1.75} />
+              </div>
               <div style={{ fontSize: '0.78rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.2 }}>{label}</div>
-              <div style={{ fontSize: '0.60rem', fontWeight: 600, color: 'var(--text-muted)', marginTop: 2, lineHeight: 1.3 }}>{desc}</div>
+              <div style={{ fontSize: '0.60rem', fontWeight: 600, color: 'var(--text-muted)', lineHeight: 1.3 }}>{desc}</div>
             </div>
           ))}
         </div>
