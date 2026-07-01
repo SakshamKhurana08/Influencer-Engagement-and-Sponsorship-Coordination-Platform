@@ -36,11 +36,11 @@ describe('SignUpStep1', () => {
 
   it('renders the form with all required fields', () => {
     renderStep1();
-    expect(screen.getByPlaceholderText(/Jane Smith/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/you@example.com/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/Min. 6 characters/i)).toBeInTheDocument();
-    expect(screen.getByText(/Creator/i)).toBeInTheDocument();
-    expect(screen.getByText(/Sponsor/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Jane Smith')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('you@example.com')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Min. 6 characters')).toBeInTheDocument();
+    expect(screen.getByText('Creator')).toBeInTheDocument();
+    expect(screen.getByText('Sponsor')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Continue/i })).toBeInTheDocument();
   });
 
@@ -82,17 +82,23 @@ describe('SignUpStep1', () => {
 
   it('shows email error for invalid email format', async () => {
     renderStep1();
-    await userEvent.type(screen.getByPlaceholderText(/you@example.com/i), 'notanemail');
+    // Type into the email field — use id selector
+    const emailInput = document.querySelector('#email');
+    if (emailInput) {
+      await userEvent.type(emailInput, 'notanemail');
+    } else {
+      await userEvent.type(screen.getByPlaceholderText('you@example.com'), 'notanemail');
+    }
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(screen.getByText(/Valid email required/i)).toBeInTheDocument());
   });
 
   it('accepts valid email format', async () => {
     renderStep1();
-    await userEvent.type(screen.getByPlaceholderText(/Jane Smith/i), 'Test User');
-    await userEvent.type(screen.getByPlaceholderText(/you@example.com/i), 'valid@email.com');
-    await userEvent.type(screen.getByPlaceholderText(/Min. 6 characters/i), 'pass1234');
-    fireEvent.click(screen.getByText(/Creator/i));
+    await userEvent.type(screen.getByPlaceholderText('Jane Smith'), 'Test User');
+    await userEvent.type(screen.getByPlaceholderText('you@example.com'), 'valid@email.com');
+    await userEvent.type(screen.getByPlaceholderText('Min. 6 characters'), 'pass1234');
+    fireEvent.click(screen.getByText('Creator'));
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(screen.queryByText(/Valid email required/i)).not.toBeInTheDocument());
@@ -102,17 +108,18 @@ describe('SignUpStep1', () => {
 
   it('shows error for password shorter than 6 chars', async () => {
     renderStep1();
-    await userEvent.type(screen.getByPlaceholderText(/Min. 6 characters/i), 'abc');
+    await userEvent.type(screen.getByPlaceholderText('Min. 6 characters'), 'abc');
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
+    // Actual error: "Password must be at least 6 characters"
     await waitFor(() => expect(screen.getByText(/at least 6/i)).toBeInTheDocument());
   });
 
   it('accepts password of exactly 6 chars', async () => {
     renderStep1();
-    await userEvent.type(screen.getByPlaceholderText(/Jane Smith/i), 'Test');
-    await userEvent.type(screen.getByPlaceholderText(/you@example.com/i), 'a@b.com');
-    await userEvent.type(screen.getByPlaceholderText(/Min. 6 characters/i), 'abc123');
-    fireEvent.click(screen.getByText(/Creator/i));
+    await userEvent.type(screen.getByPlaceholderText('Jane Smith'), 'Test');
+    await userEvent.type(screen.getByPlaceholderText('you@example.com'), 'a@b.com');
+    await userEvent.type(screen.getByPlaceholderText('Min. 6 characters'), 'abc123');
+    fireEvent.click(screen.getByText('Creator'));
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(screen.queryByText(/at least 6/i)).not.toBeInTheDocument());

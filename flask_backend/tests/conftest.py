@@ -42,9 +42,18 @@ def app():
 def client(app):
     """Test client. Each test gets a clean database."""
     with app.app_context():
+        # Rollback any pending transaction from a previous failed test
+        try:
+            _db.session.rollback()
+        except Exception:
+            pass
         # Clear all tables before each test
         for table in reversed(_db.metadata.sorted_tables):
-            _db.session.execute(table.delete())
+            try:
+                _db.session.execute(table.delete())
+            except Exception:
+                _db.session.rollback()
+                _db.session.execute(table.delete())
         _db.session.commit()
     return app.test_client()
 

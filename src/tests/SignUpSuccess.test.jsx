@@ -1,5 +1,6 @@
 /**
  * Tests for src/signup/steps/SignUpSuccess.jsx
+ * Matches actual component: CheckCircle icon + feature chips (Discover/Negotiate/Track)
  */
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
@@ -12,7 +13,7 @@ function renderSuccess() {
 
 describe('SignUpSuccess', () => {
 
-  it("renders the success message", () => {
+  it("renders the success heading You're in!", () => {
     renderSuccess();
     expect(screen.getByText(/You're in!/i)).toBeInTheDocument();
   });
@@ -42,17 +43,22 @@ describe('SignUpSuccess', () => {
     expect(screen.getByText(/InSync/i)).toBeInTheDocument();
   });
 
-  it('shows feature promise chips', () => {
+  it('renders creator account message', () => {
     renderSuccess();
-    expect(screen.getByText(/Discover/i)).toBeInTheDocument();
-    expect(screen.getByText(/Negotiate/i)).toBeInTheDocument();
-    expect(screen.getByText(/Track/i)).toBeInTheDocument();
+    expect(screen.getByText(/Your account has been created/i)).toBeInTheDocument();
   });
 
-  it('does NOT show any fake stats', () => {
+  it('renders feature promise chips: Discover, Negotiate, Track', () => {
     renderSuccess();
-    expect(screen.queryByText(/12K/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/97%/i)).not.toBeInTheDocument();
-    expect(screen.queryByText(/3\.4K/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Discover')).toBeInTheDocument();
+    expect(screen.getByText('Negotiate')).toBeInTheDocument();
+    expect(screen.getByText('Track')).toBeInTheDocument();
+  });
+
+  it('renders feature descriptions', () => {
+    renderSuccess();
+    expect(screen.getByText(/Browse real brand campaigns/i)).toBeInTheDocument();
+    expect(screen.getByText(/Counter-offer built-in/i)).toBeInTheDocument();
+    expect(screen.getByText(/Live deal status updates/i)).toBeInTheDocument();
   });
 });

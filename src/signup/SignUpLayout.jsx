@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { Sun, Moon, Zap, ArrowLeft } from 'lucide-react';
@@ -7,9 +7,9 @@ import AuthLeftPanel from '../Components/AuthLeftPanel';
 const STEPS = ['Account', 'Profile', 'Review'];
 
 function useStepIndex() {
-  const path = window.location.pathname;
-  if (path.includes('step3')) return 2;
-  if (path.includes('step2')) return 1;
+  const { pathname } = useLocation();
+  if (pathname.includes('step3')) return 2;
+  if (pathname.includes('step2')) return 1;
   return 0;
 }
 

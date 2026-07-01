@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { BarChart2, Flag, Search, Users, Building2, Megaphone, FileText, AlertTriangle, Trash2, ShieldOff, Shield, Zap } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
+import { BarChart2, Flag, Search, Users, Building2, Megaphone, FileText, User, Trash2, ShieldOff, Shield } from 'lucide-react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
 import Sidebar from './SponsorDashboard/Sidebar';
@@ -8,13 +8,6 @@ import Sidebar from './SponsorDashboard/Sidebar';
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement);
 
 const H = () => ({ Authorization: `Bearer ${localStorage.getItem('token')}` });
-
-const TABS = [
-  { key:'overview',  Icon:BarChart2,  label:'Overview'  },
-  { key:'campaigns', Icon:Megaphone,  label:'Campaigns' },
-  { key:'flagged',   Icon:Flag,       label:'Flagged'   },
-  { key:'search',    Icon:Search,     label:'Search'    },
-];
 
 /* Deep Space chart defaults */
 const CHART_COLORS = ['#6366F1','#C084FC','#22D3EE','#06b6d4','#818cf8'];
@@ -35,8 +28,9 @@ function StatCard({ Icon, label, value, color, sub }) {
 }
 
 export default function AdminDashboard() {
-  const navigate = useNavigate();
-  const [tab, setTab]           = useState('overview');
+  const [searchParams] = useSearchParams();
+  const tab = searchParams.get('tab') || 'overview';
+
   const [stats, setStats]       = useState(null);
   const [ongoing, setOngoing]   = useState([]);
   const [flagged, setFlagged]   = useState([]);
@@ -125,15 +119,6 @@ export default function AdminDashboard() {
           {error   && <div className="is-pill-rejected rounded-3 p-3 mb-3 small fw-600">{error}</div>}
           {success && <div className="is-pill-accepted rounded-3 p-3 mb-3 small fw-600">{success}</div>}
 
-          {/* Tabs */}
-          <div className="is-tabs mb-4">
-            {TABS.map(({ key, Icon, label }) => (
-              <button key={key} onClick={() => setTab(key)} className={`is-tab${tab===key?' active':''}`}>
-                <Icon size={13} strokeWidth={1.75} /> {label}
-              </button>
-            ))}
-          </div>
-
           {/* ── Overview ── */}
           {tab==='overview' && (
             <>
@@ -156,11 +141,11 @@ export default function AdminDashboard() {
 
               <div className="row g-3 mb-4">
                 {[
-                  { Icon:Users,         label:'Total Users',   value:stats?.users,       color:'#6366F1', sub:`${stats?.flaggedUsers||0} flagged` },
-                  { Icon:Building2,     label:'Sponsors',      value:stats?.sponsors,    color:'#C084FC' },
-                  { Icon:Megaphone,     label:'Campaigns',     value:stats?.campaigns,   color:'#22D3EE', sub:`${stats?.flaggedCampaigns||0} flagged` },
-                  { Icon:FileText,      label:'Ad Requests',   value:stats?.adRequests,  color:'#6366F1' },
-                  { Icon:AlertTriangle, label:'Influencers',   value:stats?.influencers, color:'#C084FC' },
+                  { Icon:Users,     label:'Total Users',   value:stats?.users,       color:'#6366F1', sub:`${stats?.flaggedUsers||0} flagged` },
+                  { Icon:Building2, label:'Sponsors',      value:stats?.sponsors,    color:'#C084FC' },
+                  { Icon:Megaphone, label:'Campaigns',     value:stats?.campaigns,   color:'#22D3EE', sub:`${stats?.flaggedCampaigns||0} flagged` },
+                  { Icon:FileText,  label:'Ad Requests',   value:stats?.adRequests,  color:'#6366F1' },
+                  { Icon:User,      label:'Influencers',   value:stats?.influencers, color:'#C084FC' },
                 ].map(p => <div key={p.label} className="col-6 col-md-4 col-xl"><StatCard {...p} /></div>)}
               </div>
 

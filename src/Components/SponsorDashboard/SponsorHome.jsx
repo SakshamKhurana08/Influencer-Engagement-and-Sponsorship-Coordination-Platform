@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import api from '../../api/axiosInstance';
-import { Building2, Tag, Wallet, Megaphone, Settings, ArrowRight, Zap, BarChart3, TrendingUp, Users } from 'lucide-react';
+import { Building2, Tag, Wallet, Megaphone, Settings, ArrowRight, Zap } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export default function SponsorHome() {
@@ -24,9 +24,8 @@ export default function SponsorHome() {
   ];
 
   const ACTIONS = [
-    { Icon: Megaphone, title: 'Manage Campaigns', desc: 'Create, edit, and send ad requests to influencers across every category.',          to: '/sponsor-dashboard/campaign', color: '#6366F1' },
-    { Icon: BarChart3,  title: 'View Performance', desc: 'Track how your active campaigns are performing with live analytics.',              to: '/sponsor-dashboard/campaign', color: '#C084FC' },
-    { Icon: Settings,   title: 'Account Settings', desc: 'Update your company profile, industry, and campaign budget preferences.',         to: '/sponsor-dashboard/settings', color: '#22D3EE' },
+    { Icon: Megaphone, title: 'Manage Campaigns', desc: 'Create, edit, and send ad requests to influencers across every category.',        to: '/sponsor-dashboard/campaign', color: '#6366F1' },
+    { Icon: Settings,  title: 'Account Settings', desc: 'Update your company profile, industry, and campaign budget preferences.',         to: '/sponsor-dashboard/settings', color: '#22D3EE' },
   ];
 
   return (
