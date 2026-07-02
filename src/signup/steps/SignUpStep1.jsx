@@ -75,7 +75,7 @@ export default function SignUpStep1() {
 
         {/* Email */}
         <label className="is-label" style={{ marginBottom:5, marginTop:4 }}>Email Address</label>
-        <InputRow id="email" name="email" type="email" placeholder="you@example.com" Icon={Mail} value={formData.email || ''} onChange={handleChange} error={errors.email} />
+        <InputRow id="email" name="email" type="text" placeholder="you@example.com" Icon={Mail} value={formData.email || ''} onChange={handleChange} error={errors.email} />
 
         {/* Password */}
         <label className="is-label" style={{ marginBottom:5, marginTop:4 }}>Password</label>

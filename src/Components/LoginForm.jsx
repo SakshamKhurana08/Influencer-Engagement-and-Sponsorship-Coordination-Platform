@@ -79,7 +79,7 @@ export default function LoginForm() {
             </div>
           )}
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} noValidate>
             {/* Email */}
             <div className="is-field" style={{ marginBottom:12 }}>
               <div className="position-relative">

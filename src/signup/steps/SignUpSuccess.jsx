@@ -50,8 +50,8 @@ export default function SignUpSuccess() {
           marginBottom: 28,
         }}>
           {[
-            { Icon: Search,       color: '#22D3EE', label: 'Discover',  desc: 'Browse live brand campaigns'  },
-            { Icon: MessageSquare,color: '#C084FC', label: 'Negotiate', desc: 'Counter-offer built in'       },
+            { Icon: Search,       color: '#22D3EE', label: 'Discover',  desc: 'Browse real brand campaigns'  },
+            { Icon: MessageSquare,color: '#C084FC', label: 'Negotiate', desc: 'Counter-offer built-in'       },
             { Icon: BarChart2,    color: '#6366F1', label: 'Track',     desc: 'Live deal status updates'     },
           ].map(({ Icon, color, label, desc }) => (
             <div key={label} style={{

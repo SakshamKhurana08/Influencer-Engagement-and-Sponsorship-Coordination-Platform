@@ -109,7 +109,7 @@ export default function Settings() {
               <h5 className="fw-800 mb-0" style={{ color:'var(--text-primary)', fontSize:'0.97rem' }}>Profile Details</h5>
               {!editing
                 ? <button onClick={() => setEditing(true)} className="is-btn is-btn-ghost" style={{ padding:'6px 14px', fontSize:'0.79rem' }}><Pencil size={13} strokeWidth={1.75} /> Edit</button>
-                : <button onClick={() => setEditing(false)} className="is-btn is-btn-ghost" style={{ width:32, height:32, padding:0, borderRadius:'50%' }}><X size={13} strokeWidth={1.75} /></button>
+                : <button onClick={() => setEditing(false)} className="is-btn is-btn-ghost" aria-label="Cancel edit" style={{ width:32, height:32, padding:0, borderRadius:'50%' }}><X size={13} strokeWidth={1.75} /></button>
               }
             </div>
 

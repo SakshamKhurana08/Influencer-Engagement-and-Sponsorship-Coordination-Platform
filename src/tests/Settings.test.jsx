@@ -74,8 +74,8 @@ describe('Settings', () => {
     setup();
     await waitFor(() => {
       expect(screen.getByText('Sponsor Name')).toBeInTheDocument();
-      expect(screen.getByText('TestCo')).toBeInTheDocument();
-      expect(screen.getByText('Tech')).toBeInTheDocument();
+      expect(screen.getAllByText('TestCo')[0]).toBeInTheDocument();
+      expect(screen.getAllByText('Tech')[0]).toBeInTheDocument();
     });
   });
 
@@ -147,13 +147,15 @@ describe('Settings', () => {
     fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
     // Save Changes button should appear in edit mode
     await waitFor(() => expect(screen.getByRole('button', { name: /Save Changes/i })).toBeInTheDocument());
-    // Click the cancel (X) button — it's the small icon button next to Save Changes
-    const allBtns = screen.getAllByRole('button');
-    // The X cancel button is the one with no text content and is not the file upload
-    const cancelBtn = allBtns.find(b => {
-      const txt = b.textContent?.trim();
-      return txt === '' && b !== document.querySelector('input[type="file"]');
-    });
+    // Click the cancel (X) button — identified by aria-label or empty text
+    const cancelBtn = screen.queryByRole('button', { name: /Cancel edit/i }) ||
+      (() => {
+        const allBtns = screen.getAllByRole('button');
+        return allBtns.find(b => {
+          const txt = b.textContent?.trim();
+          return txt === '' && b !== document.querySelector('input[type="file"]');
+        });
+      })();
     if (cancelBtn) {
       fireEvent.click(cancelBtn);
       await waitFor(() => expect(screen.queryByRole('button', { name: /Save Changes/i })).not.toBeInTheDocument());

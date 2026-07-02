@@ -31,6 +31,10 @@ vi.mock('../Components/AuthLeftPanel', () => ({
 
 vi.mock('lottie-react', () => ({ default: () => null }));
 
+vi.mock('../theme/ThemeContext', () => ({
+  useTheme: () => ({ theme: 'light', toggleTheme: () => {} }),
+}));
+
 import api from '../api/axiosInstance';
 
 function renderLogin() {

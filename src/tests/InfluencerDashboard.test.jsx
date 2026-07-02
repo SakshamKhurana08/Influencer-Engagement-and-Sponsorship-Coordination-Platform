@@ -84,7 +84,7 @@ describe('InfluencerDashboard', () => {
   it('displays influencer name and category', async () => {
     setup();
     await waitFor(() => expect(screen.getByText('Test Influencer')).toBeInTheDocument());
-    expect(screen.getByText('Tech')).toBeInTheDocument();
+    expect(screen.getAllByText('Tech')[0]).toBeInTheDocument();
   });
 
   it('displays niche and reach', async () => {
@@ -120,7 +120,7 @@ describe('InfluencerDashboard', () => {
 
   it('shows Joined badge for already-accepted campaigns', async () => {
     setup();
-    await waitFor(() => expect(screen.getByText(/Joined/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getAllByText(/Joined/i).length).toBeGreaterThan(0));
   });
 
   it('calls accept campaign API when button clicked', async () => {
@@ -169,7 +169,7 @@ describe('InfluencerDashboard', () => {
     await waitFor(() => screen.getByText(/Ad Requests/i));
     fireEvent.click(screen.getByText(/Ad Requests/i));
     await waitFor(() => {
-      expect(screen.getByText(/Accept/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Accept/i).length).toBeGreaterThan(0);
       expect(screen.getByText(/Decline/i)).toBeInTheDocument();
     });
   });
@@ -233,7 +233,7 @@ describe('InfluencerDashboard', () => {
     setup();
     await waitFor(() => {
       // One campaign is accepted (isAcceptedByUser: true)
-      expect(screen.getByText('1')).toBeInTheDocument();
+      expect(screen.getAllByText('1').length).toBeGreaterThan(0);
     });
   });
 

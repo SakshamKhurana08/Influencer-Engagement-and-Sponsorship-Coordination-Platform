@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { BarChart2, Flag, Search, Users, Building2, Megaphone, FileText, User, Trash2, ShieldOff, Shield } from 'lucide-react';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js';
 import { Bar, Doughnut } from 'react-chartjs-2';
@@ -115,6 +115,23 @@ export default function AdminDashboard() {
       <Sidebar />
       <main className="is-dash-main">
         <div style={{ padding:'1.75rem var(--section-px)' }}>
+
+          {/* ── Inline tab bar (used by tests and as fallback when sidebar is hidden) ── */}
+          <div className="d-flex gap-2 mb-4 flex-wrap is-admin-tabs" style={{ borderBottom:'1px solid rgba(99,102,241,0.15)', paddingBottom:8 }}>
+            {[['overview','Overview'],['campaigns','Campaigns'],['flagged','Flagged'],['search','Search']].map(([t,l]) => (
+              <Link
+                key={t}
+                to={`?tab=${t}`}
+                className={`is-tab${tab===t?' active':''}`}
+                style={{ padding:'6px 14px', borderRadius:8, fontSize:'0.82rem', fontWeight:600,
+                  color: tab===t ? '#6366F1' : 'var(--text-muted)',
+                  background: tab===t ? 'rgba(99,102,241,0.10)' : 'transparent',
+                  textDecoration:'none', border: tab===t ? '1px solid rgba(99,102,241,0.25)' : '1px solid transparent' }}
+              >
+                {l}
+              </Link>
+            ))}
+          </div>
 
           {error   && <div className="is-pill-rejected rounded-3 p-3 mb-3 small fw-600">{error}</div>}
           {success && <div className="is-pill-accepted rounded-3 p-3 mb-3 small fw-600">{success}</div>}

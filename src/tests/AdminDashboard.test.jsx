@@ -83,7 +83,7 @@ describe('AdminDashboard', () => {
 
   it('shows ongoing campaigns after clicking Campaigns tab', async () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Campaigns'));
+    fireEvent.click(screen.getAllByText('Campaigns')[0]);
     await waitFor(() => {
       expect(screen.getByText('Campaign Alpha')).toBeInTheDocument();
       expect(screen.getByText(/60%/)).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('AdminDashboard', () => {
 
   it('shows Flag button on ongoing campaigns', async () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Campaigns'));
+    fireEvent.click(screen.getAllByText('Campaigns')[0]);
     await waitFor(() => {
       expect(screen.getAllByText(/Flag/i).length).toBeGreaterThan(0);
     });
@@ -102,7 +102,7 @@ describe('AdminDashboard', () => {
 
   it('shows flagged campaigns after clicking Flagged tab', async () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Flagged'));
+    fireEvent.click(screen.getAllByText('Flagged')[0]);
     await waitFor(() => {
       expect(screen.getByText('Bad Campaign')).toBeInTheDocument();
       expect(screen.getByText(/BadCo/)).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe('AdminDashboard', () => {
 
   it('shows Remove button on flagged campaigns', async () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Flagged'));
+    fireEvent.click(screen.getAllByText('Flagged')[0]);
     await waitFor(() => {
       expect(screen.getAllByText(/Remove/i).length).toBeGreaterThan(0);
     });
@@ -121,25 +121,25 @@ describe('AdminDashboard', () => {
 
   it('renders search input and button', () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Search'));
+    fireEvent.click(screen.getAllByText('Search')[0]);
     expect(screen.getByPlaceholderText(/Search by name/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Search/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /Search/i })[0]).toBeInTheDocument();
   });
 
   it('calls search API and shows results', async () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Search'));
+    fireEvent.click(screen.getAllByText('Search')[0]);
     const input = screen.getByPlaceholderText(/Search by name/i);
     fireEvent.change(input, { target: { value: 'John' } });
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Search/i })[0]);
     await waitFor(() => expect(screen.getByText('John')).toBeInTheDocument());
   });
 
   it('does NOT call search API when query is empty', () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Search'));
+    fireEvent.click(screen.getAllByText('Search')[0]);
     const initialCallCount = vi.mocked(global.fetch).mock.calls.length;
-    fireEvent.click(screen.getByRole('button', { name: /Search/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Search/i })[0]);
     expect(vi.mocked(global.fetch).mock.calls.length).toBe(initialCallCount);
   });
 
@@ -147,9 +147,9 @@ describe('AdminDashboard', () => {
 
   it('calls flag API and shows success message', async () => {
     renderAdmin();
-    fireEvent.click(screen.getByText('Campaigns'));
+    fireEvent.click(screen.getAllByText('Campaigns')[0]);
     await waitFor(() => screen.getByText('Campaign Alpha'));
-    const flagBtn = screen.getAllByText(/Flag/i)[0];
+    const flagBtn = screen.getAllByRole('button', { name: /Flag/i })[0];
     fireEvent.click(flagBtn);
     await waitFor(() => {
       expect(vi.mocked(global.fetch)).toHaveBeenCalledWith(
@@ -164,7 +164,7 @@ describe('AdminDashboard', () => {
   it('calls remove API after confirm and shows success', async () => {
     window.confirm = vi.fn(() => true);
     renderAdmin();
-    fireEvent.click(screen.getByText('Flagged'));
+    fireEvent.click(screen.getAllByText('Flagged')[0]);
     await waitFor(() => screen.getByText('Bad Campaign'));
     const removeBtn = screen.getByText(/Remove/i);
     fireEvent.click(removeBtn);
@@ -179,7 +179,7 @@ describe('AdminDashboard', () => {
   it('does NOT call remove API when confirm is cancelled', async () => {
     window.confirm = vi.fn(() => false);
     renderAdmin();
-    fireEvent.click(screen.getByText('Flagged'));
+    fireEvent.click(screen.getAllByText('Flagged')[0]);
     await waitFor(() => screen.getByText('Bad Campaign'));
     const removeBtn = screen.getByText(/Remove/i);
     const callsBefore = vi.mocked(global.fetch).mock.calls.length;

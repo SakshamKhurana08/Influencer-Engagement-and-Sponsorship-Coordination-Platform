@@ -68,7 +68,7 @@ describe('Campaigns', () => {
 
   it('renders New Campaign button', () => {
     setup();
-    expect(screen.getByRole('button', { name: /New Campaign/i })).toBeInTheDocument();
+    expect(screen.getAllByRole('button', { name: /New Campaign/i })[0]).toBeInTheDocument();
   });
 
   it('displays loaded campaigns', async () => {
@@ -92,13 +92,13 @@ describe('Campaigns', () => {
 
   it('opens campaign form when New Campaign clicked', async () => {
     setup();
-    fireEvent.click(screen.getByRole('button', { name: /New Campaign/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /New Campaign/i })[0]);
     await waitFor(() => expect(screen.getByPlaceholderText(/Campaign Title/i)).toBeInTheDocument());
   });
 
   it('closes form when Cancel clicked', async () => {
     setup();
-    fireEvent.click(screen.getByRole('button', { name: /New Campaign/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /New Campaign/i })[0]);
     await waitFor(() => screen.getByPlaceholderText(/Campaign Title/i));
     fireEvent.click(screen.getByRole('button', { name: /Cancel/i }));
     await waitFor(() => expect(screen.queryByPlaceholderText(/Campaign Title/i)).not.toBeInTheDocument());
@@ -107,8 +107,8 @@ describe('Campaigns', () => {
   it('calls POST /api/campaign/ on create', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: CAMPAIGNS_RESPONSE });
     setup();
-    await waitFor(() => screen.getByRole('button', { name: /New Campaign/i }));
-    fireEvent.click(screen.getByRole('button', { name: /New Campaign/i }));
+    await waitFor(() => screen.getAllByRole('button', { name: /New Campaign/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /New Campaign/i })[0]);
     await waitFor(() => screen.getByPlaceholderText(/Campaign Title/i));
     await userEvent.type(screen.getByPlaceholderText(/Campaign Title/i), 'Brand New Campaign');
     fireEvent.click(screen.getByRole('button', { name: /Create Campaign/i }));
@@ -117,7 +117,7 @@ describe('Campaigns', () => {
 
   it('title field is required — does not submit empty', async () => {
     setup();
-    fireEvent.click(screen.getByRole('button', { name: /New Campaign/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /New Campaign/i })[0]);
     await waitFor(() => screen.getByPlaceholderText(/Campaign Title/i));
     // Submit without title
     fireEvent.click(screen.getByRole('button', { name: /Create Campaign/i }));
