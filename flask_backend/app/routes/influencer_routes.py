@@ -32,7 +32,7 @@ def _get_influencer(user_id: int):
 @influencer_required()
 def get_profile():
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     influencer = _get_influencer(user_id)
 
     if not influencer:
@@ -57,7 +57,7 @@ def update_profile():
     niche    = cleaned['niche']
     reach    = cleaned['reach']
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     influencer = _get_influencer(user_id)
 
     if not user or not influencer:
@@ -142,7 +142,7 @@ def accept_campaign(campaign_id):
     if not influencer:
         return jsonify({'message': 'Influencer not found'}), 404
 
-    campaign = Campaign.query.get(campaign_id)
+    campaign = db.session.get(Campaign, campaign_id)
     if not campaign or not campaign.is_public:
         return jsonify({'message': 'Campaign not found or not public'}), 404
 
@@ -206,7 +206,7 @@ def handle_ad_request(request_id, action):
     if not influencer:
         return jsonify({'message': 'Influencer not found'}), 404
 
-    ad_request = AdRequest.query.get(request_id)
+    ad_request = db.session.get(AdRequest, request_id)
     if not ad_request:
         return jsonify({'message': 'Ad request not found'}), 404
 

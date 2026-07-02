@@ -9,7 +9,7 @@ GET  /api/auth/profile    — returns authenticated user record
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
-from app import db
+from app import db, limiter
 from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.models.influencer import Influencer
@@ -20,6 +20,7 @@ auth_bp = Blueprint('auth', __name__)
 
 
 @auth_bp.route('/register', methods=['POST'])
+@limiter.limit('10 per minute')
 def register():
     """
     Accepts multipart/form-data (so profile images can be included).
@@ -96,6 +97,7 @@ def register():
 
 
 @auth_bp.route('/login', methods=['POST'])
+@limiter.limit('20 per minute')
 def login():
     """
     Body: { email, password }
@@ -132,7 +134,7 @@ def login():
 def get_profile():
     """Returns the authenticated user's base User record."""
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         return jsonify({'message': 'User not found'}), 404
     return jsonify({'user': user.to_dict()}), 200

@@ -17,6 +17,7 @@ dist-ssr
 !.vscode/extensions.json
 .idea
 .DS_Store
+**/.DS_Store
 *.suo
 *.ntvs*
 *.njsproj
@@ -31,18 +32,15 @@ flask_backend/app/**/__pycache__/
 flask_backend/*.pyc
 flask_backend/**/*.pyc
 flask_backend/.env
-flask_backend/influencer_dev.db
 flask_backend/instance/influencer_dev.db
 flask_backend/instance/*.db
 flask_backend/instance/*.db-shm
 flask_backend/instance/*.db-wal
-flask_backend/migrations/
+# .env.production contains real secrets — never commit the filled-in version
+flask_backend/.env.production
 
 # ─── Uploads ──────────────────────────────────────────────────
 uploads/
-
-# ─── Legacy Node backend env ──────────────────────────────────
-Server/.env
 
 # ─── Startup script artefacts ────────────────────────────────
 flask.log
@@ -50,6 +48,11 @@ vite.log
 .flask.pid
 .vite.pid
 flask_backend/venv/.deps_installed
+
+# ─── Frontend env files ───────────────────────────────────────
+.env
+.env.local
+.env.production.local
 
 # Local audit / notes files — never push these
 FAKE_DATA_AUDIT.md

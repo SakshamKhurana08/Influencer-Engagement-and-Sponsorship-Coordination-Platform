@@ -1,15 +1,17 @@
 /**
  * Shared Axios instance.
  *
+ * - baseURL is read from VITE_API_URL at build time.
+ *   - Development: leave VITE_API_URL unset — Vite proxy forwards /api/* to Flask.
+ *   - Production:  set VITE_API_URL=https://api.yourdomain.com in your build env.
  * - Automatically attaches the JWT from localStorage as a Bearer token.
- * - On any 401 response (expired / invalid token) clears storage and
- *   redirects the user to /login so they re-authenticate.
+ * - On any 401 response clears storage and redirects to /login.
  */
 import axios from 'axios';
 
 const api = axios.create({
-  // Vite proxy forwards /api/* to Flask on port 5001 — no hardcoded host needed.
-  baseURL: '/',
+  // Falls back to '/' so the Vite dev proxy still works when VITE_API_URL is not set.
+  baseURL: import.meta.env.VITE_API_URL || '/',
 });
 
 /* ── Request interceptor: attach token ─────────────────────────────────────── */
@@ -32,7 +34,6 @@ api.interceptors.response.use(
       // Token expired or invalid — clear auth state and send to login
       localStorage.removeItem('token');
       localStorage.removeItem('userRole');
-      // Use window.location so it works outside React Router context too
       window.location.href = '/login';
     }
     return Promise.reject(error);

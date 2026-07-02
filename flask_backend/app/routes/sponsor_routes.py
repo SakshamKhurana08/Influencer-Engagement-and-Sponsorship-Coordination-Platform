@@ -38,7 +38,7 @@ def get_details():
 def get_profile():
     """Return Sponsor + User combined."""
     user_id = int(get_jwt_identity())
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     sponsor = _get_sponsor(user_id)
 
     if not sponsor:
@@ -65,7 +65,7 @@ def update_profile():
     industry     = cleaned['industry']
     budget       = cleaned['budget']
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     sponsor = _get_sponsor(user_id)
 
     if not user or not sponsor:

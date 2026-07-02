@@ -55,6 +55,16 @@ class BaseConfig:
     CACHE_TYPE = 'SimpleCache'
     CACHE_DEFAULT_TIMEOUT = 300   # 5 minutes
 
+    # ── CORS ──────────────────────────────────────────────────────────────────
+    # In production set CORS_ORIGINS to your exact frontend domain, e.g.
+    # CORS_ORIGINS=https://insync.example.com
+    # Multiple origins: CORS_ORIGINS=https://a.com,https://b.com
+    _cors_raw = os.environ.get('CORS_ORIGINS', '*')
+    CORS_ORIGINS = [o.strip() for o in _cors_raw.split(',')] if ',' in _cors_raw else _cors_raw
+
+    # ── Rate limiting (Flask-Limiter) ─────────────────────────────────────────
+    RATELIMIT_STORAGE_URL = os.environ.get('RATELIMIT_STORAGE_URL', 'memory://')
+
     # ── Admin seed ────────────────────────────────────────────────────────────
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@insync.dev')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Admin@1234')
@@ -73,6 +83,8 @@ class TestingConfig(BaseConfig):
     # Always use SQLite for tests (fast, no external dep)
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     JWT_ACCESS_TOKEN_EXPIRES = 60
+    # Disable rate limiting in tests so repeated auth calls don't get blocked
+    RATELIMIT_ENABLED = False
 
 
 _ENV_MAP = {

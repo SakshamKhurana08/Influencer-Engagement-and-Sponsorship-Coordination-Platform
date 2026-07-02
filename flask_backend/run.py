@@ -28,12 +28,14 @@ app = create_app()
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_ENV', 'development') == 'development'
+    flask_env = os.environ.get('FLASK_ENV', 'development')
+    debug = flask_env == 'development'
 
     with app.app_context():
-        # Auto-create tables on first run (dev convenience).
-        # In production, use: flask db upgrade
-        db.create_all()
+        # Auto-create tables only in development.
+        # In production use: flask db upgrade
+        if flask_env != 'production':
+            db.create_all()
 
     print(f'🚀 InSync Flask API starting on http://0.0.0.0:{port}')
     app.run(host='0.0.0.0', port=port, debug=debug)

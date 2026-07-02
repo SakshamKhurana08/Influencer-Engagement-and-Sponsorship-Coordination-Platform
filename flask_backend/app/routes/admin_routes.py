@@ -81,12 +81,12 @@ def flag_entity():
         return jsonify({'error': 'type and id are required'}), 400
 
     if entity_type == 'campaign':
-        campaign = Campaign.query.get(entity_id)
+        campaign = db.session.get(Campaign, entity_id)
         if not campaign:
             return jsonify({'error': 'Campaign not found'}), 404
         campaign.is_flagged = True
     elif entity_type == 'user':
-        user = User.query.get(entity_id)
+        user = db.session.get(User, entity_id)
         if not user:
             return jsonify({'error': 'User not found'}), 404
         user.is_flagged = True
@@ -113,12 +113,12 @@ def remove_entity():
         return jsonify({'error': 'type and id are required'}), 400
 
     if entity_type == 'campaign':
-        campaign = Campaign.query.get(entity_id)
+        campaign = db.session.get(Campaign, entity_id)
         if not campaign:
             return jsonify({'error': 'Campaign not found'}), 404
         db.session.delete(campaign)
     elif entity_type == 'user':
-        user = User.query.get(entity_id)
+        user = db.session.get(User, entity_id)
         if not user:
             return jsonify({'error': 'User not found'}), 404
         db.session.delete(user)

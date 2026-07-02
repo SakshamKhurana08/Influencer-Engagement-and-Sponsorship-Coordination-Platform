@@ -1,9 +1,16 @@
 /**
  * Tests for src/signup/steps/SignUpStep2.jsx
- * Default role in context is undefined → component shows influencer form.
+ *
+ * The component renders two different forms depending on formData.role:
+ *   - role === 'influencer' → Creator Details form (category, niche, reach, photo)
+ *   - anything else         → Brand Details / sponsor form (company, industry, budget)
+ *
+ * Wrappers below pre-seed the context with the correct role via useEffect
+ * so the role is set once after mount without causing re-render loops.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, useEffect } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { useEffect as reactUseEffect } from 'react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import SignUpStep2 from '../signup/steps/SignUpStep2';
@@ -15,21 +22,13 @@ vi.mock('react-router-dom', async () => {
   return { ...actual, useNavigate: () => mockNavigate };
 });
 
-/* Wrap with a role pre-setter so we can test both modes */
-function InfluencerWrapper({ children }) {
-  return (
-    <MemoryRouter>
-      <SignUpProvider>{children}</SignUpProvider>
-    </MemoryRouter>
-  );
-}
+// ── Wrapper helpers ───────────────────────────────────────────────────────────
 
-function SponsorWrapper() {
-  // Inner component that sets role then renders Step2
+/** Renders Step2 with role='influencer' seeded once after mount. */
+function InfluencerWrapper() {
   const Inner = () => {
     const { updateFormData } = useSignup();
-    // Set role on first render
-    if (true) updateFormData({ role: 'sponsor' }); // always sets sponsor
+    reactUseEffect(() => { updateFormData({ role: 'influencer' }); }, []); // eslint-disable-line
     return <SignUpStep2 />;
   };
   return (
@@ -39,13 +38,24 @@ function SponsorWrapper() {
   );
 }
 
-function renderInfluencer() {
-  return render(
-    <InfluencerWrapper>
-      <SignUpStep2 />
-    </InfluencerWrapper>
+/** Renders Step2 with role='sponsor' seeded once after mount. */
+function SponsorWrapper() {
+  const Inner = () => {
+    const { updateFormData } = useSignup();
+    reactUseEffect(() => { updateFormData({ role: 'sponsor' }); }, []); // eslint-disable-line
+    return <SignUpStep2 />;
+  };
+  return (
+    <MemoryRouter>
+      <SignUpProvider><Inner /></SignUpProvider>
+    </MemoryRouter>
   );
 }
+
+function renderInfluencer() { return render(<InfluencerWrapper />); }
+function renderSponsor()    { return render(<SponsorWrapper />); }
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe('SignUpStep2', () => {
 
@@ -70,89 +80,130 @@ describe('SignUpStep2', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signup/step1');
   });
 
-  it('shows validation errors on empty Continue (influencer mode)', async () => {
-    renderInfluencer();
-    fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
-    await waitFor(() => {
-      expect(screen.getByText(/Category required/i)).toBeInTheDocument();
-    });
-  });
-
   it('does NOT navigate when form is invalid', async () => {
     renderInfluencer();
+    // Wait for influencer form to appear after useEffect seeds role
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Select or type a category/i)).toBeInTheDocument()
+    );
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(mockNavigate).not.toHaveBeenCalledWith('/signup/step3'));
   });
 
   // ── Influencer fields ──────────────────────────────────────────────────────
 
-  it('renders combobox for Content Category', () => {
+  it('shows validation errors on empty Continue (influencer mode)', async () => {
     renderInfluencer();
-    // ComboBox renders a plain input with placeholder
-    expect(screen.getByPlaceholderText(/Select or type a category/i)).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Select or type a category/i)).toBeInTheDocument()
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/Category required/i)).toBeInTheDocument();
+    });
   });
 
-  it('renders combobox for Niche', () => {
+  it('renders combobox for Content Category', async () => {
     renderInfluencer();
-    expect(screen.getByPlaceholderText(/Select or type a niche/i)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/Select or type a category/i)).toBeInTheDocument();
+    });
   });
 
-  it('renders Total Reach field', () => {
+  it('renders combobox for Niche', async () => {
     renderInfluencer();
-    expect(screen.getByPlaceholderText('50000')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/Select or type a niche/i)).toBeInTheDocument();
+    });
   });
 
-  it('shows profile photo upload UI', () => {
+  it('renders Total Reach field', async () => {
     renderInfluencer();
-    const fileInput = document.querySelector('input[type="file"]');
-    expect(fileInput).toBeInTheDocument();
-    expect(fileInput).toHaveAttribute('accept', 'image/*');
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('50000')).toBeInTheDocument();
+    });
+  });
+
+  it('shows profile photo upload UI', async () => {
+    renderInfluencer();
+    await waitFor(() => {
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).toBeInTheDocument();
+      expect(fileInput).toHaveAttribute('accept', 'image/*');
+    });
   });
 
   it('clears category error when user types', async () => {
+    const user = userEvent.setup();
     renderInfluencer();
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Select or type a category/i)).toBeInTheDocument()
+    );
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(screen.getByText(/Category required/i)).toBeInTheDocument());
-    const categoryInput = screen.getByPlaceholderText(/Select or type a category/i);
-    await userEvent.type(categoryInput, 'Fashion');
+    await user.type(screen.getByPlaceholderText(/Select or type a category/i), 'Fashion');
     await waitFor(() => expect(screen.queryByText(/Category required/i)).not.toBeInTheDocument());
   });
 
   it('navigates to step3 when influencer form is valid', async () => {
+    const user = userEvent.setup();
     renderInfluencer();
-    await userEvent.type(screen.getByPlaceholderText(/Select or type a category/i), 'Fashion');
-    // Pick from dropdown or confirm custom
-    await userEvent.keyboard('{Escape}');
-    await userEvent.type(screen.getByPlaceholderText(/Select or type a niche/i), 'Streetwear');
-    await userEvent.keyboard('{Escape}');
-    await userEvent.type(screen.getByPlaceholderText('50000'), '100000');
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Select or type a category/i)).toBeInTheDocument()
+    );
+    await user.type(screen.getByPlaceholderText(/Select or type a category/i), 'Fashion');
+    await user.keyboard('{Escape}');
+    await user.type(screen.getByPlaceholderText(/Select or type a niche/i), 'Streetwear');
+    await user.keyboard('{Escape}');
+    await user.type(screen.getByPlaceholderText('50000'), '100000');
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/signup/step3'));
   });
 
   // ── Sponsor fields ─────────────────────────────────────────────────────────
 
-  it('renders Company Name field in sponsor mode', () => {
-    render(<SponsorWrapper />);
-    expect(screen.getByPlaceholderText(/Acme Corp/i)).toBeInTheDocument();
+  it('renders Company Name field in sponsor mode', async () => {
+    renderSponsor();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/Acme Corp/i)).toBeInTheDocument();
+    });
   });
 
-  it('renders Industry combobox in sponsor mode', () => {
-    render(<SponsorWrapper />);
-    expect(screen.getByPlaceholderText(/Select or type an industry/i)).toBeInTheDocument();
+  it('renders Industry combobox in sponsor mode', async () => {
+    renderSponsor();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(/Select or type an industry/i)).toBeInTheDocument();
+    });
   });
 
-  it('renders Campaign Budget field in sponsor mode', () => {
-    render(<SponsorWrapper />);
-    expect(screen.getByPlaceholderText('50000')).toBeInTheDocument();
+  it('renders Campaign Budget field in sponsor mode', async () => {
+    renderSponsor();
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('50000')).toBeInTheDocument();
+    });
+  });
+
+  it('shows validation errors on empty Continue (sponsor mode)', async () => {
+    renderSponsor();
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Acme Corp/i)).toBeInTheDocument()
+    );
+    fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
+    await waitFor(() => {
+      expect(screen.getByText(/Company name required/i)).toBeInTheDocument();
+    });
   });
 
   it('navigates to step3 when sponsor form is valid', async () => {
-    render(<SponsorWrapper />);
-    await userEvent.type(screen.getByPlaceholderText(/Acme Corp/i), 'My Company');
-    await userEvent.type(screen.getByPlaceholderText(/Select or type an industry/i), 'Tech');
-    await userEvent.keyboard('{Escape}');
-    await userEvent.type(screen.getByPlaceholderText('50000'), '50000');
+    const user = userEvent.setup();
+    renderSponsor();
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Acme Corp/i)).toBeInTheDocument()
+    );
+    await user.type(screen.getByPlaceholderText(/Acme Corp/i), 'My Company');
+    await user.type(screen.getByPlaceholderText(/Select or type an industry/i), 'Tech');
+    await user.keyboard('{Escape}');
+    await user.type(screen.getByPlaceholderText('50000'), '50000');
     fireEvent.click(screen.getByRole('button', { name: /Continue/i }));
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/signup/step3'));
   });

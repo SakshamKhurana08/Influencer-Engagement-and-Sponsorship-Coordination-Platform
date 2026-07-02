@@ -10,6 +10,8 @@ from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from flask_executor import Executor
 from flask_caching import Cache
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # ── Extension singletons ─────────────────────────────────────────────────────
 db = SQLAlchemy()
@@ -17,6 +19,7 @@ migrate = Migrate()
 jwt = JWTManager()
 executor = Executor()
 cache = Cache()
+limiter = Limiter(key_func=get_remote_address, default_limits=[])
 
 
 def create_app(config_object=None):
@@ -29,6 +32,17 @@ def create_app(config_object=None):
         config_object = get_config()
     app.config.from_object(config_object)
 
+    # ── Production secret key guard ───────────────────────────────────────────
+    if not app.config.get('TESTING'):
+        if app.config.get('SECRET_KEY') in ('change-me', None, ''):
+            raise RuntimeError(
+                'SECRET_KEY is not set. Set a strong random value in your .env file.'
+            )
+        if app.config.get('JWT_SECRET_KEY') in ('change-me-jwt', None, ''):
+            raise RuntimeError(
+                'JWT_SECRET_KEY is not set. Set a strong random value in your .env file.'
+            )
+
     # ── Ensure upload directory exists ────────────────────────────────────────
     upload_path = os.path.join(app.root_path, '..', app.config['UPLOAD_FOLDER'])
     os.makedirs(upload_path, exist_ok=True)
@@ -39,7 +53,11 @@ def create_app(config_object=None):
     jwt.init_app(app)
     executor.init_app(app)
     cache.init_app(app)
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    limiter.init_app(app)
+
+    # ── CORS — restrict to configured origin in production ────────────────────
+    allowed_origins = app.config.get('CORS_ORIGINS', '*')
+    CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
     # ── Register blueprints ───────────────────────────────────────────────────
     from app.routes.auth_routes import auth_bp
@@ -72,3 +90,7 @@ def create_app(config_object=None):
     app.cli.add_command(init_db)
 
     return app
+
+
+# ── Export limiter so routes can import it ────────────────────────────────────
+__all__ = ['db', 'migrate', 'jwt', 'executor', 'cache', 'limiter', 'create_app']

@@ -204,7 +204,7 @@ def update_ad_request(ad_request_id):
     if not sponsor:
         return jsonify({'error': 'Sponsor profile not found'}), 404
 
-    ar = AdRequest.query.get(ad_request_id)
+    ar = db.session.get(AdRequest, ad_request_id)
     if not ar:
         return jsonify({'error': 'Ad request not found'}), 404
 
@@ -237,7 +237,7 @@ def delete_ad_request(ad_request_id):
     if not sponsor:
         return jsonify({'error': 'Sponsor profile not found'}), 404
 
-    ar = AdRequest.query.get(ad_request_id)
+    ar = db.session.get(AdRequest, ad_request_id)
     if not ar:
         return jsonify({'error': 'Ad request not found'}), 404
 
