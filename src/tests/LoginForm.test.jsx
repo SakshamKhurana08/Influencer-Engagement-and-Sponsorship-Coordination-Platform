@@ -84,8 +84,8 @@ describe('LoginForm', () => {
       data: { token: 'jwt-token', user: { role: 'sponsor', email: 'a@b.com' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'a@b.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'a@b.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await waitFor(() => expect(localStorage.getItem('token')).toBe('jwt-token'));
   });
@@ -95,8 +95,8 @@ describe('LoginForm', () => {
       data: { token: 'tok', user: { role: 'influencer', email: 'inf@b.com' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'inf@b.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'inf@b.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     fireEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await waitFor(() => expect(localStorage.getItem('userRole')).toBe('influencer'));
   });
@@ -107,8 +107,8 @@ describe('LoginForm', () => {
       data: { token: 'tok', user: { role: 'sponsor' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'sp@b.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'sp@b.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     await userEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await vi.runAllTimersAsync();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/sponsor-dashboard/home'));
@@ -121,8 +121,8 @@ describe('LoginForm', () => {
       data: { token: 'tok', user: { role: 'influencer' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'inf@b.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'inf@b.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     await userEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await vi.runAllTimersAsync();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/influencer/dashboard'));
@@ -135,8 +135,8 @@ describe('LoginForm', () => {
       data: { token: 'tok', user: { role: 'admin' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'adm@b.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'adm@b.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     await userEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await vi.runAllTimersAsync();
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/admin-dashboard'));
@@ -150,8 +150,8 @@ describe('LoginForm', () => {
       response: { data: { message: 'Invalid credentials' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'bad@b.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'wrongpw');
+    await userEvent.type(document.querySelector('#login-email'), 'bad@b.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'wrongpw');
     await userEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await waitFor(() => expect(screen.getByText(/Invalid credentials/i)).toBeInTheDocument());
   });
@@ -161,8 +161,8 @@ describe('LoginForm', () => {
       response: { data: { message: 'User not found' } },
     });
     renderLogin();
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'x@x.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'x@x.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     await userEvent.click(screen.getByRole('button', { name: /Sign In/i }));
     await waitFor(() => expect(screen.getByText(/User not found/i)).toBeInTheDocument());
     expect(mockNavigate).not.toHaveBeenCalled();
@@ -174,8 +174,8 @@ describe('LoginForm', () => {
     });
     renderLogin();
     const btn = screen.getByRole('button', { name: /Sign In/i });
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-email' }), 'x@x.com');
-    await userEvent.type(screen.getByPlaceholderText(' ', { selector: '#login-pw' }), 'pass1234');
+    await userEvent.type(document.querySelector('#login-email'), 'x@x.com');
+    await userEvent.type(document.querySelector('#login-pw'), 'pass1234');
     await userEvent.click(btn);
     await waitFor(() => expect(btn).not.toBeDisabled());
   });
