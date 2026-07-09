@@ -24,6 +24,15 @@ dist-ssr
 *.sln
 *.sw?
 
+# ─── Dev database — never commit ─────────────────────────────
+flask_backend/influencer_dev.db
+flask_backend/*.db
+flask_backend/*.db-shm
+flask_backend/*.db-wal
+
+# ─── Misc root-level files ────────────────────────────────────
+admin@insync.dev
+
 # ─── Python / Flask ───────────────────────────────────────────
 flask_backend/venv/
 flask_backend/__pycache__/
