@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import {
-  Mail, MapPin, ArrowLeft,
+  ArrowLeft,
   Link2, BarChart2, Shield, MessageSquare,
   Zap, Target, Rocket, HeartHandshake,
   Users, Building2, TrendingUp, Award,
@@ -26,11 +26,6 @@ const STATS = [
   { value: 'RBAC',  label: 'Role-Based Access',  Icon: Building2,  color: '#C084FC' },
   { value: 'Live',  label: 'Real-time Deals',    Icon: TrendingUp, color: '#6366F1' },
   { value: 'Open',  label: 'Negotiation Flow',   Icon: Award,      color: '#22D3EE' },
-];
-
-const CONTACT = [
-  { Icon: Mail,   text: 'support@insync.dev',  color: '#22D3EE' },
-  { Icon: MapPin, text: 'New Delhi, India',    color: '#6366F1' },
 ];
 
 export default function About() {
@@ -135,17 +130,16 @@ export default function About() {
       </div>
 
       {/* ═══ TIMELINE — 2×2 grid, no connector line, instant render ═══ */}
-      <div style={{ padding: '0 var(--section-px) 2rem' }}>
+      <div style={{ padding: '0 var(--section-px) 3rem' }}>
         <h2 className="is-section-title text-center">Our <span>Journey</span></h2>
         <div className="row g-3">
-          {TIMELINE.map(({ year, Icon, title, desc, color }) => (
-            <div key={year} className="col-sm-6">
+          {TIMELINE.map(({ Icon, title, desc, color }) => (
+            <div key={title} className="col-sm-6">
               <div className="is-card h-100 p-4 d-flex gap-3">
                 <div style={{ flexShrink: 0, width: 42, height: 42, borderRadius: '50%', background: `${color}18`, border: `1.5px solid ${color}38`, display: 'flex', alignItems: 'center', justifyContent: 'center', alignSelf: 'flex-start' }}>
                   <Icon size={19} color={color} strokeWidth={1.75} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <span className="is-pill d-inline-flex mb-2" style={{ background: 'var(--brand-grad)', color: '#fff', fontSize: '0.58rem' }}>{year}</span>
                   <h6 className="fw-800 mb-1" style={{ color: 'var(--text-primary)', fontSize: '0.90rem' }}>{title}</h6>
                   <p className="mb-0" style={{ color: 'var(--text-secondary)', fontSize: '0.81rem', lineHeight: 1.62 }}>{desc}</p>
                 </div>
@@ -155,24 +149,7 @@ export default function About() {
         </div>
       </div>
 
-      {/* ═══ CONTACT ═══ */}
-      <div style={{ padding: '0 var(--section-px) 3rem' }}>
-        <div className="row justify-content-center">
-          <div className="col-md-8 col-lg-5">
-            <div className="is-card p-4">
-              <h2 className="is-section-title">Get in <span>Touch</span></h2>
-              {CONTACT.map(({ Icon, text, color }) => (
-                <div key={text} className="d-flex align-items-center gap-3 mb-3">
-                  <div style={{ width: 34, height: 34, borderRadius: 9, background: `${color}18`, border: `1px solid ${color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <Icon size={15} color={color} strokeWidth={1.75} />
-                  </div>
-                  <span style={{ color: 'var(--text-secondary)', fontSize: '0.87rem' }}>{text}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+
     </div>
   );
 }

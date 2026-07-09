@@ -5,6 +5,7 @@ import ProtectedRoute from './Components/ProtectedRoute';
 
 import DeviceDisplay    from './Components/DeviceDisplay';
 import About            from './Components/About';
+import Contact          from './Components/Contact';
 import LoginForm        from './Components/LoginForm';
 import SignUpLayout     from './signup/SignUpLayout';
 import SignUpStep1      from './signup/steps/SignUpStep1';
@@ -21,6 +22,7 @@ import Settings         from './Components/SponsorDashboard/Settings';
 const router = createBrowserRouter([
   { path: '/',                  element: <DeviceDisplay /> },
   { path: '/about',             element: <About /> },
+  { path: '/contact',           element: <Contact /> },
   { path: '/login',             element: <LoginForm /> },
   {
     path: '/signup',

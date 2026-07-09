@@ -4,8 +4,9 @@ import { useTheme } from '../theme/ThemeContext';
 import { Sun, Moon, Menu, X, Zap } from 'lucide-react';
 
 const LINKS = [
-  { to: '/about',  label: 'About' },
-  { to: '/signup', label: 'Register' },
+  { to: '/about',   label: 'About'   },
+  { to: '/contact', label: 'Contact' },
+  { to: '/signup',  label: 'Register' },
 ];
 
 export default function Navbar() {
