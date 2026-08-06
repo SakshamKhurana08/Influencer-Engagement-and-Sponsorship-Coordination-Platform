@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Zap, ArrowRight, Home, CheckCircle, Search, MessageSquare, BarChart2 } from 'lucide-react';
+import { ArrowRight, Home, CheckCircle, Search, MessageSquare, BarChart2 } from 'lucide-react';
+import BrandLogo from '../../Components/BrandLogo';
 
 export default function SignUpSuccess() {
   return (
@@ -31,10 +32,7 @@ export default function SignUpSuccess() {
 
         {/* Brand */}
         <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
-          <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#6366F1,#C084FC)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 12px rgba(99,102,241,0.55)' }}>
-            <Zap size={13} color="#fff" fill="#fff" strokeWidth={1.75} />
-          </div>
-          <span className="display-brand is-gradient-text" style={{ fontSize: '1.25rem' }}>InSync</span>
+          <BrandLogo size={28} fontSize="1.25rem" />
         </div>
 
         <h2 className="fw-900 display-brand" style={{ color: 'var(--text-primary)', fontSize: '2rem', letterSpacing: '-0.02em', marginBottom: 8 }}>

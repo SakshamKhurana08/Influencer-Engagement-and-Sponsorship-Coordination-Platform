@@ -7,7 +7,7 @@ import {
 import Navbar from './Navbar';
 
 const CONTACT_INFO = [
-  { Icon: Mail,   label: 'Email',         value: 'support@insync.dev', href: 'mailto:support@insync.dev', color: '#22D3EE' },
+  { Icon: Mail,   label: 'Email',         value: 'support@cofluence.dev', href: 'mailto:support@cofluence.dev', color: '#22D3EE' },
   { Icon: MapPin, label: 'Location',      value: 'New Delhi, India',   href: null,                        color: '#6366F1' },
   { Icon: Clock,  label: 'Response Time', value: 'Within 24 hours',    href: null,                        color: '#C084FC' },
 ];

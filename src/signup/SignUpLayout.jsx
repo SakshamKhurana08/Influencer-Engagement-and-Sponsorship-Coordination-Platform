@@ -1,8 +1,9 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
-import { Sun, Moon, Zap, ArrowLeft } from 'lucide-react';
+import { Sun, Moon, ArrowLeft } from 'lucide-react';
 import AuthLeftPanel from '../Components/AuthLeftPanel';
+import BrandLogo from '../Components/BrandLogo';
 
 const STEPS = ['Account', 'Profile', 'Review'];
 
@@ -31,12 +32,10 @@ export default function SignUpLayout() {
           {theme === 'light' ? <Moon size={13} strokeWidth={1.75} /> : <Sun size={13} strokeWidth={1.75} />}
         </button>
 
-        {/* Mobile header */}
         <div className="d-lg-none" style={{ position:'absolute', top:16, left:18 }}>
           <div className="d-flex align-items-center justify-content-between" style={{ gap:12 }}>
-            <Link to="/" className="text-decoration-none d-flex align-items-center gap-2">
-              <Zap size={14} color="#6366F1" strokeWidth={1.75} />
-              <span className="display-brand" style={{ fontSize:'1rem', color:'#6366F1' }}>InSync</span>
+            <Link to="/" className="text-decoration-none">
+              <BrandLogo size={26} fontSize="1rem" />
             </Link>
             <Link to="/" className="is-btn is-btn-ghost text-decoration-none" style={{ padding:'4px 10px', fontSize:'0.73rem' }}>
               <ArrowLeft size={11} strokeWidth={1.75} /> Home

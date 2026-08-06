@@ -218,7 +218,7 @@ export default function DeviceDisplay() {
               No campaigns yet
             </h6>
             <p style={{ color:'var(--text-muted)', fontSize:'0.84rem', maxWidth:320, marginInline:'auto', lineHeight:1.6 }}>
-              Be the first sponsor to create a campaign and connect with creators on InSync.
+              Be the first sponsor to create a campaign and connect with creators on Cofluence.
             </p>
             <Link to="/signup" className="is-btn is-btn-brand text-decoration-none mt-3 d-inline-flex">
               <Sparkles size={14} strokeWidth={1.75} /> Create a Campaign

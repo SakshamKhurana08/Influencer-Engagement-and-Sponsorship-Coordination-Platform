@@ -2,8 +2,9 @@ import { useState } from 'react';
 import api from '../api/axiosInstance';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
-import { Sun, Moon, Eye, EyeOff, Zap, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Sun, Moon, Eye, EyeOff, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 import AuthLeftPanel from './AuthLeftPanel';
+import BrandLogo from './BrandLogo';
 
 export default function LoginForm() {
   const { theme, toggleTheme } = useTheme();
@@ -55,10 +56,7 @@ export default function LoginForm() {
         <div className="is-auth-form-card">
           {/* Mobile header row */}
           <div className="d-lg-none d-flex align-items-center justify-content-between mb-4">
-            <div className="d-flex align-items-center gap-2">
-              <Zap size={15} color="#6366F1" strokeWidth={1.75} />
-              <span className="display-brand" style={{ fontSize:'1.1rem', color:'#6366F1' }}>InSync</span>
-            </div>
+            <BrandLogo size={26} fontSize="1.1rem" />
             <Link to="/" className="is-btn is-btn-ghost text-decoration-none" style={{ padding:'5px 12px', fontSize:'0.75rem' }}>
               <ArrowLeft size={12} strokeWidth={1.75} /> Home
             </Link>

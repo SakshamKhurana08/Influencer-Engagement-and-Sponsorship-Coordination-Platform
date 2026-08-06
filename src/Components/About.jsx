@@ -15,10 +15,10 @@ const PILLARS = [
 ];
 
 const TIMELINE = [
-  { year: '2025', Icon: Zap,            title: 'Platform Built',         desc: 'InSync was developed as a full-stack influencer engagement platform connecting sponsors and creators.',  color: '#6366F1' },
+  { year: '2025', Icon: Zap,            title: 'Platform Built',         desc: 'Cofluence was developed as a full-stack influencer engagement platform connecting sponsors and creators.',  color: '#6366F1' },
   { year: '2025', Icon: Rocket,         title: 'Public Launch',          desc: 'Sponsor portal, influencer dashboard, campaign management, and negotiation suite launched.',            color: '#C084FC' },
   { year: '2025', Icon: Target,         title: 'Role-Based Access',      desc: 'Admin, sponsor, and influencer roles with dedicated dashboards and scoped API access.',                  color: '#22D3EE' },
-  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',      desc: 'Full counter-offer and negotiation flow — sponsors and creators close deals entirely within InSync.',   color: '#C084FC' },
+  { year: '2026', Icon: HeartHandshake, title: 'Negotiation Suite',      desc: 'Full counter-offer and negotiation flow — sponsors and creators close deals entirely within Cofluence.',   color: '#C084FC' },
 ];
 
 const STATS = [
@@ -54,7 +54,7 @@ export default function About() {
             </p>
             <div className="d-flex gap-3 flex-wrap">
               <Link to="/signup" className="is-btn is-btn-brand text-decoration-none" style={{ padding: '10px 24px' }}>
-                <Rocket size={15} strokeWidth={1.75} /> Join InSync
+                <Rocket size={15} strokeWidth={1.75} /> Join Cofluence
               </Link>
               <Link to="/login" className="is-btn is-btn-ghost text-decoration-none" style={{ padding: '10px 24px' }}>
                 Sign In

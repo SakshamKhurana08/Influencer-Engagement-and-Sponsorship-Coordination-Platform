@@ -10,7 +10,8 @@
  */
 import { Link } from 'react-router-dom';
 import Lottie from 'lottie-react';
-import { Zap, ArrowLeft, Check } from 'lucide-react';
+import { ArrowLeft, Check } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 import loginAnimation  from '../login-animation.json';
 import signupAnimation from '../signup-animation.json';
 
@@ -97,30 +98,7 @@ export default function AuthLeftPanel({ mode = 'login', step = 0, steps = [] }) 
       }}>
 
         {/* Brand mark — icon left, text right */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 13, textAlign: 'left' }}>
-          <div style={{
-            width: 44, height: 44, borderRadius: '50%', flexShrink: 0,
-            background: 'linear-gradient(135deg,#6366F1,#C084FC)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 28px rgba(99,102,241,0.65), 0 0 10px rgba(192,132,252,0.35)',
-          }}>
-            <Zap size={21} color="#fff" fill="#fff" strokeWidth={1.75} />
-          </div>
-          <div>
-            <div
-              className="display-brand"
-              style={{ fontSize: '1.60rem', color: '#F9FAFB', lineHeight: 1, letterSpacing: '-0.02em' }}
-            >
-              InSync
-            </div>
-            <div style={{
-              fontSize: '0.55rem', fontWeight: 700,
-              color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.13em', marginTop: 3,
-            }}>
-              Creator Economy Platform
-            </div>
-          </div>
-        </div>
+        <BrandLogo size={44} fontSize="1.60rem" color="#F9FAFB" />
 
         {/* Animation */}
         {isLogin ? (

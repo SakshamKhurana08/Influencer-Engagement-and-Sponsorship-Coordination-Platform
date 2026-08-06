@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Megaphone, Settings, LogOut, Sun, Moon, Zap, Flag, Search, BarChart2 } from 'lucide-react';
+import { LayoutDashboard, Megaphone, Settings, LogOut, Sun, Moon, Flag, Search, BarChart2 } from 'lucide-react';
 import { useTheme } from '../../theme/ThemeContext';
+import BrandLogo from '../BrandLogo';
 
 function decodeRole() {
   try {
@@ -46,15 +47,7 @@ export default function Sidebar() {
       {/* Brand */}
       <div style={{ paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid rgba(99,102,241,0.20)' }}>
         <div className="d-flex align-items-center gap-2 mb-2">
-          <div style={{
-            width: 32, height: 32, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#6366F1,#C084FC)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(99,102,241,0.60)', flexShrink: 0,
-          }}>
-            <Zap size={15} color="#fff" fill="#fff" strokeWidth={1.75} />
-          </div>
-          <span className="display-brand" style={{ fontSize: '1.2rem', color: '#fff' }}>InSync</span>
+          <BrandLogo size={32} fontSize="1.2rem" color="#fff" />
         </div>
         <span style={{
           display: 'inline-block', padding: '2px 10px', borderRadius: 999,

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
-import { Sun, Moon, Menu, X, Zap } from 'lucide-react';
+import { Sun, Moon, Menu, X } from 'lucide-react';
+import BrandLogo from './BrandLogo';
 
 const LINKS = [
   { to: '/about',   label: 'About'   },
@@ -17,18 +18,8 @@ export default function Navbar() {
     <>
       {/* Desktop floating capsule */}
       <nav className="is-navbar-floating d-none d-md-flex">
-        <Link to="/" className="text-decoration-none d-flex align-items-center gap-2" style={{ flexShrink: 0 }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: '50%',
-            background: 'linear-gradient(135deg,#6366F1,#C084FC)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            boxShadow: '0 0 16px rgba(99,102,241,0.55)',
-          }}>
-            <Zap size={14} color="#fff" fill="#fff" strokeWidth={1.75} />
-          </div>
-          <span className="display-brand" style={{ fontSize: '1.2rem', color: '#6366F1', letterSpacing: '-0.01em' }}>
-            InSync
-          </span>
+        <Link to="/" className="text-decoration-none" style={{ flexShrink: 0 }}>
+          <BrandLogo size={32} showName={false} />
         </Link>
 
         <div className="d-flex align-items-center gap-1">
@@ -58,9 +49,8 @@ export default function Navbar() {
 
       {/* Mobile bar */}
       <nav className="is-navbar d-md-none" style={{ padding: '0 1.25rem', justifyContent: 'space-between' }}>
-        <Link to="/" className="text-decoration-none d-flex align-items-center gap-2">
-          <Zap size={16} color="#6366F1" strokeWidth={1.75} />
-          <span className="display-brand" style={{ fontSize: '1.1rem', color: '#6366F1' }}>InSync</span>
+        <Link to="/" className="text-decoration-none">
+          <BrandLogo size={30} showName={false} />
         </Link>
         <div className="d-flex gap-2">
           <button onClick={toggleTheme} className="is-btn is-btn-ghost" style={{ width: 34, height: 34, padding: 0, borderRadius: '50%' }}>
