@@ -45,7 +45,7 @@ def register():
         return jsonify({'message': 'User already exists'}), 400
 
     try:
-        user = User(name=name, email=email, role=role)
+        user = User(name=name, email=email, role=role, status='pending')
         user.set_password(password)
         db.session.add(user)
         db.session.flush()  # get user.id before committing
@@ -86,7 +86,7 @@ def register():
             db.session.add(influencer)
 
         db.session.commit()
-        return jsonify({'message': 'User registered successfully', 'user': user.to_dict()}), 201
+        return jsonify({'message': 'Registration submitted. Awaiting admin approval.', 'user': user.to_dict()}), 202
 
     except ValueError as ve:
         db.session.rollback()
@@ -120,6 +120,9 @@ def login():
 
     if not user.check_password(password):
         return jsonify({'message': 'Invalid credentials'}), 400
+
+    if user.status == 'pending':
+        return jsonify({'message': 'Your account is pending admin approval. You will be notified once approved.'}), 403
 
     # Embed role into token claims so RBAC decorators can read it
     token = create_access_token(

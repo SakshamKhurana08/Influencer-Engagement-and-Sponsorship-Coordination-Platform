@@ -24,13 +24,13 @@ def seed_admin():
         existing.set_password(password)
         existing.role = 'admin'
         db.session.commit()
-        click.echo(f'✅ Admin user updated: {email}')
+        click.echo(f'[OK] Admin user updated: {email}')
     else:
         admin = User(name='Admin', email=email, role='admin')
         admin.set_password(password)
         db.session.add(admin)
         db.session.commit()
-        click.echo(f'✅ Admin user created: {email}')
+        click.echo(f'[OK] Admin user created: {email}')
 
 
 @click.command('init-db')
@@ -38,4 +38,4 @@ def seed_admin():
 def init_db():
     """Create all database tables. Use Flask-Migrate for production migrations."""
     db.create_all()
-    click.echo('✅ All tables created.')
+    click.echo('[OK] All tables created.')

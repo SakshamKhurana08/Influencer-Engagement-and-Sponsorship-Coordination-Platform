@@ -165,7 +165,7 @@ echo   InSync is running!
 echo.
 echo   Frontend  ->  %FRONTEND_URL%
 echo   API       ->  http://localhost:%FLASK_PORT%
-echo   Admin     ->  admin@insync.dev  /  Admin@1234
+echo   Admin     ->  admin@cofluence.dev  /  Cofluence@2025
 echo.
 echo   Two console windows are open — keep them running.
 echo   Close this window or press any key to exit this launcher.

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ArrowRight, Home, CheckCircle, Search, MessageSquare, BarChart2 } from 'lucide-react';
+import { Home, Clock, Search, MessageSquare, BarChart2 } from 'lucide-react';
 import BrandLogo from '../../Components/BrandLogo';
 
 export default function SignUpSuccess() {
@@ -9,7 +9,7 @@ export default function SignUpSuccess() {
       <div className="is-page-orb-c" aria-hidden="true" />
 
       <div style={{
-        width: '100%', maxWidth: 440,
+        width: '100%', maxWidth: 460,
         background: 'var(--bg-surface)',
         backdropFilter: 'blur(24px)',
         border: '1px solid rgba(99,102,241,0.28)',
@@ -19,7 +19,7 @@ export default function SignUpSuccess() {
         zIndex: 1, position: 'relative',
         textAlign: 'center',
       }}>
-        {/* Animated check icon — pure CSS, no Lottie, instant render */}
+        {/* Pending icon */}
         <div style={{
           width: 72, height: 72, borderRadius: '50%',
           background: 'linear-gradient(135deg,#6366F1,#C084FC)',
@@ -27,30 +27,34 @@ export default function SignUpSuccess() {
           margin: '0 auto 22px',
           boxShadow: '0 0 32px rgba(99,102,241,0.55)',
         }}>
-          <CheckCircle size={36} color="#fff" strokeWidth={1.75} />
+          <Clock size={36} color="#fff" strokeWidth={1.75} />
         </div>
 
         {/* Brand */}
         <div className="d-flex align-items-center justify-content-center gap-2 mb-3">
-          <BrandLogo size={28} fontSize="1.25rem" />
+          <BrandLogo height={28} showName={false} />
         </div>
 
-        <h2 className="fw-900 display-brand" style={{ color: 'var(--text-primary)', fontSize: '2rem', letterSpacing: '-0.02em', marginBottom: 8 }}>
-          You're in!
+        <h2 className="fw-900 display-brand" style={{ color: 'var(--text-primary)', fontSize: '1.9rem', letterSpacing: '-0.02em', marginBottom: 8 }}>
+          Application Submitted!
         </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '0.93rem', marginBottom: 28, lineHeight: 1.65 }}>
-          Your account has been created. Sign in to start discovering campaigns and building your creator portfolio.
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.93rem', marginBottom: 10, lineHeight: 1.65 }}>
+          Your registration is <strong style={{ color: '#C084FC' }}>pending admin approval</strong>.
+        </p>
+        <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem', marginBottom: 28, lineHeight: 1.65 }}>
+          Once approved, you'll be able to sign in and access your dashboard.
+          You can check back anytime using the Sign In button below.
         </p>
 
-        {/* Feature tiles — Lucide icons, no emojis */}
+        {/* What happens next */}
         <div style={{
           display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10,
           marginBottom: 28,
         }}>
           {[
-            { Icon: Search,       color: '#22D3EE', label: 'Discover',  desc: 'Browse real brand campaigns'  },
-            { Icon: MessageSquare,color: '#C084FC', label: 'Negotiate', desc: 'Counter-offer built-in'       },
-            { Icon: BarChart2,    color: '#6366F1', label: 'Track',     desc: 'Live deal status updates'     },
+            { Icon: Clock,         color: '#C084FC', label: 'Review',   desc: 'Admin reviews your details'  },
+            { Icon: Search,        color: '#22D3EE', label: 'Approval', desc: 'Account activated on approval' },
+            { Icon: MessageSquare, color: '#6366F1', label: 'Access',   desc: 'Sign in and start exploring'  },
           ].map(({ Icon, color, label, desc }) => (
             <div key={label} style={{
               background: 'var(--bg-surface-2)',
@@ -69,7 +73,7 @@ export default function SignUpSuccess() {
 
         <div className="d-flex gap-3 justify-content-center">
           <Link to="/login" className="is-btn is-btn-brand text-decoration-none" style={{ padding: '11px 28px' }}>
-            <ArrowRight size={15} strokeWidth={1.75} /> Sign In
+            Sign In
           </Link>
           <Link to="/" className="is-btn is-btn-ghost text-decoration-none" style={{ padding: '11px 24px' }}>
             <Home size={14} strokeWidth={1.75} /> Home

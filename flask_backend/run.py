@@ -36,6 +36,13 @@ if __name__ == '__main__':
         # In production use: flask db upgrade
         if flask_env != 'production':
             db.create_all()
+            # Migrate existing rows: add status column if missing, default existing to 'active'
+            from sqlalchemy import text
+            with db.engine.connect() as conn:
+                cols = [row[1] for row in conn.execute(text("PRAGMA table_info(users)"))]
+                if 'status' not in cols:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN status VARCHAR(10) NOT NULL DEFAULT 'active'"))
+                    conn.commit()
 
     print(f'🚀 InSync Flask API starting on http://0.0.0.0:{port}')
     app.run(host='0.0.0.0', port=port, debug=debug)

@@ -1,5 +1,5 @@
 """
-Shared pytest fixtures for the InSync Flask test suite.
+Shared pytest fixtures for the Cofluence Flask test suite.
 Uses TestingConfig → in-memory SQLite → no external DB needed.
 """
 import io

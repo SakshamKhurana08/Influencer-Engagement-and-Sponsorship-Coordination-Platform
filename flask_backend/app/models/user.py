@@ -20,6 +20,13 @@ class User(db.Model):
         db.Enum('admin', 'sponsor', 'influencer', name='user_role_enum'),
         nullable=False
     )
+    # 'pending' = awaiting admin approval, 'active' = approved and can log in
+    status = db.Column(
+        db.Enum('pending', 'active', name='user_status_enum'),
+        nullable=False,
+        default='pending',
+        server_default='pending'
+    )
     is_flagged = db.Column(db.Boolean, default=False, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
@@ -49,9 +56,10 @@ class User(db.Model):
             'name': self.name,
             'email': self.email,
             'role': self.role,
+            'status': self.status,
             'isFlagged': self.is_flagged,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
         }
 
     def __repr__(self) -> str:
-        return f'<User {self.email} [{self.role}]>'
+        return f'<User {self.email} [{self.role}] [{self.status}]>'

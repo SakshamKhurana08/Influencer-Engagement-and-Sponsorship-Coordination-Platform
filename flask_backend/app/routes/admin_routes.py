@@ -6,7 +6,8 @@ GET    /api/admin/flagged             — flagged campaigns
 POST   /api/admin/flag                — flag a user or campaign
 DELETE /api/admin/remove              — remove a user or campaign
 GET    /api/admin/search?query=       — search users + campaigns
-GET    /api/admin/stats               — platform-wide counts
+GET    /api/admin/stats               — platform-wide counts (admins excluded)
+GET    /api/admin/users               — all non-admin users with full profile details
 GET    /api/admin/export/campaigns    — download all campaigns as CSV
 GET    /api/admin/export/users        — download all users as CSV
 """
@@ -156,16 +157,122 @@ def search_entities():
 @admin_required()
 @cache.cached(timeout=60, key_prefix='admin_stats')
 def get_stats():
-    """Return platform-wide aggregate counts."""
+    """Return platform-wide aggregate counts. Admins and pending users excluded."""
+    active_non_admin = User.query.filter(User.role != 'admin', User.status == 'active')
     return jsonify({
-        'users': User.query.count(),
-        'sponsors': Sponsor.query.count(),
-        'influencers': Influencer.query.count(),
-        'campaigns': Campaign.query.count(),
-        'adRequests': AdRequest.query.count(),
-        'flaggedUsers': User.query.filter_by(is_flagged=True).count(),
+        'users':            active_non_admin.count(),
+        'sponsors':         Sponsor.query.join(User).filter(User.status == 'active').count(),
+        'influencers':      Influencer.query.join(User).filter(User.status == 'active').count(),
+        'campaigns':        Campaign.query.count(),
+        'adRequests':       AdRequest.query.count(),
+        'flaggedUsers':     active_non_admin.filter(User.is_flagged == True).count(),
         'flaggedCampaigns': Campaign.query.filter_by(is_flagged=True).count(),
+        'pendingApprovals': User.query.filter(User.role != 'admin', User.status == 'pending').count(),
     }), 200
+
+
+@admin_bp.route('/pending', methods=['GET'])
+@admin_required()
+def get_pending():
+    """Return all users awaiting approval with full profile details."""
+    users = User.query.filter(User.role != 'admin', User.status == 'pending').order_by(User.created_at.desc()).all()
+    result = []
+    for u in users:
+        entry = {
+            'id':         u.id,
+            'name':       u.name,
+            'email':      u.email,
+            'role':       u.role,
+            'status':     u.status,
+            'created_at': u.created_at.strftime('%Y-%m-%d %H:%M') if u.created_at else '',
+        }
+        if u.role == 'influencer' and u.influencer:
+            entry['category'] = u.influencer.category
+            entry['niche']    = u.influencer.niche
+            entry['reach']    = u.influencer.reach
+        elif u.role == 'sponsor' and u.sponsor:
+            entry['company']  = u.sponsor.company_name
+            entry['industry'] = u.sponsor.industry
+            entry['budget']   = u.sponsor.budget
+        result.append(entry)
+    return jsonify(result), 200
+
+
+@admin_bp.route('/approve/<int:user_id>', methods=['POST'])
+@admin_required()
+def approve_user(user_id):
+    """Approve a pending registration — sets status to active."""
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    if user.status != 'pending':
+        return jsonify({'error': 'User is not pending approval'}), 400
+    user.status = 'active'
+    db.session.commit()
+    cache.delete('admin_stats')
+    return jsonify({'message': f'{user.name} approved successfully'}), 200
+
+
+@admin_bp.route('/reject/<int:user_id>', methods=['DELETE'])
+@admin_required()
+def reject_user(user_id):
+    """Reject and delete a pending registration."""
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+    if user.status != 'pending':
+        return jsonify({'error': 'User is not pending approval'}), 400
+    db.session.delete(user)
+    db.session.commit()
+    cache.delete('admin_stats')
+    return jsonify({'message': 'Registration rejected and removed'}), 200
+
+
+@admin_bp.route('/users', methods=['GET'])
+@admin_required()
+def get_all_users():
+    """
+    Return all non-admin users with full profile details for admin management.
+    Query params:
+      role   — filter by 'influencer' or 'sponsor'
+      search — search by name or email
+    """
+    role_filter   = request.args.get('role', '').strip()
+    search_filter = request.args.get('search', '').strip()
+
+    query = User.query.filter(User.role != 'admin', User.status == 'active')
+
+    if role_filter in ('influencer', 'sponsor'):
+        query = query.filter_by(role=role_filter)
+
+    if search_filter:
+        pattern = f'%{search_filter}%'
+        query = query.filter(
+            db.or_(User.name.ilike(pattern), User.email.ilike(pattern))
+        )
+
+    users = query.all()
+    result = []
+    for u in users:
+        entry = {
+            'id':         u.id,
+            'name':       u.name,
+            'email':      u.email,
+            'role':       u.role,
+            'is_flagged': u.is_flagged,
+            'created_at': u.created_at.strftime('%Y-%m-%d') if u.created_at else '',
+        }
+        if u.role == 'influencer' and u.influencer:
+            entry['category']  = u.influencer.category
+            entry['niche']     = u.influencer.niche
+            entry['reach']     = u.influencer.reach
+        elif u.role == 'sponsor' and u.sponsor:
+            entry['company']   = u.sponsor.company_name
+            entry['industry']  = u.sponsor.industry
+            entry['budget']    = u.sponsor.budget
+        result.append(entry)
+
+    return jsonify(result), 200
 
 
 @admin_bp.route('/export/campaigns', methods=['GET'])

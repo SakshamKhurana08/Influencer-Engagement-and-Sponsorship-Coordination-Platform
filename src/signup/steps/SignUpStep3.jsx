@@ -59,6 +59,11 @@ export default function SignUpStep3() {
       await api.post('/api/auth/register', fd);
       navigate('/signup-success');
     } catch (err) {
+      // 202 is success (pending approval) — axios treats non-2xx as errors only for 4xx/5xx
+      if (err.response?.status === 202 || err.response?.status === 201) {
+        navigate('/signup-success');
+        return;
+      }
       setStatus(err.response?.data?.message || 'Registration failed. Please try again.');
       setIsError(true); setSubmitting(false);
     }
