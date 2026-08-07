@@ -97,8 +97,10 @@ export default function AuthLeftPanel({ mode = 'login', step = 0, steps = [] }) 
         gap: 24,
       }}>
 
-        {/* Brand mark — icon left, text right */}
-        <BrandLogo size={44} fontSize="1.60rem" color="#F9FAFB" />
+        {/* Brand mark — logo only, centered */}
+        <div style={{ display: 'flex', justifyContent: 'center' }}>
+          <BrandLogo height={52} showName={false} />
+        </div>
 
         {/* Animation */}
         {isLogin ? (

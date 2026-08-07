@@ -18,18 +18,19 @@ export default function Navbar() {
     <>
       {/* Desktop floating capsule */}
       <nav className="is-navbar-floating d-none d-md-flex">
-        <Link to="/" className="text-decoration-none" style={{ flexShrink: 0 }}>
-          <BrandLogo size={32} showName={false} />
+        <Link to="/" className="text-decoration-none" style={{ flexShrink: 0, overflow: 'visible' }}>
+          <BrandLogo height={36} showName={false} />
         </Link>
 
         <div className="d-flex align-items-center gap-1">
           {LINKS.map(l => (
-            <NavLink key={l.to} to={l.to} className="text-decoration-none" style={({ isActive }) => ({
-              padding: '7px 16px', borderRadius: 999, fontSize: '0.85rem', fontWeight: 600,
-              color: isActive ? '#22D3EE' : 'var(--text-secondary)',
-              background: isActive ? 'rgba(86,225,233,0.10)' : 'transparent',
-              transition: 'var(--transition)',
-            })}>
+            <NavLink key={l.to} to={l.to}
+              className={({ isActive }) => `text-decoration-none nav-link-item${isActive ? ' active' : ''}`}
+              style={({ isActive }) => ({
+                padding: '7px 16px', borderRadius: 999, fontSize: '0.85rem', fontWeight: 600,
+                color: isActive ? '#22D3EE' : 'var(--text-secondary)',
+                background: isActive ? 'rgba(86,225,233,0.10)' : 'transparent',
+              })}>
               {l.label}
             </NavLink>
           ))}
@@ -49,8 +50,8 @@ export default function Navbar() {
 
       {/* Mobile bar */}
       <nav className="is-navbar d-md-none" style={{ padding: '0 1.25rem', justifyContent: 'space-between' }}>
-        <Link to="/" className="text-decoration-none">
-          <BrandLogo size={30} showName={false} />
+        <Link to="/" className="text-decoration-none" style={{ overflow: 'visible' }}>
+          <BrandLogo height={32} showName={false} />
         </Link>
         <div className="d-flex gap-2">
           <button onClick={toggleTheme} className="is-btn is-btn-ghost" style={{ width: 34, height: 34, padding: 0, borderRadius: '50%' }}>

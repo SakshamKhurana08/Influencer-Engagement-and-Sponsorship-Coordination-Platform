@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════════════
-   InSync Design System v7 — "Obsidian Neon" Premium UI
+   Cofluence Design System v7 — "Obsidian Neon" Premium UI
    Dark:  #060B13 canvas · rgba(18,28,47,0.75) surfaces · crisp white text
    Light: #EEF2FB canvas · dark navy typography
    Brand: #6366F1 indigo · #C084FC purple · #22D3EE cyan
@@ -311,16 +311,49 @@ html, body, #root {
   box-shadow: 0 4px 32px rgba(0,0,0,0.40), 0 0 0 1px rgba(99,102,241,0.10);
   display: flex; align-items: center; gap: 8px;
   justify-content: space-between;
-  transition: var(--transition);
+  transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
   white-space: nowrap;
   min-width: min(680px, 92vw);
+  overflow: visible;
 }
 [data-theme="light"] .is-navbar-floating {
   background: rgba(255,255,255,0.90);
   border-color: rgba(99,102,241,0.16);
   box-shadow: 0 4px 24px rgba(10,15,30,0.12);
 }
-.is-navbar-floating:hover { box-shadow: 0 8px 48px rgba(0,0,0,0.50), var(--brand-glow); }
+.is-navbar-floating:hover {
+  box-shadow: 0 8px 48px rgba(0,0,0,0.50), 0 0 0 1.5px rgba(99,102,241,0.55), var(--brand-glow);
+  border-color: rgba(99,102,241,0.55);
+  background: rgba(14, 25, 41, 0.92);
+}
+[data-theme="light"] .is-navbar-floating:hover {
+  box-shadow: 0 8px 32px rgba(10,15,30,0.18), 0 0 0 1.5px rgba(99,102,241,0.35);
+  border-color: rgba(99,102,241,0.35);
+  background: rgba(255,255,255,0.98);
+}
+
+/* Nav links — hover background + underline slide + click press */
+.is-navbar-floating .nav-link-item {
+  position: relative;
+  transition: color 0.22s ease, background 0.22s ease, transform 0.15s ease;
+}
+.is-navbar-floating .nav-link-item::after {
+  content: '';
+  position: absolute;
+  bottom: 3px; left: 50%; right: 50%;
+  height: 2px; border-radius: 999px;
+  background: #22D3EE;
+  transition: left 0.28s cubic-bezier(0.16,1,0.3,1),
+              right 0.28s cubic-bezier(0.16,1,0.3,1),
+              opacity 0.22s ease;
+  opacity: 0;
+}
+.is-navbar-floating .nav-link-item:hover::after,
+.is-navbar-floating .nav-link-item.active::after {
+  left: 16%; right: 16%;
+  opacity: 1;
+}
+.is-navbar-floating .nav-link-item:active { transform: scale(0.94); }
 
 .is-navbar {
   position: sticky; top: 0; z-index: 900;

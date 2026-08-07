@@ -46,11 +46,9 @@ export default function Sidebar() {
     <aside className="is-sidebar">
       {/* Brand */}
       <div style={{ paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid rgba(99,102,241,0.20)' }}>
-        <div className="d-flex align-items-center gap-2 mb-2">
-          <BrandLogo size={32} fontSize="1.2rem" color="#fff" />
-        </div>
+        <BrandLogo height={40} showName={false} />
         <span style={{
-          display: 'inline-block', padding: '2px 10px', borderRadius: 999,
+          display: 'inline-block', marginTop: 10, padding: '2px 10px', borderRadius: 999,
           background: 'rgba(34,211,238,0.12)', color: '#22D3EE',
           fontSize: '0.58rem', fontWeight: 800, letterSpacing: '0.12em', textTransform: 'uppercase',
         }}>

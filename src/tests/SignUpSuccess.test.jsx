@@ -38,9 +38,9 @@ describe('SignUpSuccess', () => {
     expect(screen.getByRole('link', { name: /Home/i })).toHaveAttribute('href', '/');
   });
 
-  it('renders InSync brand', () => {
+  it('renders Cofluence brand logo', () => {
     renderSuccess();
-    expect(screen.getByText(/InSync/i)).toBeInTheDocument();
+    expect(screen.getByAltText(/Cofluence/i)).toBeInTheDocument();
   });
 
   it('renders creator account message', () => {

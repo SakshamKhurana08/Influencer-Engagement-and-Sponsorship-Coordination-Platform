@@ -50,7 +50,7 @@ export default function About() {
               marketing.
             </h1>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', lineHeight: 1.70, marginBottom: 22, maxWidth: 460 }}>
-              InSync connects brands with creators to build impactful, authentic digital campaigns — from first contact to final delivery, all in one transparent platform.
+              Cofluence connects brands with creators to build impactful, authentic digital campaigns — from first contact to final delivery, all in one transparent platform.
             </p>
             <div className="d-flex gap-3 flex-wrap">
               <Link to="/signup" className="is-btn is-btn-brand text-decoration-none" style={{ padding: '10px 24px' }}>
