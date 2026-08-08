@@ -1,6 +1,6 @@
 /**
  * Tests for src/signup/steps/SignUpStep3.jsx
- * Covers review display, submission, success/error handling.
+ * Register now returns 202 (pending approval) instead of 201.
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
@@ -54,8 +54,22 @@ describe('SignUpStep3', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/signup/step2');
   });
 
-  it('navigates to /signup-success on successful registration', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: { message: 'User registered successfully' } });
+  // Backend returns 202 for pending approval — axios resolves 2xx without throwing
+  it('navigates to /signup-success on 202 response (pending approval)', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      status: 202,
+      data: { message: 'Registration submitted. Awaiting admin approval.' },
+    });
+    renderStep3();
+    fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
+    await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/signup-success'));
+  });
+
+  it('navigates to /signup-success on 201 response (legacy)', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({
+      status: 201,
+      data: { message: 'User registered successfully' },
+    });
     renderStep3();
     fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
     await waitFor(() => expect(mockNavigate).toHaveBeenCalledWith('/signup-success'));
@@ -63,7 +77,7 @@ describe('SignUpStep3', () => {
 
   it('shows error message on registration failure', async () => {
     vi.mocked(api.post).mockRejectedValueOnce({
-      response: { data: { message: 'User already exists' } },
+      response: { status: 400, data: { message: 'User already exists' } },
     });
     renderStep3();
     fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
@@ -72,7 +86,7 @@ describe('SignUpStep3', () => {
 
   it('does NOT navigate on registration failure', async () => {
     vi.mocked(api.post).mockRejectedValueOnce({
-      response: { data: { message: 'fail' } },
+      response: { status: 500, data: { message: 'fail' } },
     });
     renderStep3();
     fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
@@ -81,7 +95,7 @@ describe('SignUpStep3', () => {
   });
 
   it('disables Confirm button while submitting', async () => {
-    vi.mocked(api.post).mockImplementationOnce(() => new Promise(() => {})); // never resolves
+    vi.mocked(api.post).mockImplementationOnce(() => new Promise(() => {}));
     renderStep3();
     const btn = screen.getByRole('button', { name: /Confirm/i });
     fireEvent.click(btn);
@@ -96,10 +110,17 @@ describe('SignUpStep3', () => {
     await waitFor(() => expect(btn).not.toBeDisabled());
   });
 
-  it('calls POST /api/auth/register', async () => {
-    vi.mocked(api.post).mockResolvedValueOnce({ data: {} });
+  it('calls POST /api/auth/register with FormData', async () => {
+    vi.mocked(api.post).mockResolvedValueOnce({ status: 202, data: {} });
     renderStep3();
     fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith('/api/auth/register', expect.any(FormData)));
+  });
+
+  it('shows fallback error message when response has no message', async () => {
+    vi.mocked(api.post).mockRejectedValueOnce({ response: { data: {} } });
+    renderStep3();
+    fireEvent.click(screen.getByRole('button', { name: /Confirm/i }));
+    await waitFor(() => expect(screen.getByText(/Registration failed/i)).toBeInTheDocument());
   });
 });

@@ -23,6 +23,12 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/tests/setup.js',
     css: false,
+    pool: 'forks',
+    poolOptions: {
+      forks: {
+        singleFork: true,
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'lcov'],

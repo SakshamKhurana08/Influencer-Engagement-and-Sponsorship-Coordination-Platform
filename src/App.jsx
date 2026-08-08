@@ -14,7 +14,10 @@ import SignUpStep3      from './signup/steps/SignUpStep3';
 import SignUpSuccess    from './signup/steps/SignUpSuccess';
 import AdminDashboard   from './Components/AdminDashboard';
 import InfluencerDashboard from './Components/InfluencerDashboard';
-import DashboardLayout  from './Components/SponsorDashboard/DashboardLayout';
+import InfluencerCampaigns from './Components/InfluencerDashboard/InfluencerCampaigns';
+import InfluencerDeals     from './Components/InfluencerDashboard/InfluencerDeals';
+import InfluencerSettings  from './Components/InfluencerDashboard/InfluencerSettings';
+import InfluencerLayout    from './Components/InfluencerDashboard/InfluencerLayout';import DashboardLayout  from './Components/SponsorDashboard/DashboardLayout';
 import SponsorHome      from './Components/SponsorDashboard/SponsorHome';
 import Campaigns        from './Components/SponsorDashboard/Campaigns';
 import Settings         from './Components/SponsorDashboard/Settings';
@@ -48,12 +51,18 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: '/influencer/dashboard',
+    path: '/influencer',
     element: (
       <ProtectedRoute role="influencer">
-        <InfluencerDashboard />
+        <InfluencerLayout />
       </ProtectedRoute>
     ),
+    children: [
+      { path: 'dashboard', element: <InfluencerDashboard /> },
+      { path: 'campaigns', element: <InfluencerCampaigns /> },
+      { path: 'deals',     element: <InfluencerDeals /> },
+      { path: 'settings',  element: <InfluencerSettings /> },
+    ],
   },
   {
     path: '/sponsor-dashboard',

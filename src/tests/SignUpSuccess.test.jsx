@@ -13,9 +13,9 @@ function renderSuccess() {
 
 describe('SignUpSuccess', () => {
 
-  it("renders the success heading You're in!", () => {
+  it('renders the pending approval heading', () => {
     renderSuccess();
-    expect(screen.getByText(/You're in!/i)).toBeInTheDocument();
+    expect(screen.getByText(/Application Submitted/i)).toBeInTheDocument();
   });
 
   it('renders Sign In link', () => {
@@ -43,22 +43,22 @@ describe('SignUpSuccess', () => {
     expect(screen.getByAltText(/Cofluence/i)).toBeInTheDocument();
   });
 
-  it('renders creator account message', () => {
+  it('renders pending approval message', () => {
     renderSuccess();
-    expect(screen.getByText(/Your account has been created/i)).toBeInTheDocument();
+    expect(screen.getByText(/pending admin approval/i)).toBeInTheDocument();
   });
 
-  it('renders feature promise chips: Discover, Negotiate, Track', () => {
+  it('renders the three next-step tiles: Review, Approval, Access', () => {
     renderSuccess();
-    expect(screen.getByText('Discover')).toBeInTheDocument();
-    expect(screen.getByText('Negotiate')).toBeInTheDocument();
-    expect(screen.getByText('Track')).toBeInTheDocument();
+    expect(screen.getByText('Review')).toBeInTheDocument();
+    expect(screen.getByText('Approval')).toBeInTheDocument();
+    expect(screen.getByText('Access')).toBeInTheDocument();
   });
 
-  it('renders feature descriptions', () => {
+  it('renders tile descriptions', () => {
     renderSuccess();
-    expect(screen.getByText(/Browse real brand campaigns/i)).toBeInTheDocument();
-    expect(screen.getByText(/Counter-offer built-in/i)).toBeInTheDocument();
-    expect(screen.getByText(/Live deal status updates/i)).toBeInTheDocument();
+    expect(screen.getByText(/Admin reviews your details/i)).toBeInTheDocument();
+    expect(screen.getByText(/Account activated on approval/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sign in and start exploring/i)).toBeInTheDocument();
   });
 });

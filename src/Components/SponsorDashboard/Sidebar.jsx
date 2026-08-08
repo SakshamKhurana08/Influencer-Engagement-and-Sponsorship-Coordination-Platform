@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Megaphone, Settings, LogOut, Sun, Moon, Flag, Search, BarChart2, Users, Clock } from 'lucide-react';
+import { LayoutDashboard, Megaphone, Settings, LogOut, Sun, Moon, Flag, Search, BarChart2, Users, Clock, FileText } from 'lucide-react';
 import { useTheme } from '../../theme/ThemeContext';
 import BrandLogo from '../BrandLogo';
 
@@ -18,7 +18,10 @@ const NAV = {
     { to: '/sponsor-dashboard/settings', Icon: Settings,         label: 'Settings' },
   ],
   influencer: [
-    { to: '/influencer/dashboard', Icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/influencer/dashboard',           Icon: LayoutDashboard, label: 'Overview'   },
+    { to: '/influencer/campaigns',           Icon: Megaphone,       label: 'Campaigns'  },
+    { to: '/influencer/deals',               Icon: FileText,        label: 'My Deals'   },
+    { to: '/influencer/settings',            Icon: Settings,        label: 'Settings'   },
   ],
   admin: [
     { to: '/admin-dashboard?tab=overview',  Icon: BarChart2, label: 'Overview'  },

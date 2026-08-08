@@ -1,18 +1,20 @@
 /**
- * Tests for src/Components/InfluencerDashboard.jsx
+ * Tests for the Influencer portal pages:
+ *   - InfluencerDashboard (overview / index)
+ *   - InfluencerCampaigns
+ *   - InfluencerDeals
+ *   - InfluencerSettings
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import InfluencerDashboard from '../Components/InfluencerDashboard';
 
-// ── Mocks ──────────────────────────────────────────────────────────────────────
 vi.mock('../Components/SponsorDashboard/Sidebar', () => ({ default: () => null }));
 vi.mock('../api/axiosInstance', () => ({
   default: {
-    get: vi.fn(),
-    put: vi.fn(),
+    get:  vi.fn(),
+    put:  vi.fn(),
     post: vi.fn(),
     interceptors: { request: { use: vi.fn() }, response: { use: vi.fn() } },
   },
@@ -27,51 +29,45 @@ vi.mock('react-router-dom', async () => {
 import api from '../api/axiosInstance';
 
 const PROFILE = {
-  influencer: { id: 1, category: 'Tech', niche: 'AI', reach: 50000, profileImageUrl: null },
-  user: { id: 2, name: 'Test Influencer', email: 'inf@t.com', role: 'influencer' },
+  influencer: { id:1, category:'Tech', niche:'AI', reach:50000, profileImageUrl:null },
+  user:       { id:2, name:'Test Influencer', email:'inf@t.com', role:'influencer' },
 };
 const CAMPAIGNS = {
   items: [
-    { id: 10, title: 'Open Camp 1', category: 'Tech', budget: 10000, isPublic: true, isAcceptedByUser: false, description: 'Test desc' },
-    { id: 11, title: 'Open Camp 2', category: 'Fashion', budget: 5000,  isPublic: true, isAcceptedByUser: true,  description: '' },
+    { id:10, title:'Open Camp 1', category:'Tech', budget:10000, isPublic:true, isAcceptedByUser:false, description:'Test' },
+    { id:11, title:'Open Camp 2', category:'Fashion', budget:5000, isPublic:true, isAcceptedByUser:true, description:'' },
   ],
-  total: 2, page: 1, per_page: 20, pages: 1,
 };
 const AD_REQUESTS = [
-  {
-    id: 1, status: 'pending', message: 'Work with us', proposedTerms: '3 posts',
-    Campaign: { id: 10, title: 'Open Camp 1', Sponsor: { companyName: 'SponsyCo', id: 1 } },
-  },
-  {
-    id: 2, status: 'accepted', message: 'Accepted deal', proposedTerms: '',
-    Campaign: { id: 11, title: 'Camp 2', Sponsor: { companyName: 'OtherSponsor', id: 2 } },
-  },
+  { id:1, status:'pending',  message:'Work with us', proposedTerms:'3 posts', Campaign:{ id:10, title:'Open Camp 1', Sponsor:{ companyName:'SponsyCo', id:1 } } },
+  { id:2, status:'accepted', message:'Accepted deal', proposedTerms:'', Campaign:{ id:11, title:'Camp 2',    Sponsor:{ companyName:'OtherSponsor', id:2 } } },
 ];
 
-function setup() {
-  localStorage.setItem('token', 'inf-tok');
+function setupApiMocks() {
   vi.mocked(api.get).mockImplementation((url) => {
-    if (url.includes('/profile'))       return Promise.resolve({ data: PROFILE });
-    if (url.includes('/open-campaigns'))return Promise.resolve({ data: CAMPAIGNS });
-    if (url.includes('/ad-requests'))   return Promise.resolve({ data: AD_REQUESTS });
+    if (url.includes('/profile'))        return Promise.resolve({ data: PROFILE });
+    if (url.includes('/open-campaigns')) return Promise.resolve({ data: CAMPAIGNS });
+    if (url.includes('/ad-requests'))    return Promise.resolve({ data: AD_REQUESTS });
     return Promise.resolve({ data: {} });
   });
   vi.mocked(api.put).mockResolvedValue({ data: PROFILE });
   vi.mocked(api.post).mockResolvedValue({ data: { message: 'ok' } });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Overview (InfluencerDashboard / index)
+// ─────────────────────────────────────────────────────────────────────────────
+import InfluencerDashboard from '../Components/InfluencerDashboard';
+
+function renderOverview() {
+  localStorage.setItem('token', 'inf-tok');
+  setupApiMocks();
   return render(<MemoryRouter><InfluencerDashboard /></MemoryRouter>);
 }
 
-describe('InfluencerDashboard', () => {
+describe('InfluencerDashboard — Overview', () => {
 
-  beforeEach(() => {
-    mockNavigate.mockClear();
-    vi.mocked(api.get).mockReset();
-    vi.mocked(api.put).mockReset();
-    vi.mocked(api.post).mockReset();
-    localStorage.setItem('token', 'inf-tok');
-  });
-
-  // ── Redirects ────────────────────────────────────────────────────────────────
+  beforeEach(() => { mockNavigate.mockClear(); vi.mocked(api.get).mockReset(); localStorage.setItem('token','inf-tok'); });
 
   it('redirects to /login when no token', () => {
     localStorage.removeItem('token');
@@ -79,189 +75,316 @@ describe('InfluencerDashboard', () => {
     expect(mockNavigate).toHaveBeenCalledWith('/login');
   });
 
-  // ── Profile display ──────────────────────────────────────────────────────────
-
-  it('displays influencer name and category', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByText('Test Influencer')).toBeInTheDocument());
-    expect(screen.getAllByText('Tech')[0]).toBeInTheDocument();
+  it('shows welcome heading with influencer name', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getByText(/Test Influencer/i)).toBeInTheDocument());
   });
 
-  it('displays niche and reach', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByText('AI')).toBeInTheDocument());
-    expect(screen.getByText(/50,000/)).toBeInTheDocument();
+  it('shows stat cards for campaigns joined and accepted deals', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getByText(/Campaigns Joined/i)).toBeInTheDocument());
+    expect(screen.getByText(/Accepted Deals/i)).toBeInTheDocument();
   });
 
-  // ── Tabs ────────────────────────────────────────────────────────────────────
-
-  it('renders Open Campaigns tab', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByText(/Open Campaigns/i)).toBeInTheDocument());
+  it('shows reach stat', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getByText(/50,000/)).toBeInTheDocument());
   });
 
-  it('renders Ad Requests tab', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByText(/Ad Requests/i)).toBeInTheDocument());
+  it('shows category and niche in profile strip', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getAllByText('Tech')[0]).toBeInTheDocument());
+    expect(screen.getByText('AI')).toBeInTheDocument();
   });
 
-  // ── Campaigns ───────────────────────────────────────────────────────────────
+  it('renders Browse Campaigns quick action', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getByText(/Browse Campaigns/i)).toBeInTheDocument());
+  });
 
-  it('shows campaign cards after load', async () => {
-    setup();
+  it('renders My Deals quick action', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getByText(/My Deals/i)).toBeInTheDocument());
+  });
+
+  it('renders Profile & Settings quick action', async () => {
+    renderOverview();
+    await waitFor(() => expect(screen.getByText(/Profile.*Settings/i)).toBeInTheDocument());
+  });
+
+  it('Browse Campaigns links to /influencer/campaigns', async () => {
+    renderOverview();
+    await waitFor(() => screen.getByText(/Browse Campaigns/i));
+    const links = screen.getAllByRole('link');
+    expect(links.some(l => l.getAttribute('href') === '/influencer/campaigns')).toBe(true);
+  });
+
+  it('My Deals links to /influencer/deals', async () => {
+    renderOverview();
+    await waitFor(() => screen.getByText(/My Deals/i));
+    const links = screen.getAllByRole('link');
+    expect(links.some(l => l.getAttribute('href') === '/influencer/deals')).toBe(true);
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Campaigns page
+// ─────────────────────────────────────────────────────────────────────────────
+import InfluencerCampaigns from '../Components/InfluencerDashboard/InfluencerCampaigns';
+
+function renderCampaigns() {
+  localStorage.setItem('token','inf-tok');
+  setupApiMocks();
+  return render(<MemoryRouter><InfluencerCampaigns /></MemoryRouter>);
+}
+
+describe('InfluencerCampaigns', () => {
+
+  beforeEach(() => { vi.mocked(api.get).mockReset(); vi.mocked(api.post).mockReset(); localStorage.setItem('token','inf-tok'); });
+
+  it('renders Browse Campaigns heading', async () => {
+    renderCampaigns();
+    await waitFor(() => expect(screen.getByText(/Browse/i)).toBeInTheDocument());
+  });
+
+  it('displays campaign cards after load', async () => {
+    renderCampaigns();
     await waitFor(() => expect(screen.getByText('Open Camp 1')).toBeInTheDocument());
     expect(screen.getByText('Open Camp 2')).toBeInTheDocument();
   });
 
-  it('shows Accept Campaign button for non-accepted campaigns', async () => {
-    setup();
-    await waitFor(() => expect(screen.getAllByText(/Accept Campaign/i).length).toBeGreaterThan(0));
+  it('shows Join Campaign button for non-accepted campaigns', async () => {
+    renderCampaigns();
+    await waitFor(() => expect(screen.getAllByText(/Join Campaign/i).length).toBeGreaterThan(0));
   });
 
-  it('shows Joined badge for already-accepted campaigns', async () => {
-    setup();
+  it('shows Joined badge for accepted campaigns', async () => {
+    renderCampaigns();
     await waitFor(() => expect(screen.getAllByText(/Joined/i).length).toBeGreaterThan(0));
   });
 
-  it('calls accept campaign API when button clicked', async () => {
-    setup();
-    await waitFor(() => screen.getAllByText(/Accept Campaign/i));
-    fireEvent.click(screen.getAllByText(/Accept Campaign/i)[0]);
-    await waitFor(() => expect(api.post).toHaveBeenCalledWith(
-      expect.stringContaining('/accept'), {}
-    ));
+  it('calls accept API when Join clicked', async () => {
+    renderCampaigns();
+    await waitFor(() => screen.getAllByText(/Join Campaign/i));
+    fireEvent.click(screen.getAllByText(/Join Campaign/i)[0]);
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/accept'), {}));
   });
 
-  // ── Campaign filters ─────────────────────────────────────────────────────────
-
-  it('renders category filter input', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByPlaceholderText(/Fashion/i)).toBeInTheDocument());
+  it('renders filter inputs', async () => {
+    renderCampaigns();
+    expect(screen.getByPlaceholderText(/Fashion/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/10000/i)).toBeInTheDocument();
   });
 
-  it('renders min budget filter input', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByPlaceholderText(/10000/i)).toBeInTheDocument());
-  });
-
-  it('calls API with category filter', async () => {
-    setup();
-    await waitFor(() => screen.getByPlaceholderText(/Fashion/i));
+  it('calls API with category filter on Filter click', async () => {
+    renderCampaigns();
     await userEvent.type(screen.getByPlaceholderText(/Fashion/i), 'Tech');
-    fireEvent.click(screen.getByText(/Filter/i));
+    fireEvent.click(screen.getByRole('button', { name: /Filter/i }));
     await waitFor(() => {
       const lastCall = vi.mocked(api.get).mock.calls.at(-1);
       expect(lastCall?.[1]?.params?.category).toBe('Tech');
     });
   });
 
-  // ── Ad Requests tab ──────────────────────────────────────────────────────────
+  it('shows empty state when no campaigns returned', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: { items: [] } });
+    render(<MemoryRouter><InfluencerCampaigns /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByText(/No campaigns found/i)).toBeInTheDocument());
+  });
 
-  it('shows ad requests when switching to Ads tab', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
+  it('clears filters when Clear clicked', async () => {
+    renderCampaigns();
+    await userEvent.type(screen.getByPlaceholderText(/Fashion/i), 'Tech');
+    fireEvent.click(screen.getByRole('button', { name: /Clear/i }));
+    await waitFor(() => expect(screen.getByPlaceholderText(/Fashion/i).value).toBe(''));
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Deals page
+// ─────────────────────────────────────────────────────────────────────────────
+import InfluencerDeals from '../Components/InfluencerDashboard/InfluencerDeals';
+
+function renderDeals() {
+  localStorage.setItem('token','inf-tok');
+  setupApiMocks();
+  return render(<MemoryRouter><InfluencerDeals /></MemoryRouter>);
+}
+
+describe('InfluencerDeals', () => {
+
+  beforeEach(() => { vi.mocked(api.get).mockReset(); vi.mocked(api.post).mockReset(); localStorage.setItem('token','inf-tok'); });
+
+  it('renders My Deals heading', async () => {
+    renderDeals();
+    await waitFor(() => expect(screen.getByText(/My Deals/i)).toBeInTheDocument());
+  });
+
+  it('shows ad requests after load', async () => {
+    renderDeals();
     await waitFor(() => expect(screen.getByText('SponsyCo')).toBeInTheDocument());
   });
 
-  it('shows Accept and Decline buttons for pending requests', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
+  it('shows status filter tabs: all, pending, accepted, rejected, negotiation', async () => {
+    renderDeals();
     await waitFor(() => {
-      expect(screen.getAllByText(/Accept/i).length).toBeGreaterThan(0);
+      expect(screen.getByRole('button', { name: /^all$/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /pending/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /accepted/i })).toBeInTheDocument();
+    });
+  });
+
+  it('shows Accept, Negotiate, Decline buttons for pending requests', async () => {
+    renderDeals();
+    await waitFor(() => {
+      expect(screen.getByText(/^Accept$/i)).toBeInTheDocument();
+      expect(screen.getByText(/Negotiate/i)).toBeInTheDocument();
       expect(screen.getByText(/Decline/i)).toBeInTheDocument();
     });
   });
 
-  it('shows Negotiate button for pending requests', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
-    await waitFor(() => expect(screen.getByText(/Negotiate/i)).toBeInTheDocument());
-  });
-
   it('calls accept API when Accept clicked', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
+    renderDeals();
     await waitFor(() => screen.getByText(/^Accept$/i));
     fireEvent.click(screen.getByText(/^Accept$/i));
-    await waitFor(() => expect(api.post).toHaveBeenCalledWith(
-      expect.stringContaining('/accept'), {}
-    ));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/accept'), {}));
   });
 
   it('calls reject API when Decline clicked', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
+    renderDeals();
     await waitFor(() => screen.getByText(/Decline/i));
     fireEvent.click(screen.getByText(/Decline/i));
-    await waitFor(() => expect(api.post).toHaveBeenCalledWith(
-      expect.stringContaining('/reject'), {}
-    ));
+    await waitFor(() => expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/reject'), {}));
   });
 
-  it('shows negotiate counter-offer form when Negotiate clicked', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
+  it('shows negotiate counter-offer textarea when Negotiate clicked', async () => {
+    renderDeals();
     await waitFor(() => screen.getByText(/Negotiate/i));
     fireEvent.click(screen.getByText(/Negotiate/i));
     await waitFor(() => expect(screen.getByPlaceholderText(/revised terms/i)).toBeInTheDocument());
   });
 
-  it('calls negotiate API with counterTerms', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Ad Requests/i));
-    fireEvent.click(screen.getByText(/Ad Requests/i));
+  it('sends counter-offer via negotiate API', async () => {
+    renderDeals();
     await waitFor(() => screen.getByText(/Negotiate/i));
     fireEvent.click(screen.getByText(/Negotiate/i));
     await waitFor(() => screen.getByPlaceholderText(/revised terms/i));
-    await userEvent.type(screen.getByPlaceholderText(/revised terms/i), '2 posts for 8000');
-    fireEvent.click(screen.getByText(/Send/i));
+    await userEvent.type(screen.getByPlaceholderText(/revised terms/i), '2 posts for ₹8000');
+    fireEvent.click(screen.getByRole('button', { name: /^Send$/i }));
     await waitFor(() => expect(api.post).toHaveBeenCalledWith(
       expect.stringContaining('/negotiate'),
-      { counterTerms: '2 posts for 8000' }
+      { counterTerms: '2 posts for ₹8000' }
     ));
   });
 
-  // ── Stats ───────────────────────────────────────────────────────────────────
+  it('filters to pending only when Pending tab clicked', async () => {
+    renderDeals();
+    await waitFor(() => screen.getByText('SponsyCo'));
+    fireEvent.click(screen.getByRole('button', { name: /pending/i }));
+    await waitFor(() => expect(screen.getByText('SponsyCo')).toBeInTheDocument());
+    expect(screen.queryByText('OtherSponsor')).not.toBeInTheDocument();
+  });
 
-  it('shows campaigns joined count', async () => {
-    setup();
+  it('shows empty state when no deals', async () => {
+    vi.mocked(api.get).mockResolvedValue({ data: [] });
+    render(<MemoryRouter><InfluencerDeals /></MemoryRouter>);
+    await waitFor(() => expect(screen.getByText(/No .* deals yet/i)).toBeInTheDocument());
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Settings page
+// ─────────────────────────────────────────────────────────────────────────────
+import InfluencerSettings from '../Components/InfluencerDashboard/InfluencerSettings';
+
+function renderSettings() {
+  localStorage.setItem('token','inf-tok');
+  setupApiMocks();
+  return render(<MemoryRouter><InfluencerSettings /></MemoryRouter>);
+}
+
+describe('InfluencerSettings', () => {
+
+  beforeEach(() => {
+    mockNavigate.mockClear();
+    vi.mocked(api.get).mockReset();
+    vi.mocked(api.put).mockReset();
+    vi.mocked(api.post).mockReset();
+    localStorage.setItem('token','inf-tok');
+  });
+
+  it('redirects to /login when no token', () => {
+    localStorage.removeItem('token');
+    render(<MemoryRouter><InfluencerSettings /></MemoryRouter>);
+    expect(mockNavigate).toHaveBeenCalledWith('/login');
+  });
+
+  it('renders Settings heading', async () => {
+    renderSettings();
+    await waitFor(() => expect(screen.getByText(/Profile.*Settings/i)).toBeInTheDocument());
+  });
+
+  it('shows user name and category after load', async () => {
+    renderSettings();
+    await waitFor(() => expect(screen.getByText('Test Influencer')).toBeInTheDocument());
+    expect(screen.getAllByText('Tech')[0]).toBeInTheDocument();
+  });
+
+  it('shows email as read-only', async () => {
+    renderSettings();
+    await waitFor(() => expect(screen.getByText('inf@t.com')).toBeInTheDocument());
+    expect(screen.getByText(/Read-only/i)).toBeInTheDocument();
+  });
+
+  it('renders Edit button', async () => {
+    renderSettings();
+    await waitFor(() => expect(screen.getByRole('button', { name: /Edit/i })).toBeInTheDocument());
+  });
+
+  it('shows input fields in edit mode', async () => {
+    renderSettings();
+    await waitFor(() => screen.getByRole('button', { name: /Edit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
     await waitFor(() => {
-      // One campaign is accepted (isAcceptedByUser: true)
-      expect(screen.getAllByText('1').length).toBeGreaterThan(0);
+      expect(screen.getByDisplayValue('Test Influencer')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('Tech')).toBeInTheDocument();
     });
-  });
-
-  // ── Profile edit ──────────────────────────────────────────────────────────────
-
-  it('shows edit profile button', async () => {
-    setup();
-    await waitFor(() => expect(screen.getByText(/Edit Profile/i)).toBeInTheDocument());
-  });
-
-  it('opens edit form when Edit Profile clicked', async () => {
-    setup();
-    await waitFor(() => screen.getByText(/Edit Profile/i));
-    fireEvent.click(screen.getByText(/Edit Profile/i));
-    await waitFor(() => expect(screen.getByText(/Save/i)).toBeInTheDocument());
   });
 
   it('calls PUT /api/influencer/profile on save', async () => {
-    vi.mocked(api.put).mockResolvedValue({
-      data: { ...PROFILE, user: { ...PROFILE.user, name: 'Updated Name' } },
-    });
-    setup();
-    await waitFor(() => screen.getByText(/Edit Profile/i));
-    fireEvent.click(screen.getByText(/Edit Profile/i));
-    await waitFor(() => screen.getByText(/Save/i));
-    fireEvent.click(screen.getByText(/Save/i));
-    await waitFor(() => expect(api.put).toHaveBeenCalledWith(
-      '/api/influencer/profile', expect.any(Object)
-    ));
+    vi.mocked(api.put).mockResolvedValue({ data: PROFILE });
+    renderSettings();
+    await waitFor(() => screen.getByRole('button', { name: /Edit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
+    await waitFor(() => screen.getByRole('button', { name: /Save Changes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
+    await waitFor(() => expect(api.put).toHaveBeenCalledWith('/api/influencer/profile', expect.any(Object)));
+  });
+
+  it('shows success message after profile save', async () => {
+    vi.mocked(api.put).mockResolvedValue({ data: PROFILE });
+    renderSettings();
+    await waitFor(() => screen.getByRole('button', { name: /Edit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
+    await waitFor(() => screen.getByRole('button', { name: /Save Changes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
+    await waitFor(() => expect(screen.getByText(/Profile updated/i)).toBeInTheDocument());
+  });
+
+  it('shows error when update fails', async () => {
+    setupApiMocks();
+    vi.mocked(api.put).mockRejectedValue(new Error('fail'));
+    renderSettings();
+    await waitFor(() => screen.getByRole('button', { name: /Edit/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
+    await waitFor(() => screen.getByRole('button', { name: /Save Changes/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Save Changes/i }));
+    await waitFor(() => expect(screen.getByText(/Update failed/i)).toBeInTheDocument());
+  });
+
+  it('has a file input for profile photo', async () => {
+    renderSettings();
+    await waitFor(() => screen.getByText(/Profile.*Settings/i));
+    expect(document.querySelector('input[type="file"]')).toBeInTheDocument();
   });
 });

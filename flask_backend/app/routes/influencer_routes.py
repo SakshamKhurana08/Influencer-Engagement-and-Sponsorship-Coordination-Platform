@@ -19,6 +19,7 @@ from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.utils.auth import influencer_required
 from app.utils.schemas import validate_schema, InfluencerProfileSchema
+from app.utils.files import save_profile_image
 
 influencer_bp = Blueprint('influencer', __name__)
 
@@ -154,6 +155,28 @@ def accept_campaign(campaign_id):
     influencer.accepted_campaigns.append(campaign)
     db.session.commit()
     return jsonify({'message': 'Campaign accepted'}), 200
+
+
+@influencer_bp.route('/profile/image', methods=['POST'])
+@influencer_required()
+def upload_profile_image():
+    """Upload or replace the influencer's profile photo."""
+    user_id = int(get_jwt_identity())
+    influencer = _get_influencer(user_id)
+    if not influencer:
+        return jsonify({'message': 'Influencer not found'}), 404
+
+    if 'profileImage' not in request.files:
+        return jsonify({'message': 'No image file provided'}), 400
+
+    image_filename = save_profile_image(request.files['profileImage'])
+    influencer.profile_image_url = image_filename
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Profile image updated',
+        'influencer': influencer.to_dict(),
+    }), 200
 
 
 @influencer_bp.route('/ad-requests', methods=['GET'])
