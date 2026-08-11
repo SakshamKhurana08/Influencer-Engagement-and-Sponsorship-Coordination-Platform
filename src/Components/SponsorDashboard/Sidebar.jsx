@@ -13,15 +13,16 @@ function decodeRole() {
 
 const NAV = {
   sponsor: [
-    { to: '/sponsor-dashboard/home',     Icon: LayoutDashboard, label: 'Overview' },
-    { to: '/sponsor-dashboard/campaign', Icon: Megaphone,        label: 'Campaigns' },
-    { to: '/sponsor-dashboard/settings', Icon: Settings,         label: 'Settings' },
+    { to: '/sponsor-dashboard/home',     Icon: LayoutDashboard, label: 'Overview'  },
+    { to: '/sponsor-dashboard/requests', Icon: FileText,        label: 'Requests'  },
+    { to: '/sponsor-dashboard/campaign', Icon: Megaphone,       label: 'Campaigns' },
+    { to: '/sponsor-dashboard/settings', Icon: Settings,        label: 'Settings'  },
   ],
   influencer: [
-    { to: '/influencer/dashboard',           Icon: LayoutDashboard, label: 'Overview'   },
-    { to: '/influencer/campaigns',           Icon: Megaphone,       label: 'Campaigns'  },
-    { to: '/influencer/deals',               Icon: FileText,        label: 'My Deals'   },
-    { to: '/influencer/settings',            Icon: Settings,        label: 'Settings'   },
+    { to: '/influencer/dashboard',  Icon: LayoutDashboard, label: 'Overview'      },
+    { to: '/influencer/campaigns',  Icon: Megaphone,       label: 'Campaigns'     },
+    { to: '/influencer/deals',      Icon: FileText,        label: 'Sponsor Offers' },
+    { to: '/influencer/settings',   Icon: Settings,        label: 'Settings'      },
   ],
   admin: [
     { to: '/admin-dashboard?tab=overview',  Icon: BarChart2, label: 'Overview'  },

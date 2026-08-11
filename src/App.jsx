@@ -20,6 +20,7 @@ import InfluencerSettings  from './Components/InfluencerDashboard/InfluencerSett
 import InfluencerLayout    from './Components/InfluencerDashboard/InfluencerLayout';import DashboardLayout  from './Components/SponsorDashboard/DashboardLayout';
 import SponsorHome      from './Components/SponsorDashboard/SponsorHome';
 import Campaigns        from './Components/SponsorDashboard/Campaigns';
+import SponsorRequests  from './Components/SponsorDashboard/SponsorRequests';
 import Settings         from './Components/SponsorDashboard/Settings';
 
 const router = createBrowserRouter([
@@ -73,6 +74,7 @@ const router = createBrowserRouter([
     ),
     children: [
       { path: 'home',     element: <SponsorHome /> },
+      { path: 'requests', element: <SponsorRequests /> },
       { path: 'campaign', element: <Campaigns /> },
       { path: 'settings', element: <Settings /> },
     ],

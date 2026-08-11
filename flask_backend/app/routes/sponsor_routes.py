@@ -1,9 +1,11 @@
 """
 Sponsor routes — protected by sponsor_required() RBAC guard.
 
-GET /api/sponsors/details   — get Sponsor record only
-GET /api/sponsors/profile   — get Sponsor + User combined
-PUT /api/sponsors/profile   — update name, company, industry, budget
+GET  /api/sponsors/details          — get Sponsor record only
+GET  /api/sponsors/profile          — get Sponsor + User combined
+PUT  /api/sponsors/profile          — update name, company, industry, budget
+GET  /api/sponsors/requests         — all ad requests across sponsor's campaigns
+POST /api/sponsors/requests/<id>/respond — accept | reject | negotiate a request
 """
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import get_jwt_identity
@@ -11,6 +13,9 @@ from flask_jwt_extended import get_jwt_identity
 from app import db
 from app.models.user import User
 from app.models.sponsor import Sponsor
+from app.models.campaign import Campaign
+from app.models.ad_request import AdRequest
+from app.models.influencer import Influencer
 from app.utils.auth import sponsor_required
 from app.utils.schemas import validate_schema, SponsorProfileSchema
 from app.utils.files import save_profile_image
@@ -112,3 +117,92 @@ def upload_profile_image():
     sponsor.profile_image_url = filename
     db.session.commit()
     return jsonify({'message': 'Profile image updated', 'sponsor': sponsor.to_dict()}), 200
+
+
+@sponsor_bp.route('/requests', methods=['GET'])
+@sponsor_required()
+def get_requests():
+    """
+    Return all ad requests across all of this sponsor's campaigns.
+    Includes influencer profile details and campaign title.
+    Optional query param: status=pending|accepted|rejected|negotiation
+    """
+    user_id  = int(get_jwt_identity())
+    sponsor  = _get_sponsor(user_id)
+    if not sponsor:
+        return jsonify({'message': 'Sponsor not found'}), 404
+
+    status_filter = request.args.get('status', '').strip()
+
+    # Get all campaign IDs belonging to this sponsor
+    campaign_ids = [c.id for c in Campaign.query.filter_by(sponsor_id=sponsor.id).all()]
+    if not campaign_ids:
+        return jsonify([]), 200
+
+    query = AdRequest.query.filter(AdRequest.campaign_id.in_(campaign_ids))
+    if status_filter in ('pending', 'accepted', 'rejected', 'negotiation'):
+        query = query.filter_by(status=status_filter)
+
+    ads = query.order_by(AdRequest.created_at.desc()).all()
+
+    result = []
+    for ad in ads:
+        data = ad.to_dict(include_campaign=True)
+        # Add influencer details
+        if ad.influencer:
+            inf_user = db.session.get(User, ad.influencer.user_id)
+            data['influencer'] = {
+                'id':       ad.influencer.id,
+                'name':     inf_user.name if inf_user else 'Unknown',
+                'email':    inf_user.email if inf_user else '',
+                'category': ad.influencer.category,
+                'niche':    ad.influencer.niche,
+                'reach':    ad.influencer.reach,
+                'profileImageUrl': ad.influencer.profile_image_url,
+            }
+        result.append(data)
+
+    return jsonify(result), 200
+
+
+@sponsor_bp.route('/requests/<int:request_id>/respond', methods=['POST'])
+@sponsor_required()
+def respond_to_request(request_id):
+    """
+    Sponsor responds to an influencer's ad request.
+    Body: { action: 'accept'|'reject'|'negotiate', counterTerms: '...' }
+    counterTerms is required when action='negotiate'.
+    """
+    user_id = int(get_jwt_identity())
+    sponsor = _get_sponsor(user_id)
+    if not sponsor:
+        return jsonify({'message': 'Sponsor not found'}), 404
+
+    ad = db.session.get(AdRequest, request_id)
+    if not ad:
+        return jsonify({'message': 'Request not found'}), 404
+
+    # Verify this ad belongs to one of the sponsor's campaigns
+    campaign = db.session.get(Campaign, ad.campaign_id)
+    if not campaign or campaign.sponsor_id != sponsor.id:
+        return jsonify({'message': 'Not authorised to respond to this request'}), 403
+
+    body   = request.get_json(silent=True) or {}
+    action = body.get('action', '').strip()
+
+    if action not in ('accept', 'reject', 'negotiate'):
+        return jsonify({'message': 'action must be accept, reject, or negotiate'}), 400
+
+    if action == 'negotiate':
+        counter = body.get('counterTerms', '').strip()
+        if not counter:
+            return jsonify({'message': 'counterTerms is required for negotiate'}), 400
+        ad.status         = 'negotiation'
+        ad.proposed_terms = counter
+    elif action == 'accept':
+        ad.status = 'accepted'
+    elif action == 'reject':
+        ad.status = 'rejected'
+
+    db.session.commit()
+    return jsonify({'message': f'Request {action}ed', 'adRequest': ad.to_dict()}), 200

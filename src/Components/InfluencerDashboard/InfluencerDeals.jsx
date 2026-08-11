@@ -48,9 +48,12 @@ export default function InfluencerDeals() {
       <div className="mb-4">
         <p style={{ fontSize:'0.64rem', fontWeight:800, letterSpacing:'0.14em', textTransform:'uppercase', color:'var(--text-muted)', marginBottom:4 }}>Creator Portal</p>
         <h1 className="display-brand mb-0" style={{ fontSize:'clamp(1.5rem,3vw,2.1rem)', color:'var(--text-primary)', fontWeight:900, letterSpacing:'-0.03em' }}>
-          My <span className="is-gradient-text">Deals</span>
+          Sponsor <span className="is-gradient-text">Offers</span>
         </h1>
       </div>
+      <p style={{ color:'var(--text-muted)', fontSize:'0.84rem', marginBottom:20, maxWidth:560 }}>
+        These are ad requests sent directly to you by sponsors. Review the offer and terms, then accept, decline, or propose a counter-offer.
+      </p>
 
       {error   && <div className="rounded-3 p-3 mb-3 fw-700" style={{ fontSize:'0.82rem', background:'var(--pill-rejected)',  color:'var(--pill-rejected-text)'  }}>{error}</div>}
       {success && <div className="rounded-3 p-3 mb-3 fw-700" style={{ fontSize:'0.82rem', background:'var(--pill-accepted)', color:'var(--pill-accepted-text)' }}>{success}</div>}

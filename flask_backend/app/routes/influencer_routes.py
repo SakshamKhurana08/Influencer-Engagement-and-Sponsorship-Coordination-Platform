@@ -134,6 +134,54 @@ def get_open_campaigns():
     }), 200
 
 
+@influencer_bp.route('/campaigns/<int:campaign_id>/express-interest', methods=['POST'])
+@influencer_required()
+def express_interest(campaign_id):
+    """
+    Influencer proactively expresses interest in a campaign.
+    Creates a pending ad request so the sponsor can see it.
+    Body: { message, proposedTerms (optional) }
+    """
+    user_id = int(get_jwt_identity())
+    influencer = _get_influencer(user_id)
+    if not influencer:
+        return jsonify({'message': 'Influencer not found'}), 404
+
+    campaign = db.session.get(Campaign, campaign_id)
+    if not campaign or not campaign.is_public:
+        return jsonify({'message': 'Campaign not found'}), 404
+
+    body           = request.get_json(silent=True) or {}
+    message        = body.get('message', '').strip()
+    proposed_terms = body.get('proposedTerms', '').strip()
+
+    if not message:
+        return jsonify({'message': 'message is required'}), 400
+
+    # Prevent duplicate interest on the same campaign
+    existing = AdRequest.query.filter_by(
+        campaign_id=campaign_id,
+        influencer_id=influencer.id
+    ).first()
+    if existing:
+        return jsonify({'message': 'You have already expressed interest in this campaign'}), 400
+
+    ad_request = AdRequest(
+        campaign_id    = campaign_id,
+        influencer_id  = influencer.id,
+        message        = message,
+        proposed_terms = proposed_terms,
+        status         = 'pending',
+    )
+    db.session.add(ad_request)
+    db.session.commit()
+
+    return jsonify({
+        'message':   'Your interest has been sent to the sponsor',
+        'adRequest': ad_request.to_dict(),
+    }), 201
+
+
 @influencer_bp.route('/campaigns/<int:campaign_id>/accept', methods=['POST'])
 @influencer_required()
 def accept_campaign(campaign_id):
