@@ -198,6 +198,81 @@ describe('InfluencerCampaigns', () => {
     fireEvent.click(screen.getByRole('button', { name: /Clear/i }));
     await waitFor(() => expect(screen.getByPlaceholderText(/Fashion/i).value).toBe(''));
   });
+
+  // ── Express Interest (TASK-701) ─────────────────────────────────────────────
+
+  it('shows Express Interest button on each campaign card when expanded', async () => {
+    renderCampaigns();
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    // expand the first card
+    fireEvent.click(screen.getByText('Open Camp 1'));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /Express Interest/i })).toBeInTheDocument()
+    );
+  });
+
+  it('shows express interest form when Express Interest button clicked', async () => {
+    renderCampaigns();
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    fireEvent.click(screen.getByText('Open Camp 1'));
+    await waitFor(() => screen.getByRole('button', { name: /Express Interest/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Express Interest/i }));
+    // message textarea must appear — terms is optional so just check message
+    await waitFor(() =>
+      expect(screen.getByPlaceholderText(/Introduce yourself/i)).toBeInTheDocument()
+    );
+  });
+
+  it('calls express-interest API with message and proposedTerms on submit', async () => {
+    const user = userEvent.setup();
+    renderCampaigns();
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    fireEvent.click(screen.getByText('Open Camp 1'));
+    await waitFor(() => screen.getByRole('button', { name: /Express Interest/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Express Interest/i }));
+    await waitFor(() => screen.getByPlaceholderText(/Introduce yourself/i));
+    await user.type(screen.getByPlaceholderText(/Introduce yourself/i), 'I love your brand!');
+    fireEvent.click(screen.getByRole('button', { name: /Send to Sponsor/i }));
+    await waitFor(() =>
+      expect(api.post).toHaveBeenCalledWith(
+        expect.stringContaining('/express-interest'),
+        expect.objectContaining({ message: 'I love your brand!' })
+      )
+    );
+  });
+
+  it('shows success message after express interest submitted', async () => {
+    const user = userEvent.setup();
+    renderCampaigns();
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    fireEvent.click(screen.getByText('Open Camp 1'));
+    await waitFor(() => screen.getByRole('button', { name: /Express Interest/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Express Interest/i }));
+    await waitFor(() => screen.getByPlaceholderText(/Introduce yourself/i));
+    await user.type(screen.getByPlaceholderText(/Introduce yourself/i), 'I love your brand!');
+    fireEvent.click(screen.getByRole('button', { name: /Send to Sponsor/i }));
+    await waitFor(() =>
+      expect(screen.getByText(/interest has been sent/i)).toBeInTheDocument()
+    );
+  });
+
+  it('shows error when express interest submitted without a message', async () => {
+    renderCampaigns();
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    fireEvent.click(screen.getByText('Open Camp 1'));
+    await waitFor(() => screen.getByRole('button', { name: /Express Interest/i }));
+    fireEvent.click(screen.getByRole('button', { name: /Express Interest/i }));
+    await waitFor(() => screen.getByPlaceholderText(/Introduce yourself/i));
+    // submit without typing anything
+    fireEvent.click(screen.getByRole('button', { name: /Send to Sponsor/i }));
+    await waitFor(() =>
+      expect(screen.getByText(/please write a message/i)).toBeInTheDocument()
+    );
+    expect(api.post).not.toHaveBeenCalledWith(
+      expect.stringContaining('/express-interest'),
+      expect.anything()
+    );
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
