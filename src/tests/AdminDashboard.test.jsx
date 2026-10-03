@@ -49,7 +49,7 @@ function renderAdmin(tab = 'overview') {
 describe('AdminDashboard', () => {
 
   beforeEach(() => {
-    vi.mocked(global.fetch).mockClear();
+    global.fetch = makeFetch();  // reset mock implementation for every test
     localStorage.setItem('token', 'admin-tok');
     window.confirm = vi.fn(() => true);
   });
@@ -74,9 +74,10 @@ describe('AdminDashboard', () => {
     await waitFor(() => {
       expect(screen.getByText(/Total Users/i)).toBeInTheDocument();
       expect(screen.getByText(/Sponsors/i)).toBeInTheDocument();
-      expect(screen.getByText(/Campaigns/i)).toBeInTheDocument();
-      expect(screen.getByText(/Ad Requests/i)).toBeInTheDocument();
-      expect(screen.getByText(/Influencers/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Campaigns/i).length).toBeGreaterThan(0);
+      // 'Ad Requests' removed from stat cards in LC — replaced by 'Pending Approval'
+      expect(screen.getByText(/Pending Approval/i)).toBeInTheDocument();
+      expect(screen.getAllByText(/Influencers/i).length).toBeGreaterThan(0);
     });
   });
 
@@ -189,14 +190,21 @@ describe('AdminDashboard', () => {
 
   it('shows Remove button on flagged campaigns', async () => {
     renderAdmin('flagged');
-    await waitFor(() => expect(screen.getAllByText(/Remove/i).length).toBeGreaterThan(0));
+    await waitFor(() => {
+      const removeBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Remove'));
+      expect(removeBtns.length).toBeGreaterThan(0);
+    });
   });
 
   it('calls remove API after confirm', async () => {
-    window.confirm = vi.fn(() => true);
     renderAdmin('flagged');
     await waitFor(() => screen.getByText('Bad Campaign'));
-    fireEvent.click(screen.getByText(/Remove/i));
+    // Click Remove button — opens ConfirmDialog
+    const removeBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Remove'));
+    fireEvent.click(removeBtns[0]);
+    // ConfirmDialog shows 'Yes, Delete' — click it to confirm
+    await waitFor(() => screen.getByText(/Yes, Delete/i));
+    fireEvent.click(screen.getByText(/Yes, Delete/i));
     await waitFor(() => {
       expect(vi.mocked(global.fetch)).toHaveBeenCalledWith(
         expect.stringContaining('/remove'),
@@ -206,11 +214,14 @@ describe('AdminDashboard', () => {
   });
 
   it('does NOT call remove API when confirm is cancelled', async () => {
-    window.confirm = vi.fn(() => false);
     renderAdmin('flagged');
     await waitFor(() => screen.getByText('Bad Campaign'));
     const callsBefore = vi.mocked(global.fetch).mock.calls.length;
-    fireEvent.click(screen.getByText(/Remove/i));
+    const removeBtns = screen.getAllByRole('button').filter(b => b.textContent?.includes('Remove'));
+    fireEvent.click(removeBtns[0]);
+    // Dialog opens — click Cancel
+    await waitFor(() => screen.getByRole('button', { name: /^Cancel$/i }));
+    fireEvent.click(screen.getByRole('button', { name: /^Cancel$/i }));
     expect(vi.mocked(global.fetch).mock.calls.length).toBe(callsBefore);
   });
 
@@ -227,7 +238,7 @@ describe('AdminDashboard', () => {
 
   it('renders search input on search tab', () => {
     renderAdmin('search');
-    expect(screen.getByPlaceholderText(/Search by name/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/Search by name or title/i)).toBeInTheDocument();
   });
 
   it('renders Search button on search tab', () => {
@@ -237,7 +248,7 @@ describe('AdminDashboard', () => {
 
   it('calls search API and shows user results', async () => {
     renderAdmin('search');
-    const input = screen.getByPlaceholderText(/Search by name/i);
+    const input = screen.getByPlaceholderText(/Search by name or title/i);
     fireEvent.change(input, { target: { value: 'John' } });
     fireEvent.click(screen.getByRole('button', { name: /Search/i }));
     await waitFor(() => {
@@ -259,7 +270,7 @@ describe('AdminDashboard', () => {
       return Promise.resolve({ ok:true, json:()=>Promise.resolve({}) });
     });
     renderAdmin('search');
-    const input = screen.getByPlaceholderText(/Search by name/i);
+    const input = screen.getByPlaceholderText(/Search by name or title/i);
     fireEvent.change(input, { target: { value: 'nobody' } });
     fireEvent.click(screen.getByRole('button', { name: /Search/i }));
     await waitFor(() => expect(screen.getByText(/No results for/i)).toBeInTheDocument());
@@ -267,7 +278,7 @@ describe('AdminDashboard', () => {
 
   it('supports Enter key to trigger search', async () => {
     renderAdmin('search');
-    const input = screen.getByPlaceholderText(/Search by name/i);
+    const input = screen.getByPlaceholderText(/Search by name or title/i);
     fireEvent.change(input, { target: { value: 'John' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     await waitFor(() => {

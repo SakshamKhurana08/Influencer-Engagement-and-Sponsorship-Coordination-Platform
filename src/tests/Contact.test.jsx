@@ -2,6 +2,7 @@
  * Tests for src/Components/Contact.jsx
  */
 import { describe, it, expect, vi } from 'vitest';
+import userEvent from '@testing-library/user-event';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Contact from '../Components/Contact';
@@ -63,7 +64,8 @@ describe('Contact', () => {
 
   it('renders Response Time info', () => {
     renderContact();
-    expect(screen.getByText(/24 hours/i)).toBeInTheDocument();
+    // "24 hours" appears in both the info card and the form subtitle
+    expect(screen.getAllByText(/24 hours/i).length).toBeGreaterThan(0);
   });
 
   // ── Form fields ────────────────────────────────────────────────────────────
@@ -97,7 +99,9 @@ describe('Contact', () => {
 
   it('shows error banner when required fields missing on submit', async () => {
     renderContact();
-    fireEvent.click(screen.getByRole('button', { name: /Send Message/i }));
+    // Use fireEvent.submit to bypass browser required validation
+    const form = document.querySelector('form');
+    fireEvent.submit(form);
     await waitFor(() => {
       expect(screen.getByText(/Please fill in your name/i)).toBeInTheDocument();
     });
@@ -112,9 +116,11 @@ describe('Contact', () => {
   });
 
   it('shows error when only name is filled', async () => {
+    const user = userEvent.setup();
     renderContact();
-    await userEvent.type(screen.getByPlaceholderText('Jane Smith'), 'John');
-    fireEvent.click(screen.getByRole('button', { name: /Send Message/i }));
+    await user.type(screen.getByPlaceholderText('Jane Smith'), 'John');
+    const form = document.querySelector('form');
+    fireEvent.submit(form);
     await waitFor(() => expect(screen.getByText(/Please fill in your name/i)).toBeInTheDocument());
   });
 

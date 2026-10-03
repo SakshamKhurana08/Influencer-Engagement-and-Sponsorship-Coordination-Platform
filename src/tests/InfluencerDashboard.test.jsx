@@ -88,7 +88,8 @@ describe('InfluencerDashboard — Overview', () => {
 
   it('shows reach stat', async () => {
     renderOverview();
-    await waitFor(() => expect(screen.getByText(/50,000/)).toBeInTheDocument());
+    // reach appears in stat card and profile strip
+    await waitFor(() => expect(screen.getAllByText(/50,000/).length).toBeGreaterThan(0));
   });
 
   it('shows category and niche in profile strip', async () => {
@@ -155,6 +156,9 @@ describe('InfluencerCampaigns', () => {
 
   it('shows Join Campaign button for non-accepted campaigns', async () => {
     renderCampaigns();
+    // Join Campaign button is inside expanded card — expand the first card first
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    fireEvent.click(screen.getByText('Open Camp 1'));
     await waitFor(() => expect(screen.getAllByText(/Join Campaign/i).length).toBeGreaterThan(0));
   });
 
@@ -165,6 +169,8 @@ describe('InfluencerCampaigns', () => {
 
   it('calls accept API when Join clicked', async () => {
     renderCampaigns();
+    await waitFor(() => screen.getByText('Open Camp 1'));
+    fireEvent.click(screen.getByText('Open Camp 1'));
     await waitFor(() => screen.getAllByText(/Join Campaign/i));
     fireEvent.click(screen.getAllByText(/Join Campaign/i)[0]);
     await waitFor(() => expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/accept'), {}));
@@ -292,7 +298,8 @@ describe('InfluencerDeals', () => {
 
   it('renders My Deals heading', async () => {
     renderDeals();
-    await waitFor(() => expect(screen.getByText(/My Deals/i)).toBeInTheDocument());
+    // LC renamed heading to "Sponsor Offers"
+    await waitFor(() => expect(screen.getByText(/Offers/i)).toBeInTheDocument());
   });
 
   it('shows ad requests after load', async () => {
@@ -311,11 +318,20 @@ describe('InfluencerDeals', () => {
 
   it('shows Accept, Negotiate, Decline buttons for pending requests', async () => {
     renderDeals();
-    await waitFor(() => {
-      expect(screen.getByText(/^Accept$/i)).toBeInTheDocument();
-      expect(screen.getByText(/Negotiate/i)).toBeInTheDocument();
-      expect(screen.getByText(/Decline/i)).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByText('SponsyCo')).toBeInTheDocument());
+    // Action buttons — filter out tab buttons
+    const acceptBtn = screen.getAllByRole('button').find(
+      b => !b.classList.contains('is-tab') && /^Accept$/i.test(b.textContent?.trim())
+    );
+    const negotiateBtn = screen.getAllByRole('button').find(
+      b => !b.classList.contains('is-tab') && /Negotiate/i.test(b.textContent)
+    );
+    const declineBtn = screen.getAllByRole('button').find(
+      b => !b.classList.contains('is-tab') && /Decline/i.test(b.textContent)
+    );
+    expect(acceptBtn).toBeTruthy();
+    expect(negotiateBtn).toBeTruthy();
+    expect(declineBtn).toBeTruthy();
   });
 
   it('calls accept API when Accept clicked', async () => {
@@ -327,8 +343,11 @@ describe('InfluencerDeals', () => {
 
   it('calls reject API when Decline clicked', async () => {
     renderDeals();
-    await waitFor(() => screen.getByText(/Decline/i));
-    fireEvent.click(screen.getByText(/Decline/i));
+    await waitFor(() => screen.getByText('SponsyCo'));
+    const declineBtn = screen.getAllByRole('button').find(
+      b => !b.classList.contains('is-tab') && /Decline/i.test(b.textContent)
+    );
+    fireEvent.click(declineBtn);
     await waitFor(() => expect(api.post).toHaveBeenCalledWith(expect.stringContaining('/reject'), {}));
   });
 
@@ -363,7 +382,7 @@ describe('InfluencerDeals', () => {
   it('shows empty state when no deals', async () => {
     vi.mocked(api.get).mockResolvedValue({ data: [] });
     render(<MemoryRouter><InfluencerDeals /></MemoryRouter>);
-    await waitFor(() => expect(screen.getByText(/No .* deals yet/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/deals yet/i)).toBeInTheDocument());
   });
 });
 
@@ -396,13 +415,18 @@ describe('InfluencerSettings', () => {
 
   it('renders Settings heading', async () => {
     renderSettings();
-    await waitFor(() => expect(screen.getByText(/Profile.*Settings/i)).toBeInTheDocument());
+    // Heading is "Profile & Settings" — gradient span on "Settings"
+    await waitFor(() =>
+      expect(screen.getByText('Settings', { selector: '.is-gradient-text' })).toBeInTheDocument()
+    );
   });
 
   it('shows user name and category after load', async () => {
-    renderSettings();
-    await waitFor(() => expect(screen.getByText('Test Influencer')).toBeInTheDocument());
-    expect(screen.getAllByText('Tech')[0]).toBeInTheDocument();
+    setupApiMocks();
+    render(<MemoryRouter><InfluencerSettings /></MemoryRouter>);
+    // Name appears in avatar card and form — use getAllByText
+    await waitFor(() => expect(screen.getAllByText('Test Influencer').length).toBeGreaterThan(0));
+    expect(screen.getAllByText('Tech').length).toBeGreaterThan(0);
   });
 
   it('shows email as read-only', async () => {
@@ -449,7 +473,7 @@ describe('InfluencerSettings', () => {
   it('shows error when update fails', async () => {
     setupApiMocks();
     vi.mocked(api.put).mockRejectedValue(new Error('fail'));
-    renderSettings();
+    render(<MemoryRouter><InfluencerSettings /></MemoryRouter>);
     await waitFor(() => screen.getByRole('button', { name: /Edit/i }));
     fireEvent.click(screen.getByRole('button', { name: /Edit/i }));
     await waitFor(() => screen.getByRole('button', { name: /Save Changes/i }));
@@ -458,8 +482,11 @@ describe('InfluencerSettings', () => {
   });
 
   it('has a file input for profile photo', async () => {
-    renderSettings();
-    await waitFor(() => screen.getByText(/Profile.*Settings/i));
+    setupApiMocks();
+    render(<MemoryRouter><InfluencerSettings /></MemoryRouter>);
+    await waitFor(() =>
+      expect(screen.getByText('Settings', { selector: '.is-gradient-text' })).toBeInTheDocument()
+    );
     expect(document.querySelector('input[type="file"]')).toBeInTheDocument();
   });
 });
