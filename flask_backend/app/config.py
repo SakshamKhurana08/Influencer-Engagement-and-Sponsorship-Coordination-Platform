@@ -80,8 +80,14 @@ class ProductionConfig(BaseConfig):
 
 class TestingConfig(BaseConfig):
     TESTING = True
-    # Always use SQLite for tests (fast, no external dep)
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
+    # Use a named in-memory SQLite DB shared across all connections via StaticPool.
+    # This ensures the test client HTTP requests see the same DB state as
+    # direct db.session calls in conftest helpers.
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///file:testdb?mode=memory&cache=shared&uri=true'
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'connect_args': {'check_same_thread': False},
+        'poolclass': __import__('sqlalchemy.pool', fromlist=['StaticPool']).StaticPool,
+    }
     JWT_ACCESS_TOKEN_EXPIRES = 60
     # Disable rate limiting in tests so repeated auth calls don't get blocked
     RATELIMIT_ENABLED = False

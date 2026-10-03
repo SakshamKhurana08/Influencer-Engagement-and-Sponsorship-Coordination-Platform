@@ -21,6 +21,7 @@ import InfluencerLayout    from './Components/InfluencerDashboard/InfluencerLayo
 import SponsorHome      from './Components/SponsorDashboard/SponsorHome';
 import Campaigns        from './Components/SponsorDashboard/Campaigns';
 import SponsorRequests  from './Components/SponsorDashboard/SponsorRequests';
+import InfluencerDirectory from './Components/SponsorDashboard/InfluencerDirectory';
 import Settings         from './Components/SponsorDashboard/Settings';
 
 const router = createBrowserRouter([
@@ -76,7 +77,8 @@ const router = createBrowserRouter([
       { path: 'home',     element: <SponsorHome /> },
       { path: 'requests', element: <SponsorRequests /> },
       { path: 'campaign', element: <Campaigns /> },
-      { path: 'settings', element: <Settings /> },
+      { path: 'settings',     element: <Settings /> },
+      { path: 'influencers', element: <InfluencerDirectory /> },
     ],
   },
   {

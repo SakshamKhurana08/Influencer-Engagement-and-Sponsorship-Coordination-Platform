@@ -107,3 +107,17 @@ class InfluencerProfileSchema(Schema):
     category = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     niche    = fields.Str(required=True, validate=validate.Length(min=1, max=255))
     reach    = fields.Int(required=True, validate=validate.Range(min=0))
+
+
+class InfluencerSearchSchema(Schema):
+    """Query param schema for GET /api/sponsors/influencers."""
+    class Meta:
+        unknown = EXCLUDE
+
+    category  = fields.Str(load_default='',   validate=validate.Length(max=255))
+    niche     = fields.Str(load_default='',   validate=validate.Length(max=255))
+    search    = fields.Str(load_default='',   validate=validate.Length(max=255))
+    minReach  = fields.Int(load_default=None, validate=validate.Range(min=0))
+    maxReach  = fields.Int(load_default=None, validate=validate.Range(min=0))
+    page      = fields.Int(load_default=1,    validate=validate.Range(min=1))
+    per_page  = fields.Int(load_default=20,   validate=validate.Range(min=1, max=50))

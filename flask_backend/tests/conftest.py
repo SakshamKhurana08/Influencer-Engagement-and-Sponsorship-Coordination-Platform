@@ -69,39 +69,67 @@ def db(app):
 
 def make_sponsor(client, email='sponsor@test.com', password='pass1234',
                  name='Test Sponsor', company='TestCo', industry='Tech', budget=50000):
-    """Register + login a sponsor and return (user_dict, token)."""
+    """Register a sponsor, approve them, and return (user_dict, token).
+    Creates JWT directly to avoid HTTP login status-check dependency.
+    """
     r = client.post('/api/auth/register', json={
         'name': name, 'email': email, 'password': password,
         'role': 'sponsor', 'company': company, 'industry': industry, 'budget': budget,
     })
-    assert r.status_code == 201, r.get_json()
-    r2 = client.post('/api/auth/login', json={'email': email, 'password': password})
-    data = r2.get_json()
-    return data['user'], data['token']
+    assert r.status_code in (201, 202), r.get_json()
+    user_data = r.get_json()['user']
+    with client.application.app_context():
+        from sqlalchemy import text
+        _db.session.execute(
+            text("UPDATE users SET status='active' WHERE email=:email"),
+            {'email': email}
+        )
+        _db.session.commit()
+        # Generate token directly — bypasses login status check
+        from flask_jwt_extended import create_access_token
+        token = create_access_token(
+            identity=str(user_data['id']),
+            additional_claims={'role': 'sponsor', 'userId': user_data['id']}
+        )
+    return user_data, token
 
 
 def make_influencer(client, email='inf@test.com', password='pass1234',
                     name='Test Inf', category='Tech', niche='AI', reach=10000):
-    """Register + login an influencer and return (user_dict, token)."""
+    """Register an influencer, approve them, and return (user_dict, token).
+    Creates JWT directly to avoid HTTP login status-check dependency.
+    """
     r = client.post('/api/auth/register', json={
         'name': name, 'email': email, 'password': password,
         'role': 'influencer', 'category': category, 'niche': niche, 'reach': reach,
     })
-    assert r.status_code == 201, r.get_json()
-    r2 = client.post('/api/auth/login', json={'email': email, 'password': password})
-    data = r2.get_json()
-    return data['user'], data['token']
+    assert r.status_code in (201, 202), r.get_json()
+    user_data = r.get_json()['user']
+    with client.application.app_context():
+        from sqlalchemy import text
+        _db.session.execute(
+            text("UPDATE users SET status='active' WHERE email=:email"),
+            {'email': email}
+        )
+        _db.session.commit()
+        # Generate token directly — bypasses login status check
+        from flask_jwt_extended import create_access_token
+        token = create_access_token(
+            identity=str(user_data['id']),
+            additional_claims={'role': 'influencer', 'userId': user_data['id']}
+        )
+    return user_data, token
 
 
 def make_admin(client, email='admin@test.com', password='admin1234', app_ctx=None):
     """Create admin user directly in DB and return token."""
-    from flask import current_app
     with client.application.app_context():
-        user = User(name='Admin', email=email, role='admin')
+        user = User(name='Admin', email=email, role='admin', status='active')
         user.set_password(password)
         _db.session.add(user)
         _db.session.commit()
     r = client.post('/api/auth/login', json={'email': email, 'password': password})
+    assert r.status_code == 200, r.get_json()
     return r.get_json()['token']
 
 

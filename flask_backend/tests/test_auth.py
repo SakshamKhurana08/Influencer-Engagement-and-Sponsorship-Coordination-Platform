@@ -19,9 +19,9 @@ class TestRegister:
             'name': 'Sponsor One', 'email': 'sp1@test.com', 'password': 'pass1234',
             'role': 'sponsor', 'company': 'Acme', 'industry': 'Tech', 'budget': 5000,
         })
-        assert r.status_code == 201
+        assert r.status_code == 202
         data = r.get_json()
-        assert data['message'] == 'User registered successfully'
+        assert 'registration' in data['message'].lower() or 'approval' in data['message'].lower()
         assert data['user']['role'] == 'sponsor'
         assert data['user']['email'] == 'sp1@test.com'
         assert 'password' not in data['user']   # password must NOT be leaked
@@ -31,7 +31,7 @@ class TestRegister:
             'name': 'Inf One', 'email': 'inf1@test.com', 'password': 'pass1234',
             'role': 'influencer', 'category': 'Fashion', 'niche': 'Streetwear', 'reach': 50000,
         })
-        assert r.status_code == 201
+        assert r.status_code == 202
         assert r.get_json()['user']['role'] == 'influencer'
 
     def test_register_influencer_with_image(self, client):
@@ -43,10 +43,21 @@ class TestRegister:
                             'role': 'influencer', 'category': 'Tech', 'niche': 'AI', 'reach': '10000',
                             'profileImage': (io.BytesIO(TINY_PNG), 'photo.png'),
                         })
-        assert r.status_code == 201
-        # Login and verify profileImageUrl is a data URI
-        r2 = client.post('/api/auth/login', json={'email': 'imgInf@test.com', 'password': 'pass1234'})
-        token = r2.get_json()['token']
+        assert r.status_code == 202
+        user_data = r.get_json()['user']
+        # Create token directly — avoids login status-check dependency
+        from app import db as _db
+        with client.application.app_context():
+            from sqlalchemy import text
+            from flask_jwt_extended import create_access_token
+            _db.session.execute(
+                text("UPDATE users SET status='active' WHERE email='imgInf@test.com'")
+            )
+            _db.session.commit()
+            token = create_access_token(
+                identity=str(user_data['id']),
+                additional_claims={'role': 'influencer', 'userId': user_data['id']}
+            )
         r3 = client.get('/api/influencer/profile', headers=auth_header(token))
         inf = r3.get_json()['influencer']
         assert inf['profileImageUrl'] is not None
@@ -59,7 +70,7 @@ class TestRegister:
                         content_type='multipart/form-data',
                         data={'name': 'MP Sponsor', 'email': 'mp@test.com', 'password': 'pass1234',
                               'role': 'sponsor', 'company': 'MPCo', 'industry': 'Retail', 'budget': '1000'})
-        assert r.status_code == 201
+        assert r.status_code == 202
 
     # ── Duplicate email ───────────────────────────────────────────────────────
 

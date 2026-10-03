@@ -17,7 +17,7 @@ from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.models.influencer import Influencer
 from app.utils.auth import sponsor_required
-from app.utils.schemas import validate_schema, SponsorProfileSchema
+from app.utils.schemas import validate_schema, SponsorProfileSchema, InfluencerSearchSchema
 from app.utils.files import save_profile_image
 
 sponsor_bp = Blueprint('sponsor', __name__)
@@ -206,3 +206,64 @@ def respond_to_request(request_id):
 
     db.session.commit()
     return jsonify({'message': f'Request {action}ed', 'adRequest': ad.to_dict()}), 200
+
+
+@sponsor_bp.route('/influencers', methods=['GET'])
+@sponsor_required()
+def get_influencers():
+    """
+    Browse/search the influencer directory.
+    Query params: category, niche, search (name), minReach, maxReach, page, per_page (max 50).
+    Only returns active, non-flagged influencers.
+    """
+    # Validate query params
+    cleaned, errors = validate_schema(InfluencerSearchSchema(), dict(request.args))
+    if errors:
+        return jsonify({'message': 'Invalid query params', 'errors': errors}), 422
+
+    category = cleaned.get('category', '').strip()
+    niche     = cleaned.get('niche', '').strip()
+    search    = cleaned.get('search', '').strip()
+    min_reach = cleaned.get('minReach')
+    max_reach = cleaned.get('maxReach')
+    page      = cleaned.get('page', 1)
+    per_page  = cleaned.get('per_page', 20)
+
+    query = (
+        Influencer.query
+        .join(User, User.id == Influencer.user_id)
+        .filter(User.status == 'active', User.is_flagged == False)
+    )
+
+    if category:
+        query = query.filter(Influencer.category.ilike(f'%{category}%'))
+    if niche:
+        query = query.filter(Influencer.niche.ilike(f'%{niche}%'))
+    if search:
+        query = query.filter(User.name.ilike(f'%{search}%'))
+    if min_reach is not None:
+        query = query.filter(Influencer.reach >= min_reach)
+    if max_reach is not None:
+        query = query.filter(Influencer.reach <= max_reach)
+
+    pagination = query.paginate(page=page, per_page=per_page, error_out=False)
+
+    result = []
+    for inf in pagination.items:
+        user = db.session.get(User, inf.user_id)
+        result.append({
+            'id':              inf.id,
+            'name':            user.name if user else '',
+            'category':        inf.category,
+            'niche':           inf.niche,
+            'reach':           inf.reach,
+            'profileImageUrl': inf.profile_image_url,
+        })
+
+    return jsonify({
+        'items':    result,
+        'total':    pagination.total,
+        'page':     page,
+        'per_page': per_page,
+        'pages':    pagination.pages,
+    }), 200
