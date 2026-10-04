@@ -223,7 +223,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-803 [P1] Admin alert email on new registration
+### TASK-803 [P1] Admin alert email on new registration ✅ DONE (implemented in TASK-802)
 
 **Depends on:** TASK-801
 
