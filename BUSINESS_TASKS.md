@@ -307,7 +307,7 @@ to receive these requests — the flow is one-sided.
 
 ## Phase 9 — Deployment Infrastructure (3–5 days)
 
-### TASK-901 [P0] Dockerfile
+### TASK-901 [P0] Dockerfile ✅ DONE
 
 **Plan:**
 1. `flask_backend/Dockerfile` (two-stage for smaller image):

@@ -1,0 +1,62 @@
+# =============================================================================
+#  Cofluence — Docker Compose
+#  Spins up the Flask API + (optionally) a local PostgreSQL database.
+#
+#  If you are using CockroachDB cloud, remove the 'db' service and the
+#  'depends_on' key from 'api', and set DATABASE_URL in flask_backend/.env.
+#
+#  Usage:
+#    docker compose up --build          # start everything
+#    docker compose up --build api      # start only the API (CockroachDB cloud)
+#    docker compose down                # stop and remove containers
+#    docker compose down -v             # also remove the pgdata volume
+# =============================================================================
+
+services:
+
+  # ── Flask API ────────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: ./flask_backend
+      dockerfile: Dockerfile
+    container_name: cofluence-api
+    restart: unless-stopped
+    ports:
+      - "5001:5000"          # host 5001 → container 5000 (matches Vite proxy)
+    env_file:
+      - ./flask_backend/.env
+    volumes:
+      - ./uploads:/app/uploads   # persist profile images outside the container
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  # ── PostgreSQL (local dev only) ───────────────────────────────────────────────
+  # Skip this service if you are connecting to CockroachDB Serverless cloud.
+  db:
+    image: postgres:16-alpine
+    container_name: cofluence-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cofluence_db
+      POSTGRES_USER: cofluence
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localdevonly}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cofluence -d cofluence_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    driver: local
