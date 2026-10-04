@@ -17,6 +17,10 @@ from flask import Blueprint, request, jsonify, Response
 from flask_jwt_extended import jwt_required
 
 from app import db, cache
+from app.utils.email import send_email
+from app.utils.email_templates import approved_email, rejected_email
+from app.utils.email import send_email
+from app.utils.email_templates import approved_email, rejected_email
 from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.models.influencer import Influencer
@@ -210,6 +214,13 @@ def approve_user(user_id):
     user.status = 'active'
     db.session.commit()
     cache.delete('admin_stats')
+    # Notify the user their account is approved
+    try:
+        from flask import current_app
+        login_url = f"{current_app.config.get('FRONTEND_URL', 'http://localhost:5173')}/login"
+        send_email(user.email, 'Your Cofluence account has been approved!', approved_email(user.name, login_url))
+    except Exception:
+        pass
     return jsonify({'message': f'{user.name} approved successfully'}), 200
 
 
@@ -222,9 +233,17 @@ def reject_user(user_id):
         return jsonify({'error': 'User not found'}), 404
     if user.status != 'pending':
         return jsonify({'error': 'User is not pending approval'}), 400
+    # Capture before delete
+    user_name  = user.name
+    user_email = user.email
     db.session.delete(user)
     db.session.commit()
     cache.delete('admin_stats')
+    # Notify the user their registration was rejected
+    try:
+        send_email(user_email, 'Update on your Cofluence registration', rejected_email(user_name))
+    except Exception:
+        pass
     return jsonify({'message': 'Registration rejected and removed'}), 200
 
 

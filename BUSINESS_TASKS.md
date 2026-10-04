@@ -238,7 +238,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-804 [P1] Approval/rejection confirmation emails
+### TASK-804 [P1] Approval/rejection confirmation emails ✅ DONE
 
 **Depends on:** TASK-801
 
