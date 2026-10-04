@@ -10,6 +10,8 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
 from app import db, limiter
+from app.utils.email import send_email, make_token, verify_token
+from app.utils.email_templates import verification_email, admin_new_registration_email
 from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.models.influencer import Influencer
@@ -86,7 +88,26 @@ def register():
             db.session.add(influencer)
 
         db.session.commit()
-        return jsonify({'message': 'Registration submitted. Awaiting admin approval.', 'user': user.to_dict()}), 202
+
+        # ── Send verification email ───────────────────────────────────────
+        try:
+            from flask import current_app
+            frontend_url = current_app.config.get('FRONTEND_URL', 'http://localhost:5173')
+            admin_email  = current_app.config.get('ADMIN_EMAIL', '')
+            token        = make_token({'user_id': user.id}, salt='email-verify', expires_sec=86400)
+            verify_url   = f'{frontend_url}/verify-email?token={token}'
+            admin_url    = f'{frontend_url}/admin-dashboard?tab=pending'
+            send_email(user.email, 'Verify your Cofluence email', verification_email(name, verify_url))
+            if admin_email:
+                send_email(admin_email, 'New registration awaiting approval',
+                           admin_new_registration_email(name, role, admin_url))
+        except Exception:
+            pass  # email failure must never break registration
+
+        return jsonify({
+            'message': 'Registration submitted. Check your email to verify your address.',
+            'user': user.to_dict()
+        }), 202
 
     except ValueError as ve:
         db.session.rollback()
@@ -121,6 +142,9 @@ def login():
     if not user.check_password(password):
         return jsonify({'message': 'Invalid credentials'}), 400
 
+    if not user.email_verified:
+        return jsonify({'message': 'Please verify your email first. Check your inbox for the verification link.'}), 403
+
     if user.status == 'pending':
         return jsonify({'message': 'Your account is pending admin approval. You will be notified once approved.'}), 403
 
@@ -130,6 +154,34 @@ def login():
         additional_claims={'role': user.role, 'userId': user.id}
     )
     return jsonify({'message': 'Login successful', 'token': token, 'user': user.to_dict()}), 200
+
+
+@auth_bp.route('/verify-email', methods=['POST'])
+def verify_email():
+    """
+    Body: { token }
+    Verifies the email confirmation token sent during registration.
+    Sets email_verified = True on success.
+    """
+    body  = request.get_json(silent=True) or {}
+    token = body.get('token', '').strip()
+
+    if not token:
+        return jsonify({'message': 'Token is required.'}), 400
+
+    payload = verify_token(token, salt='email-verify', max_age=86400)
+    if payload is None:
+        return jsonify({'message': 'This link has expired or is invalid. Please register again.'}), 400
+
+    user = db.session.get(User, payload.get('user_id'))
+    if not user:
+        return jsonify({'message': 'User not found.'}), 404
+
+    if not user.email_verified:
+        user.email_verified = True
+        db.session.commit()
+
+    return jsonify({'message': 'Email verified. Your account is now under admin review.'}), 200
 
 
 @auth_bp.route('/profile', methods=['GET'])

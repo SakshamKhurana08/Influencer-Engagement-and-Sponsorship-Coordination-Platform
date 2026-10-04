@@ -45,20 +45,23 @@ describe('SignUpSuccess', () => {
 
   it('renders pending approval message', () => {
     renderSuccess();
-    expect(screen.getByText(/pending admin approval/i)).toBeInTheDocument();
+    // Updated copy — now asks to verify email first
+    expect(screen.getByText(/verify your email/i)).toBeInTheDocument();
   });
 
   it('renders the three next-step tiles: Review, Approval, Access', () => {
     renderSuccess();
+    // Updated tile labels: Verify → Review → Access
+    expect(screen.getByText('Verify')).toBeInTheDocument();
     expect(screen.getByText('Review')).toBeInTheDocument();
-    expect(screen.getByText('Approval')).toBeInTheDocument();
     expect(screen.getByText('Access')).toBeInTheDocument();
   });
 
   it('renders tile descriptions', () => {
     renderSuccess();
-    expect(screen.getByText(/Admin reviews your details/i)).toBeInTheDocument();
-    expect(screen.getByText(/Account activated on approval/i)).toBeInTheDocument();
+    // Updated description for the review step
+    expect(screen.getByText(/Admin reviews your profile/i)).toBeInTheDocument();
+    expect(screen.getByText(/Click the link in your email/i)).toBeInTheDocument();
     expect(screen.getByText(/Sign in and start exploring/i)).toBeInTheDocument();
   });
 });

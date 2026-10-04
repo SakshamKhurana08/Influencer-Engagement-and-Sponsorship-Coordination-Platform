@@ -81,7 +81,7 @@ def make_sponsor(client, email='sponsor@test.com', password='pass1234',
     with client.application.app_context():
         from sqlalchemy import text
         _db.session.execute(
-            text("UPDATE users SET status='active' WHERE email=:email"),
+            text("UPDATE users SET status='active', email_verified=1 WHERE email=:email"),
             {'email': email}
         )
         _db.session.commit()
@@ -108,7 +108,7 @@ def make_influencer(client, email='inf@test.com', password='pass1234',
     with client.application.app_context():
         from sqlalchemy import text
         _db.session.execute(
-            text("UPDATE users SET status='active' WHERE email=:email"),
+            text("UPDATE users SET status='active', email_verified=1 WHERE email=:email"),
             {'email': email}
         )
         _db.session.commit()
@@ -124,7 +124,7 @@ def make_influencer(client, email='inf@test.com', password='pass1234',
 def make_admin(client, email='admin@test.com', password='admin1234', app_ctx=None):
     """Create admin user directly in DB and return token."""
     with client.application.app_context():
-        user = User(name='Admin', email=email, role='admin', status='active')
+        user = User(name='Admin', email=email, role='admin', status='active', email_verified=True)
         user.set_password(password)
         _db.session.add(user)
         _db.session.commit()

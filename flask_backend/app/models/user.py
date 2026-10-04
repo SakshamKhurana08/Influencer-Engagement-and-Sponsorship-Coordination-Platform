@@ -28,6 +28,9 @@ class User(db.Model):
         server_default='pending'
     )
     is_flagged = db.Column(db.Boolean, default=False, nullable=False)
+    # True after the user clicks the verification link in their email.
+    # Login is blocked until this is True.
+    email_verified = db.Column(db.Boolean, default=False, nullable=False, server_default='0')
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(
         db.DateTime,
@@ -58,6 +61,7 @@ class User(db.Model):
             'role': self.role,
             'status': self.status,
             'isFlagged': self.is_flagged,
+            'emailVerified': self.email_verified,
             'createdAt': self.created_at.isoformat() if self.created_at else None,
         }
 

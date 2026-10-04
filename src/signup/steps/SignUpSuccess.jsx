@@ -39,11 +39,11 @@ export default function SignUpSuccess() {
           Application Submitted!
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.93rem', marginBottom: 10, lineHeight: 1.65 }}>
-          Your registration is <strong style={{ color: '#C084FC' }}>pending admin approval</strong>.
+          Check your inbox and <strong style={{ color: '#22D3EE' }}>verify your email address</strong> to complete registration.
         </p>
         <p style={{ color: 'var(--text-muted)', fontSize: '0.84rem', marginBottom: 28, lineHeight: 1.65 }}>
-          Once approved, you'll be able to sign in and access your dashboard.
-          You can check back anytime using the Sign In button below.
+          After verifying your email, your account will be reviewed by our team.
+          Once approved you'll be able to sign in — this usually takes 24–48 hours.
         </p>
 
         {/* What happens next */}
@@ -52,8 +52,8 @@ export default function SignUpSuccess() {
           marginBottom: 28,
         }}>
           {[
-            { Icon: Clock,         color: '#C084FC', label: 'Review',   desc: 'Admin reviews your details'  },
-            { Icon: Search,        color: '#22D3EE', label: 'Approval', desc: 'Account activated on approval' },
+            { Icon: Clock,         color: '#22D3EE', label: 'Verify',   desc: 'Click the link in your email' },
+            { Icon: Search,        color: '#C084FC', label: 'Review',   desc: 'Admin reviews your profile'   },
             { Icon: MessageSquare, color: '#6366F1', label: 'Access',   desc: 'Sign in and start exploring'  },
           ].map(({ Icon, color, label, desc }) => (
             <div key={label} style={{

@@ -6,6 +6,7 @@ import ProtectedRoute from './Components/ProtectedRoute';
 import DeviceDisplay    from './Components/DeviceDisplay';
 import About            from './Components/About';
 import Contact          from './Components/Contact';
+import VerifyEmail      from './Components/VerifyEmail';
 import LoginForm        from './Components/LoginForm';
 import SignUpLayout     from './signup/SignUpLayout';
 import SignUpStep1      from './signup/steps/SignUpStep1';
@@ -44,6 +45,7 @@ const router = createBrowserRouter([
     ],
   },
   { path: '/signup-success',    element: <SignUpSuccess /> },
+  { path: '/verify-email',       element: <VerifyEmail /> },
   {
     path: '/admin-dashboard',
     element: (

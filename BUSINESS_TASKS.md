@@ -19,7 +19,7 @@
 
 ## Phase 7 — Core Platform Completeness (1–2 weeks)
 
-### TASK-701 [P1] Wire express-interest on frontend
+### TASK-701 [P1] Wire express-interest on frontend ✅ DONE
 
 **Gap:** Backend endpoint `POST /api/influencer/campaigns/<id>/express-interest` exists
 but `InfluencerCampaigns.jsx` has no UI for it. `SponsorRequests.jsx` is already built
@@ -44,7 +44,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-702 [P2] SponsorRequests test coverage
+### TASK-702 [P2] SponsorRequests test coverage ✅ DONE (28 tests)
 
 **Gap:** `SponsorRequests.jsx` (full accept/reject/negotiate flow) has zero tests.
 
@@ -70,7 +70,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-703 [P1] Influencer search/directory for sponsors
+### TASK-703 [P1] Influencer search/directory for sponsors ✅ DONE
 
 **Gap:** Sponsors type influencer IDs manually. No discovery = no marketplace.
 
@@ -118,7 +118,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-705 [P2] "Awaiting Approval" UX for pending login
+### TASK-705 [P2] "Awaiting Approval" UX for pending login ✅ DONE
 
 **Gap:** 403 on login for pending users shows as a generic red error string.
 
@@ -144,7 +144,7 @@ to receive these requests — the flow is one-sided.
 **Security:** Tokens signed with `itsdangerous.URLSafeTimedSerializer` using
 `SECRET_KEY + per-purpose salt`. Short expiry. Never stored raw in DB.
 
-### TASK-801 [P0] Flask-Mail setup + email utilities
+### TASK-801 [P0] Flask-Mail setup + email utilities ✅ DONE
 
 **This must be done before TASK-802 through TASK-806.**
 

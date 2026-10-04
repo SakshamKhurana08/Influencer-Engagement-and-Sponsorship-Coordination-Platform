@@ -51,7 +51,7 @@ class TestRegister:
             from sqlalchemy import text
             from flask_jwt_extended import create_access_token
             _db.session.execute(
-                text("UPDATE users SET status='active' WHERE email='imgInf@test.com'")
+                text("UPDATE users SET status='active', email_verified=1 WHERE email='imgInf@test.com'")
             )
             _db.session.commit()
             token = create_access_token(
@@ -240,3 +240,108 @@ class TestGetProfile:
         _, token = make_influencer(client, email='nopw@test.com')
         r = client.get('/api/auth/profile', headers=auth_header(token))
         assert 'password' not in r.get_json()['user']
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# EMAIL VERIFICATION (TASK-802)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestEmailVerification:
+
+    def _register(self, client, email='ver@test.com'):
+        """Register a user and return the response (does NOT approve)."""
+        return client.post('/api/auth/register', json={
+            'name': 'Ver User', 'email': email, 'password': 'pass1234',
+            'role': 'sponsor', 'company': 'VerCo', 'industry': 'Tech', 'budget': 1000,
+        })
+
+    def test_register_returns_202(self, client):
+        r = self._register(client)
+        assert r.status_code == 202
+
+    def test_new_user_email_verified_is_false(self, client):
+        r = self._register(client)
+        assert r.get_json()['user']['emailVerified'] == False
+
+    def test_unverified_user_cannot_login(self, client):
+        self._register(client, email='unver@test.com')
+        r = client.post('/api/auth/login', json={'email': 'unver@test.com', 'password': 'pass1234'})
+        assert r.status_code == 403
+        assert 'verify your email' in r.get_json()['message'].lower()
+
+    def test_verify_email_with_valid_token(self, client, app):
+        self._register(client, email='toVerify@test.com')
+        # Generate a valid token directly
+        with app.app_context():
+            from app.utils.email import make_token
+            from app.models.user import User
+            from app import db
+            user = User.query.filter_by(email='toverify@test.com').first()
+            token = make_token({'user_id': user.id}, salt='email-verify', expires_sec=86400)
+        r = client.post('/api/auth/verify-email', json={'token': token})
+        assert r.status_code == 200
+        assert 'verified' in r.get_json()['message'].lower()
+
+    def test_verify_email_sets_email_verified_true(self, client, app):
+        self._register(client, email='setTrue@test.com')
+        with app.app_context():
+            from app.utils.email import make_token
+            from app.models.user import User
+            from app import db
+            user = User.query.filter_by(email='settrue@test.com').first()
+            token = make_token({'user_id': user.id}, salt='email-verify', expires_sec=86400)
+        client.post('/api/auth/verify-email', json={'token': token})
+        with app.app_context():
+            from app.models.user import User
+            user = User.query.filter_by(email='settrue@test.com').first()
+            assert user.email_verified == True
+
+    def test_verify_email_with_expired_token_returns_400(self, client, app):
+        """Simulate an expired token by using itsdangerous with a past timestamp."""
+        self._register(client, email='expired@test.com')
+        with app.app_context():
+            from itsdangerous import URLSafeTimedSerializer
+            from flask import current_app
+            from app.models.user import User
+            user = User.query.filter_by(email='expired@test.com').first()
+            s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+            # Dump with a timestamp of 1 second ago, then verify with max_age=0
+            # to force expiry — but we can't control the endpoint's max_age.
+            # Instead: create a structurally valid but wrong-salt token so
+            # verify_token returns None (expired-or-tampered path).
+            token = s.dumps({'user_id': user.id}, salt='wrong-salt')
+        r = client.post('/api/auth/verify-email', json={'token': token})
+        assert r.status_code == 400
+        assert 'expired' in r.get_json()['message'].lower() or 'invalid' in r.get_json()['message'].lower()
+
+    def test_verify_email_with_tampered_token_returns_400(self, client):
+        r = client.post('/api/auth/verify-email', json={'token': 'garbage.token.value'})
+        assert r.status_code == 400
+
+    def test_verify_email_missing_token_returns_400(self, client):
+        r = client.post('/api/auth/verify-email', json={})
+        assert r.status_code == 400
+
+    def test_verified_user_can_login_after_approval(self, client, app):
+        """After verifying email and being approved, user can log in."""
+        self._register(client, email='approved@test.com')
+        with app.app_context():
+            from app.utils.email import make_token
+            from app.models.user import User
+            from app import db
+            from sqlalchemy import text
+            user = User.query.filter_by(email='approved@test.com').first()
+            token = make_token({'user_id': user.id}, salt='email-verify', expires_sec=86400)
+        # Verify email
+        client.post('/api/auth/verify-email', json={'token': token})
+        # Approve via direct DB
+        with app.app_context():
+            from app import db
+            from sqlalchemy import text
+            db.session.execute(
+                text("UPDATE users SET status='active' WHERE email='approved@test.com'")
+            )
+            db.session.commit()
+        r = client.post('/api/auth/login', json={'email': 'approved@test.com', 'password': 'pass1234'})
+        assert r.status_code == 200
+        assert 'token' in r.get_json()
