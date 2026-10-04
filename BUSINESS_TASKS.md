@@ -104,7 +104,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-704 [P2] Real public campaigns on landing page
+### TASK-704 [P2] Real public campaigns on landing page ✅ DONE (completed by LC branch)
 
 **Gap:** `GET /api/campaign/public` works but `DeviceDisplay.jsx` never calls it.
 

@@ -116,7 +116,7 @@
 | # | Use Case | Backend | Frontend | Tests | Status |
 |---|----------|---------|----------|-------|--------|
 | 5.1 | Landing / home page | — | ✅ DeviceDisplay.jsx | — | 🟡 |
-| 5.2 | Public campaigns on landing page | ✅ GET /api/campaign/public | ⚠️ Endpoint exists but DeviceDisplay does not call it | 🧪 test_campaigns.py | 🟡 |
+| 5.2 | Public campaigns on landing page | ✅ GET /api/campaign/public | ✅ DeviceDisplay.jsx fetches & renders live campaigns | 🧪 test_campaigns.py | ✅ |
 | 5.3 | About page | — | ✅ About.jsx | — | 🟡 |
 | 5.4 | Contact page | — | ✅ Contact.jsx | 🧪 Contact.test.jsx | ✅ |
 | 5.5 | Navbar with theme toggle + mobile responsive | — | ✅ Navbar.jsx | 🧪 Navbar.test.jsx | ✅ |
