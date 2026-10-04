@@ -18,6 +18,8 @@ from app.models.sponsor import Sponsor
 from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.utils.auth import sponsor_required
+from app.utils.email import send_email
+from app.utils.email_templates import ad_request_status_email
 from app.utils.schemas import validate_schema, CampaignSchema, AdRequestSchema, AdRequestUpdateSchema
 
 campaign_bp = Blueprint('campaign', __name__)
@@ -161,6 +163,29 @@ def create_ad_request(campaign_id):
     )
     db.session.add(ad_request)
     db.session.commit()
+
+    # Notify influencer that a sponsor sent them a request
+    try:
+        if influencer_id:
+            from app.models.influencer import Influencer
+            from app.models.user import User
+            inf = db.session.get(Influencer, influencer_id)
+            inf_user = db.session.get(User, inf.user_id) if inf else None
+            sponsor_user = campaign.sponsor.user if campaign.sponsor else None
+            if inf_user and sponsor_user:
+                send_email(
+                    inf_user.email,
+                    f'New ad request for campaign: {campaign.title}',
+                    ad_request_status_email(
+                        inf_user.name,
+                        campaign.sponsor.company_name if campaign.sponsor else 'A sponsor',
+                        campaign.title,
+                        'pending'
+                    )
+                )
+    except Exception:
+        pass
+
     return jsonify(ad_request.to_dict()), 201
 
 

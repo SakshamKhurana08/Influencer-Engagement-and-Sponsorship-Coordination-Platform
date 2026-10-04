@@ -252,7 +252,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-805 [P1] Ad request notification emails
+### TASK-805 [P1] Ad request notification emails ✅ DONE
 
 **Depends on:** TASK-801. Four triggers, all async, all non-blocking.
 

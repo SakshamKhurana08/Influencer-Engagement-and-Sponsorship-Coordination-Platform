@@ -17,6 +17,8 @@ from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.models.influencer import Influencer
 from app.utils.auth import sponsor_required
+from app.utils.email import send_email
+from app.utils.email_templates import ad_request_status_email
 from app.utils.schemas import validate_schema, SponsorProfileSchema, InfluencerSearchSchema
 from app.utils.files import save_profile_image
 
@@ -205,6 +207,29 @@ def respond_to_request(request_id):
         ad.status = 'rejected'
 
     db.session.commit()
+
+    # Notify influencer that sponsor responded
+    try:
+        if ad.influencer_id:
+            from app.models.influencer import Influencer
+            from app.models.user import User
+            inf = db.session.get(Influencer, ad.influencer_id)
+            inf_user     = db.session.get(User, inf.user_id) if inf else None
+            sponsor_user = sponsor.user
+            if inf_user and sponsor_user:
+                send_email(
+                    inf_user.email,
+                    f'Update on your request — {campaign.title}',
+                    ad_request_status_email(
+                        inf_user.name,
+                        sponsor.company_name,
+                        campaign.title,
+                        ad.status
+                    )
+                )
+    except Exception:
+        pass
+
     return jsonify({'message': f'Request {action}ed', 'adRequest': ad.to_dict()}), 200
 
 

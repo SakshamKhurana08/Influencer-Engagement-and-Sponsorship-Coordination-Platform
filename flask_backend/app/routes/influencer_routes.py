@@ -18,6 +18,8 @@ from app.models.influencer import Influencer
 from app.models.campaign import Campaign
 from app.models.ad_request import AdRequest
 from app.utils.auth import influencer_required
+from app.utils.email import send_email
+from app.utils.email_templates import ad_request_received_email, ad_request_status_email
 from app.utils.schemas import validate_schema, InfluencerProfileSchema
 from app.utils.files import save_profile_image
 
@@ -176,6 +178,23 @@ def express_interest(campaign_id):
     db.session.add(ad_request)
     db.session.commit()
 
+    # Notify sponsor that an influencer expressed interest
+    try:
+        inf_user     = db.session.get(User, influencer.user_id)
+        sponsor_user = campaign.sponsor.user if campaign.sponsor else None
+        if sponsor_user:
+            send_email(
+                sponsor_user.email,
+                f'New interest in your campaign: {campaign.title}',
+                ad_request_received_email(
+                    inf_user.name if inf_user else 'An influencer',
+                    campaign.title,
+                    campaign.sponsor.company_name if campaign.sponsor else ''
+                )
+            )
+    except Exception:
+        pass
+
     return jsonify({
         'message':   'Your interest has been sent to the sponsor',
         'adRequest': ad_request.to_dict(),
@@ -304,4 +323,24 @@ def handle_ad_request(request_id, action):
             ad_request.influencer_id = influencer.id
 
     db.session.commit()
+
+    # Notify sponsor that influencer acted on the request
+    try:
+        inf_user     = db.session.get(User, influencer.user_id)
+        campaign_obj = db.session.get(Campaign, ad_request.campaign_id)
+        sponsor_user = campaign_obj.sponsor.user if (campaign_obj and campaign_obj.sponsor) else None
+        if sponsor_user and inf_user:
+            send_email(
+                sponsor_user.email,
+                f'Ad request update — {campaign_obj.title}',
+                ad_request_status_email(
+                    sponsor_user.name,
+                    inf_user.name,
+                    campaign_obj.title,
+                    ad_request.status
+                )
+            )
+    except Exception:
+        pass
+
     return jsonify({'message': f'Ad request {action}d successfully', 'adRequest': ad_request.to_dict()}), 200
