@@ -121,3 +121,12 @@ class InfluencerSearchSchema(Schema):
     maxReach  = fields.Int(load_default=None, validate=validate.Range(min=0))
     page      = fields.Int(load_default=1,    validate=validate.Range(min=1))
     per_page  = fields.Int(load_default=20,   validate=validate.Range(min=1, max=50))
+
+
+class PasswordResetSchema(Schema):
+    """Body schema for POST /api/auth/reset-password."""
+    class Meta:
+        unknown = EXCLUDE
+
+    token    = fields.Str(required=True, validate=validate.Length(min=1))
+    password = fields.Str(required=True, validate=validate.Length(min=6))

@@ -270,7 +270,7 @@ to receive these requests — the flow is one-sided.
 
 ---
 
-### TASK-806 [P0] Password reset flow
+### TASK-806 [P0] Password reset flow ✅ DONE
 
 **Depends on:** TASK-801
 **Security:** Rate limited 5/hour. No user enumeration. 15-min token, no DB storage needed.

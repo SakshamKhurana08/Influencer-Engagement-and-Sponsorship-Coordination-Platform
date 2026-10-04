@@ -11,12 +11,12 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 
 from app import db, limiter
 from app.utils.email import send_email, make_token, verify_token
-from app.utils.email_templates import verification_email, admin_new_registration_email
+from app.utils.email_templates import verification_email, admin_new_registration_email, password_reset_email
 from app.models.user import User
 from app.models.sponsor import Sponsor
 from app.models.influencer import Influencer
 from app.utils.files import save_profile_image
-from app.utils.schemas import validate_schema, RegisterSchema, LoginSchema
+from app.utils.schemas import validate_schema, RegisterSchema, LoginSchema, PasswordResetSchema
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -182,6 +182,69 @@ def verify_email():
         db.session.commit()
 
     return jsonify({'message': 'Email verified. Your account is now under admin review.'}), 200
+
+
+@auth_bp.route('/forgot-password', methods=['POST'])
+@limiter.limit('5 per hour')
+def forgot_password():
+    """
+    Body: { email }
+    Always returns 200 to prevent user enumeration.
+    If the email exists, sends a password-reset link (15-min expiry).
+    """
+    body  = request.get_json(silent=True) or {}
+    email = body.get('email', '').strip().lower()
+
+    # Always return the same response regardless of whether email exists
+    SAFE_MSG = 'If that email is registered, a reset link has been sent.'
+
+    if email:
+        user = User.query.filter_by(email=email).first()
+        if user:
+            try:
+                from flask import current_app
+                frontend_url = current_app.config.get('FRONTEND_URL', 'http://localhost:5173')
+                token     = make_token({'user_id': user.id}, salt='pw-reset', expires_sec=900)
+                reset_url = f'{frontend_url}/reset-password?token={token}'
+                send_email(
+                    user.email,
+                    'Reset your Cofluence password',
+                    password_reset_email(user.name, reset_url)
+                )
+            except Exception:
+                pass  # email failure must never reveal user existence
+
+    return jsonify({'message': SAFE_MSG}), 200
+
+
+@auth_bp.route('/reset-password', methods=['POST'])
+def reset_password():
+    """
+    Body: { token, password }
+    Verifies the reset token and updates the user's password.
+    Returns 400 if token is expired or tampered.
+    """
+    body     = request.get_json(silent=True) or {}
+    token    = body.get('token', '').strip()
+    password = body.get('password', '').strip()
+
+    if not token or not password:
+        return jsonify({'message': 'token and password are required.'}), 400
+
+    if len(password) < 6:
+        return jsonify({'message': 'Password must be at least 6 characters.'}), 422
+
+    payload = verify_token(token, salt='pw-reset', max_age=900)
+    if payload is None:
+        return jsonify({'message': 'This link has expired or is invalid. Request a new one.'}), 400
+
+    user = db.session.get(User, payload.get('user_id'))
+    if not user:
+        return jsonify({'message': 'User not found.'}), 404
+
+    user.set_password(password)
+    db.session.commit()
+    return jsonify({'message': 'Password updated. You can now log in.'}), 200
 
 
 @auth_bp.route('/profile', methods=['GET'])

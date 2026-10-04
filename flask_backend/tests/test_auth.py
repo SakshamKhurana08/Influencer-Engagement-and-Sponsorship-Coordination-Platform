@@ -345,3 +345,109 @@ class TestEmailVerification:
         r = client.post('/api/auth/login', json={'email': 'approved@test.com', 'password': 'pass1234'})
         assert r.status_code == 200
         assert 'token' in r.get_json()
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# PASSWORD RESET (TASK-806)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TestPasswordReset:
+
+    def _register_and_approve(self, client, app, email='reset@test.com'):
+        """Register + verify + approve a user, return token for login."""
+        client.post('/api/auth/register', json={
+            'name': 'Reset User', 'email': email, 'password': 'oldpass1',
+            'role': 'sponsor', 'company': 'ResetCo', 'industry': 'Tech', 'budget': 1000,
+        })
+        with app.app_context():
+            from app import db
+            from sqlalchemy import text
+            from flask_jwt_extended import create_access_token
+            from app.models.user import User
+            db.session.execute(
+                text("UPDATE users SET status='active', email_verified=1 WHERE email=:e"),
+                {'e': email}
+            )
+            db.session.commit()
+            user = User.query.filter_by(email=email).first()
+            tok = create_access_token(identity=str(user.id),
+                                      additional_claims={'role': user.role, 'userId': user.id})
+        return tok
+
+    # ── forgot-password ──────────────────────────────────────────────────────
+
+    def test_forgot_password_always_returns_200(self, client):
+        r = client.post('/api/auth/forgot-password', json={'email': 'nobody@test.com'})
+        assert r.status_code == 200
+        assert 'reset link' in r.get_json()['message'].lower() or 'sent' in r.get_json()['message'].lower()
+
+    def test_forgot_password_same_response_for_existing_email(self, client, app):
+        self._register_and_approve(client, app, 'fp_exist@test.com')
+        r = client.post('/api/auth/forgot-password', json={'email': 'fp_exist@test.com'})
+        assert r.status_code == 200
+
+    def test_forgot_password_no_email_still_200(self, client):
+        r = client.post('/api/auth/forgot-password', json={})
+        assert r.status_code == 200
+
+    # ── reset-password ───────────────────────────────────────────────────────
+
+    def _make_reset_token(self, app, user_id):
+        with app.app_context():
+            from app.utils.email import make_token
+            return make_token({'user_id': user_id}, salt='pw-reset', expires_sec=900)
+
+    def _get_user_id(self, app, email):
+        with app.app_context():
+            from app.models.user import User
+            return User.query.filter_by(email=email).first().id
+
+    def test_reset_password_with_valid_token(self, client, app):
+        self._register_and_approve(client, app, 'rp_valid@test.com')
+        uid   = self._get_user_id(app, 'rp_valid@test.com')
+        token = self._make_reset_token(app, uid)
+        r = client.post('/api/auth/reset-password', json={'token': token, 'password': 'newpass1'})
+        assert r.status_code == 200
+        assert 'updated' in r.get_json()['message'].lower()
+
+    def test_reset_password_new_password_works_for_login(self, client, app):
+        self._register_and_approve(client, app, 'rp_login@test.com')
+        uid   = self._get_user_id(app, 'rp_login@test.com')
+        token = self._make_reset_token(app, uid)
+        client.post('/api/auth/reset-password', json={'token': token, 'password': 'brandnew1'})
+        r = client.post('/api/auth/login', json={'email': 'rp_login@test.com', 'password': 'brandnew1'})
+        assert r.status_code == 200
+        assert 'token' in r.get_json()
+
+    def test_reset_password_old_password_no_longer_works(self, client, app):
+        self._register_and_approve(client, app, 'rp_old@test.com')
+        uid   = self._get_user_id(app, 'rp_old@test.com')
+        token = self._make_reset_token(app, uid)
+        client.post('/api/auth/reset-password', json={'token': token, 'password': 'newpass1'})
+        r = client.post('/api/auth/login', json={'email': 'rp_old@test.com', 'password': 'oldpass1'})
+        assert r.status_code == 400
+
+    def test_reset_password_with_tampered_token_returns_400(self, client):
+        r = client.post('/api/auth/reset-password', json={'token': 'bad.token.here', 'password': 'newpass1'})
+        assert r.status_code == 400
+
+    def test_reset_password_with_wrong_salt_token_returns_400(self, client, app):
+        self._register_and_approve(client, app, 'rp_salt@test.com')
+        uid = self._get_user_id(app, 'rp_salt@test.com')
+        with app.app_context():
+            from app.utils.email import make_token
+            # sign with wrong salt — verify_token with pw-reset salt should fail
+            token = make_token({'user_id': uid}, salt='email-verify', expires_sec=900)
+        r = client.post('/api/auth/reset-password', json={'token': token, 'password': 'newpass1'})
+        assert r.status_code == 400
+
+    def test_reset_password_too_short_returns_422(self, client, app):
+        self._register_and_approve(client, app, 'rp_short@test.com')
+        uid   = self._get_user_id(app, 'rp_short@test.com')
+        token = self._make_reset_token(app, uid)
+        r = client.post('/api/auth/reset-password', json={'token': token, 'password': 'abc'})
+        assert r.status_code == 422
+
+    def test_reset_password_missing_fields_returns_400(self, client):
+        r = client.post('/api/auth/reset-password', json={})
+        assert r.status_code == 400
