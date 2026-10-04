@@ -65,6 +65,21 @@ class BaseConfig:
     # ── Rate limiting (Flask-Limiter) ─────────────────────────────────────────
     RATELIMIT_STORAGE_URL = os.environ.get('RATELIMIT_STORAGE_URL', 'memory://')
 
+    # ── Flask-Mail ────────────────────────────────────────────────────────────
+    # Use Gmail SMTP: set MAIL_USERNAME to your Gmail address and
+    # MAIL_PASSWORD to a Gmail App Password (not your account password).
+    # Generate one at: https://myaccount.google.com/apppasswords
+    MAIL_SERVER        = os.environ.get('MAIL_SERVER',        'smtp.gmail.com')
+    MAIL_PORT          = int(os.environ.get('MAIL_PORT',      '587'))
+    MAIL_USE_TLS       = os.environ.get('MAIL_USE_TLS',       'true').lower() == 'true'
+    MAIL_USERNAME      = os.environ.get('MAIL_USERNAME',      '')
+    MAIL_PASSWORD      = os.environ.get('MAIL_PASSWORD',      '')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'noreply@cofluence.dev')
+    MAIL_SUPPRESS_SEND = False  # overridden to True in TestingConfig
+
+    # ── Frontend URL (used in email links) ────────────────────────────────────
+    FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:5173')
+
     # ── Admin seed ────────────────────────────────────────────────────────────
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'admin@insync.dev')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'Admin@1234')
@@ -91,6 +106,8 @@ class TestingConfig(BaseConfig):
     JWT_ACCESS_TOKEN_EXPIRES = 60
     # Disable rate limiting in tests so repeated auth calls don't get blocked
     RATELIMIT_ENABLED = False
+    # Suppress all email sends in tests — no real emails fire
+    MAIL_SUPPRESS_SEND = True
 
 
 _ENV_MAP = {

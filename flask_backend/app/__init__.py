@@ -12,6 +12,7 @@ from flask_executor import Executor
 from flask_caching import Cache
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_mail import Mail
 
 # ── Extension singletons ─────────────────────────────────────────────────────
 db = SQLAlchemy()
@@ -20,6 +21,7 @@ jwt = JWTManager()
 executor = Executor()
 cache = Cache()
 limiter = Limiter(key_func=get_remote_address, default_limits=[])
+mail = Mail()
 
 
 def create_app(config_object=None):
@@ -54,6 +56,7 @@ def create_app(config_object=None):
     executor.init_app(app)
     cache.init_app(app)
     limiter.init_app(app)
+    mail.init_app(app)
 
     # ── CORS — restrict to configured origin in production ────────────────────
     allowed_origins = app.config.get('CORS_ORIGINS', '*')
@@ -93,4 +96,4 @@ def create_app(config_object=None):
 
 
 # ── Export limiter so routes can import it ────────────────────────────────────
-__all__ = ['db', 'migrate', 'jwt', 'executor', 'cache', 'limiter', 'create_app']
+__all__ = ['db', 'migrate', 'jwt', 'executor', 'cache', 'limiter', 'mail', 'create_app']
