@@ -13,6 +13,7 @@ export default function LoginForm() {
   const [showPw, setShowPw]     = useState(false);
   const [message, setMessage]   = useState('');
   const [isError, setIsError]   = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [loading, setLoading]   = useState(false);
   const navigate = useNavigate();
 
@@ -34,8 +35,13 @@ export default function LoginForm() {
         else navigate('/');
       }, 900);
     } catch (err) {
-      setMessage(err.response?.data?.message || 'Login failed. Check your credentials.');
-      setIsError(true); setLoading(false);
+      if (err.response?.status === 403) {
+        setIsPending(true);
+      } else {
+        setMessage(err.response?.data?.message || 'Login failed. Check your credentials.');
+        setIsError(true);
+      }
+      setLoading(false);
     }
   };
 
@@ -77,13 +83,42 @@ export default function LoginForm() {
             </div>
           )}
 
+          {/* ── Pending Approval Panel ── */}
+          {isPending && (
+            <div style={{
+              background: 'linear-gradient(135deg, rgba(192,132,252,0.12), rgba(99,102,241,0.10))',
+              border: '1px solid rgba(192,132,252,0.30)',
+              borderRadius: 14,
+              padding: '20px 20px 16px',
+              marginBottom: 18,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(192,132,252,0.18)', border: '1px solid rgba(192,132,252,0.30)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Lock size={16} color="#C084FC" strokeWidth={1.75} />
+                </div>
+                <p className="fw-800 mb-0" style={{ color: 'var(--text-primary)', fontSize: '0.92rem' }}>
+                  Account Under Review
+                </p>
+              </div>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.82rem', lineHeight: 1.65, marginBottom: 12 }}>
+                Your registration is pending admin approval. You will be notified by email once your account is activated.
+                This usually takes 24–48 hours.
+              </p>
+              <button type="button" onClick={() => setIsPending(false)}
+                className="is-btn is-btn-ghost"
+                style={{ padding: '6px 14px', fontSize: '0.78rem' }}>
+                <ArrowLeft size={11} strokeWidth={1.75} /> Back to Login
+              </button>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} noValidate>
             {/* Email */}
             <div className="is-field" style={{ marginBottom:12 }}>
               <div className="position-relative">
                 <Mail size={14} strokeWidth={1.75} style={{ position:'absolute', left:13, top:'50%', transform:'translateY(-50%)', color:'var(--text-muted)', zIndex:2 }} />
                 <input type="email" className="is-input" placeholder=" " id="login-email"
-                  value={email} onChange={e => setEmail(e.target.value)} required
+                  value={email} onChange={e => { setEmail(e.target.value); setIsPending(false); }} required
                   style={{ paddingLeft:38, paddingTop:20, paddingBottom:6, height:50 }} />
                 <label htmlFor="login-email" style={{
                   position:'absolute', left:38, top:'50%', transform:'translateY(-50%)',
@@ -119,6 +154,10 @@ export default function LoginForm() {
             </button>
           </form>
 
+          <p className="text-center mb-0 mt-3" style={{ color:'var(--text-muted)', fontSize:'0.79rem' }}>
+            Forgot your password?{' '}
+            <Link to="/forgot-password" style={{ color:'#22D3EE', fontWeight:700, textDecoration:'none' }}>Reset it here</Link>
+          </p>
           <div className="is-divider" style={{ margin:'18px 0' }} />
           <p className="text-center mb-0" style={{ color:'var(--text-muted)', fontSize:'0.79rem' }}>
             Admin portal?{' '}

@@ -179,6 +179,52 @@ describe('LoginForm', () => {
     await waitFor(() => expect(btn).not.toBeDisabled());
   });
 
+  // ── Pending approval (TASK-705) ────────────────────────────────────────────
+
+  it('shows pending approval panel on 403 response', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.post).mockRejectedValueOnce({
+      response: { status: 403, data: { message: 'Your account is pending admin approval.' } },
+    });
+    renderLogin();
+    await user.type(document.querySelector('#login-email'), 'pending@t.com');
+    await user.type(document.querySelector('#login-pw'), 'pass1234');
+    await user.click(screen.getByRole('button', { name: /Sign In/i }));
+    await waitFor(() =>
+      expect(screen.getByText(/Account Under Review/i)).toBeInTheDocument()
+    );
+    expect(screen.getByText(/pending admin approval/i)).toBeInTheDocument();
+  });
+
+  it('does not navigate on 403', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.post).mockRejectedValueOnce({
+      response: { status: 403, data: { message: 'Pending.' } },
+    });
+    renderLogin();
+    await user.type(document.querySelector('#login-email'), 'pending@t.com');
+    await user.type(document.querySelector('#login-pw'), 'pass1234');
+    await user.click(screen.getByRole('button', { name: /Sign In/i }));
+    await waitFor(() => screen.getByText(/Account Under Review/i));
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
+  it('Back to Login resets the pending panel', async () => {
+    const user = userEvent.setup();
+    vi.mocked(api.post).mockRejectedValueOnce({
+      response: { status: 403, data: { message: 'Pending.' } },
+    });
+    renderLogin();
+    await user.type(document.querySelector('#login-email'), 'pending@t.com');
+    await user.type(document.querySelector('#login-pw'), 'pass1234');
+    await user.click(screen.getByRole('button', { name: /Sign In/i }));
+    await waitFor(() => screen.getByText(/Account Under Review/i));
+    fireEvent.click(screen.getByRole('button', { name: /Back to Login/i }));
+    await waitFor(() =>
+      expect(screen.queryByText(/Account Under Review/i)).not.toBeInTheDocument()
+    );
+  });
+
   // ── Password toggle ────────────────────────────────────────────────────────
 
   it('toggles password visibility', async () => {
